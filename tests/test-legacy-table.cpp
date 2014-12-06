@@ -19,33 +19,33 @@ static const TestKey key6 = {{0x16}, 1};
 TEST(LegacyTableLoader, Test)
 {
 	ht::Table table;
-	const std::u32string *value;
+	const ht::Table::Entry *entry;
 	int res;
 
 	res = htl::loadTable(TABLE_FILE, "UTF-8", &table);
 	ASSERT_EQ(res, 0);
 
-	value = table.findFromKey(key1.mValue, key1.mSize);
-	ASSERT_TRUE(value != NULL);
-	ASSERT_TRUE(*value == U"a");
+	entry = table.findFromKey(key1.mValue, key1.mSize);
+	ASSERT_TRUE(entry != NULL);
+	ASSERT_TRUE(entry->mValue == U"a");
 
-	value = table.findFromKey(key2.mValue, key2.mSize);
-	ASSERT_TRUE(value != NULL);
-	ASSERT_TRUE(*value == U"\n");
+	entry = table.findFromKey(key2.mValue, key2.mSize);
+	ASSERT_TRUE(entry != NULL);
+	ASSERT_TRUE(entry->mValue == U"\n");
 
-	value = table.findFromKey(key3.mValue, key3.mSize);
-	ASSERT_TRUE(value != NULL);
-	ASSERT_TRUE(*value == U"\nb");
+	entry = table.findFromKey(key3.mValue, key3.mSize);
+	ASSERT_TRUE(entry != NULL);
+	ASSERT_TRUE(entry->mValue == U"\nb");
 
-	value = table.findFromKey(key4.mValue, key4.mSize);
-	ASSERT_TRUE(value != NULL);
-	ASSERT_TRUE(*value == U"\nb\n");
+	entry = table.findFromKey(key4.mValue, key4.mSize);
+	ASSERT_TRUE(entry != NULL);
+	ASSERT_TRUE(entry->mValue == U"\nb\n");
 
-	value = table.findFromKey(key5.mValue, key5.mSize);
-	ASSERT_TRUE(value != NULL);
-	ASSERT_TRUE(*value == U"aa\\bbb");
+	entry = table.findFromKey(key5.mValue, key5.mSize);
+	ASSERT_TRUE(entry != NULL);
+	ASSERT_TRUE(entry->mValue == U"aa\\bbb");
 
-	value = table.findFromKey(key6.mValue, key6.mSize);
-	ASSERT_TRUE(value != NULL);
-	ASSERT_TRUE(*value == U"aaa\\");
+	entry = table.findFromKey(key6.mValue, key6.mSize);
+	ASSERT_TRUE(entry != NULL);
+	ASSERT_TRUE(entry->mValue == U"aaa\\");
 }

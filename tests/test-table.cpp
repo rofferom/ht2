@@ -14,8 +14,7 @@ static const TestKey key4 = {{0x12, 0x14}, 2};
 TEST(Table, Test)
 {
 	ht::Table t;
-	const ht::Table::Key *key;
-	const std::u32string *value;
+	const ht::Table::Entry *entry;
 	int res;
 
 	// Test insertion
@@ -38,23 +37,30 @@ TEST(Table, Test)
 	ASSERT_NE(res, 0);
 
 	// Test get
-	key = t.findFromValue(U"A");
-	ASSERT_TRUE(key != NULL);
+	entry = t.findFromValue(U"A");
+	ASSERT_TRUE(entry != NULL);
+	ASSERT_EQ(entry->mKey.mSize, key1.mSize);
+	ASSERT_EQ(memcmp(entry->mKey.mValue, key1.mValue, key1.mSize), 0);
 
-	key = t.findFromValue(U"Z");
-	ASSERT_TRUE(key == NULL);
+	entry = t.findFromValue(U"Z");
+	ASSERT_TRUE(entry == NULL);
 
-	key = t.findFromValue(U"CCCCC");
-	ASSERT_TRUE(key != NULL);
+	entry = t.findFromValue(U"CCCCC");
+	ASSERT_TRUE(entry != NULL);
+	ASSERT_EQ(entry->mKey.mSize, key3.mSize);
+	ASSERT_EQ(memcmp(entry->mKey.mValue, key3.mValue, key3.mSize), 0);
 
-	value = t.findFromKey(key1.mValue, key1.mSize);
-	ASSERT_TRUE(value != NULL);
-	ASSERT_TRUE(*value == U"A");
+	entry = t.findFromKey(key1.mValue, key1.mSize);
+	ASSERT_TRUE(entry != NULL);
+	ASSERT_TRUE(entry->mValue == U"A");
 
-	value = t.findFromKey(key3.mValue, key3.mSize);
-	ASSERT_TRUE(value != NULL);
-	ASSERT_TRUE(*value == U"CCCCC");
+	entry = t.findFromKey(key3.mValue, key3.mSize);
+	ASSERT_TRUE(entry != NULL);
+	ASSERT_TRUE(entry->mValue == U"CCCCC");
 
-	value = t.findFromKey(key4.mValue, key4.mSize);
-	ASSERT_TRUE(value == NULL);
+	entry = t.findFromKey(key4.mValue, key4.mSize);
+	ASSERT_TRUE(entry == NULL);
+
+	// Test max value size
+	ASSERT_EQ(t.getMaxValueSize(), 5);
 }

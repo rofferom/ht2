@@ -67,4 +67,29 @@ error:
 	return res;
 }
 
+int dumpToFile(const char *path, const uint8_t *buffer, size_t size)
+{
+	FILE *f = NULL;
+	int res;
+
+	f = fopen(path, "wb");
+	if (f == NULL) {
+		res = -EINVAL;
+		goto error;
+	}
+
+	fwrite(buffer, 1, size, f);
+
+	fclose(f);
+
+	return 0;
+
+error:
+	if (f != NULL) {
+		fclose(f);
+	}
+
+	return res;
+}
+
 } // ht

@@ -16,6 +16,7 @@ LOCAL_SRC_FILES := \
 	src/Log.cpp \
 	src/Table.cpp \
 	src/TableParser.cpp \
+	src/Text.cpp \
 	src/TextFile.cpp \
 	src/Utils.cpp \
 	src/crypto/int64.c \

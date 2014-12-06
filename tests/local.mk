@@ -25,6 +25,7 @@ LOCAL_SRC_FILES := \
 	test-main.cpp \
 	test-table.cpp \
 	test-tableparser.cpp \
+	test-text.cpp \
 	test-textfile.cpp \
 
 LOCAL_STATIC_LIBRARIES := \

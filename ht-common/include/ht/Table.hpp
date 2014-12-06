@@ -55,14 +55,18 @@ private:
 	std::map<Key *, Entry *, KeyPtrComparator> mEntryByKey;
 	std::map<std::u32string, Entry *> mEntryByValue;
 
+	size_t mMaxValueSize;
+
 public:
 	Table();
 	virtual ~Table();
 
 	int addEntry(const uint8_t *key, size_t keySize, const std::u32string &value);
 
-	const Key *findFromValue(const std::u32string &value) const;
-	const std::u32string *findFromKey(const uint8_t *key, size_t keySize) const;
+	size_t getMaxValueSize() const;
+
+	const Entry *findFromValue(const std::u32string &value) const;
+	const Entry *findFromKey(const uint8_t *key, size_t keySize) const;
 };
 
 } // ht

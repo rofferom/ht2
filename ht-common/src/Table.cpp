@@ -5,7 +5,7 @@ namespace ht {
 
 Table::Table()
 {
-
+	mMaxValueSize = 0;
 }
 
 Table::~Table()
@@ -43,19 +43,28 @@ int Table::addEntry(const uint8_t *key, size_t keySize, const std::u32string &va
 	mEntryByKey.insert(std::make_pair(&newEntry->mKey, newEntry));
 	mEntryByValue.insert(std::make_pair(value, newEntry));
 
+	if (value.size() > mMaxValueSize) {
+		mMaxValueSize = value.size();
+	}
+
 	return 0;
 
 error:
 	return res;
 }
 
-const Table::Key *Table::findFromValue(const std::u32string &value) const
+size_t Table::getMaxValueSize() const
 {
-	const Key *res;
+	return mMaxValueSize;
+}
+
+const Table::Entry *Table::findFromValue(const std::u32string &value) const
+{
+	const Entry *res;
 
 	auto i = mEntryByValue.find(value);
 	if (i != mEntryByValue.end()) {
-		res = (const Key *) i->second;
+		res = (const Entry *) i->second;
 	} else {
 		res = NULL;
 	}
@@ -63,14 +72,14 @@ const Table::Key *Table::findFromValue(const std::u32string &value) const
 	return res;
 }
 
-const std::u32string *Table::findFromKey(const uint8_t *key, size_t keySize) const
+const Table::Entry *Table::findFromKey(const uint8_t *key, size_t keySize) const
 {
 	Key inputKey { const_cast<uint8_t *>(key), keySize };
-	const std::u32string *res;
+	const Entry *res;
 
 	auto i = mEntryByKey.find(&inputKey);
 	if (i != mEntryByKey.end()) {
-		res = (const std::u32string *) &i->second->mValue;
+		res = (const Entry *) i->second;
 	} else {
 		res = NULL;
 	}
