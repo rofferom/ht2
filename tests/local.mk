@@ -21,6 +21,7 @@ LOCAL_MODULE := ht-test
 LOCAL_CFLAGS := -std=c++11
 
 LOCAL_SRC_FILES := \
+	test-legacy-table.cpp \
 	test-main.cpp \
 	test-table.cpp \
 	test-tableparser.cpp \
@@ -31,6 +32,7 @@ LOCAL_STATIC_LIBRARIES := \
 
 LOCAL_SHARED_LIBRARIES := \
 	ht-common \
+	ht-legacy \
 
 include $(BUILD_EXECUTABLE)
 
