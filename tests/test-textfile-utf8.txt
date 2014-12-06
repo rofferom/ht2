@@ -1,0 +1,3 @@
+UTF-8 test file &àçéÂ
+
+Also test multiple lignes to check Carriage Return drop
