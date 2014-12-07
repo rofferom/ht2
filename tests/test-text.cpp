@@ -93,3 +93,94 @@ TEST(Text, Encode)
 
 	free(rawText);
 }
+
+TEST(Text, Decode)
+{
+	ht::Table table;
+	ht::Text text;
+	std::vector<ht::Text::Pointer *> pointerList;
+	int res;
+
+	// Fill table
+	res = table.addEntry(key1.mValue, key1.mSize, U"A");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key2.mValue, key2.mSize, U"B");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key3.mValue, key3.mSize, U"C");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key4.mValue, key4.mSize, U"D");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key5.mValue, key5.mSize, U"É");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key6.mValue, key6.mSize, U"[TestBlock1]");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key7.mValue, key7.mSize, U"[TestBlock2]");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key8.mValue, key8.mSize, U"[TestBlock3]");
+	ASSERT_EQ(res, 0);
+
+	// Fill pointer table
+	pointerList.push_back(new ht::Text::Pointer{1, 0, 0});
+	pointerList.push_back(new ht::Text::Pointer{2, 12, 0});
+	pointerList.push_back(new ht::Text::Pointer{3, 12, 0});
+	pointerList.push_back(new ht::Text::Pointer{4, 12, 0});
+
+	// Try to decode text
+	res = text.decode(encodedValue, HT_SIZEOF_ARRAY(encodedValue), table, pointerList);
+	ASSERT_EQ(res, 0);
+	ASSERT_EQ(text.getBlockCount(), 2);
+
+	// Test block 0
+	ASSERT_EQ(text.getBlock(0)->mPointerList.size(), 1);
+	auto pointerIt = text.getBlock(0)->mPointerList.begin();
+	ASSERT_EQ((*pointerIt)->mId, 1);
+
+	ASSERT_EQ(text.getBlock(0)->mElementList.size(), 4);
+
+	auto elementIt = text.getBlock(0)->mElementList.begin();
+	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::Text);
+	ASSERT_TRUE((*elementIt)->mTextContent == U"AAÉDC");
+
+	elementIt++;
+	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::RawByte);
+	ASSERT_EQ((*elementIt)->mRawByte, 0x43);
+
+	elementIt++;
+	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::Text);
+	ASSERT_TRUE((*elementIt)->mTextContent == U"ÉDCBA");
+
+	elementIt++;
+	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::RawByte);
+	ASSERT_EQ((*elementIt)->mRawByte, 0x44);
+
+	// Test block 1
+	ASSERT_EQ(text.getBlock(1)->mPointerList.size(), 3);
+	pointerIt = text.getBlock(1)->mPointerList.begin();
+	ASSERT_EQ((*pointerIt)->mId, 2);
+	pointerIt++;
+	ASSERT_EQ((*pointerIt)->mId, 3);
+	pointerIt++;
+	ASSERT_EQ((*pointerIt)->mId, 4);
+
+	ASSERT_EQ(text.getBlock(1)->mElementList.size(), 5);
+
+	elementIt = text.getBlock(1)->mElementList.begin();
+	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::Text);
+	ASSERT_TRUE((*elementIt)->mTextContent == U"AA[TestBlock1]AA");
+
+	elementIt++;
+	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::RawByte);
+	ASSERT_EQ((*elementIt)->mRawByte, 0x43);
+
+	elementIt++;
+	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::RawByte);
+	ASSERT_EQ((*elementIt)->mRawByte, 0x44);
+
+	elementIt++;
+	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::RawByte);
+	ASSERT_EQ((*elementIt)->mRawByte, 0x45);
+
+	elementIt++;
+	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::Text);
+	ASSERT_TRUE((*elementIt)->mTextContent == U"BB[TestBlock2]CC");
+}

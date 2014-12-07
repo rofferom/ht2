@@ -55,6 +55,7 @@ private:
 	std::map<Key *, Entry *, KeyPtrComparator> mEntryByKey;
 	std::map<std::u32string, Entry *> mEntryByValue;
 
+	size_t mMaxKeySize;
 	size_t mMaxValueSize;
 
 public:
@@ -63,6 +64,7 @@ public:
 
 	int addEntry(const uint8_t *key, size_t keySize, const std::u32string &value);
 
+	size_t getMaxKeySize() const;
 	size_t getMaxValueSize() const;
 
 	const Entry *findFromValue(const std::u32string &value) const;

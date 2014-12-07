@@ -61,6 +61,7 @@ TEST(Table, Test)
 	entry = t.findFromKey(key4.mValue, key4.mSize);
 	ASSERT_TRUE(entry == NULL);
 
-	// Test max value size
+	// Test max sizes
+	ASSERT_EQ(t.getMaxKeySize(), 2);
 	ASSERT_EQ(t.getMaxValueSize(), 5);
 }

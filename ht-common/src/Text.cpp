@@ -141,6 +141,90 @@ int encodeBlock(
 	}
 }
 
+int extractMatchingPointers(
+	uint32_t offset,
+	size_t start,
+	const std::vector<ht::Text::Pointer *> &src,
+	std::list<ht::Text::Pointer *> *dest)
+{
+	size_t srcSize = src.size();
+	int res = 0;
+
+	for (size_t i = start ; i < srcSize ; i++) {
+		if (src[i]->mOffset == offset) {
+			dest->push_back(src[i]);
+			res++;
+		} else {
+			break;
+		}
+	}
+
+	return res;
+}
+
+int decodeBuffer(
+	const uint8_t *rawText,
+	size_t rawTextSize,
+	const ht::Table &table,
+	ht::Text::Block *block)
+{
+	size_t maxKeySize = table.getMaxKeySize();
+	size_t searchSize;
+	ht::Text::BlockElement *currentElement = NULL;
+	const ht::Table::Entry *entry;
+	int res;
+
+	res = 0;
+	searchSize = std::min(maxKeySize, rawTextSize);
+
+	while (rawTextSize > 0) {
+		entry = table.findFromKey(rawText, searchSize);
+
+		if ((entry == NULL) && (searchSize == 1)) {
+			ht::Text::BlockElement *rawByteElement;
+
+			rawByteElement = new ht::Text::BlockElement {
+				ht::Text::BlockElement::Type::RawByte, U"", rawText[0] };
+			if (rawByteElement == NULL) {
+				res = -ENOMEM;
+				break;
+			}
+
+			ht::Log::d(TAG, "Unknown byte %02X", rawByteElement->mRawByte);
+			currentElement = NULL;
+			block->mElementList.push_back(rawByteElement);
+
+			rawText++;
+			rawTextSize--;
+
+			searchSize = std::min(maxKeySize, rawTextSize);
+		} else if (entry == NULL) {
+			searchSize--;
+		} else {
+			if (currentElement == NULL) {
+				currentElement = new ht::Text::BlockElement {
+					ht::Text::BlockElement::Type::Text, U"", 0 };
+				if (currentElement == NULL) {
+					res = -ENOMEM;
+					break;
+				}
+
+				ht::Log::d(TAG, "New BlockElement of type Text");
+				block->mElementList.push_back(currentElement);
+			}
+
+			currentElement->mTextContent.append(entry->mValue);
+
+			rawText += entry->mKey.mSize;
+			rawTextSize -= entry->mKey.mSize;
+
+			searchSize = std::min(maxKeySize, rawTextSize);
+		}
+	}
+
+	return res;
+}
+
 }
 
 namespace ht {
@@ -167,6 +251,7 @@ Text::~Text()
 int Text::addBlock(Block *block)
 {
 	mBlockList.push_back(block);
+
 	return 0;
 }
 
@@ -234,9 +319,68 @@ int Text::decode(
 	const uint8_t *rawText,
 	size_t rawTextSize,
 	const Table &table,
-	const std::list<Pointer *> &pointerList)
+	const std::vector<Pointer *> &inPointerList)
 {
-	return 0;
+	std::vector<Pointer *> pointerList;
+	size_t pointerCount;
+	size_t nextPointer;
+	uint32_t textToExtractStart;
+	size_t textToExtractSize;
+	int foundPointerCount;
+	int res;
+
+	pointerList = inPointerList;
+	std::sort(
+		pointerList.begin(), pointerList.end(),
+		[](const Pointer *x, const Pointer *y) {
+			return (x->mOffset < y->mOffset); }
+	);
+
+	res = 0;
+	pointerCount = pointerList.size();
+	for (size_t i = 0 ; i < pointerCount ;) {
+		Block *block = new Block();
+		if (block == NULL) {
+			res = -ENOMEM;
+			break;
+		}
+
+		textToExtractStart = pointerList[i]->mOffset;
+
+		// Find matching pointers
+		foundPointerCount = extractMatchingPointers(
+			textToExtractStart,
+			i,
+			pointerList,
+			&block->mPointerList);
+
+		// Find size of rawText to extract for this block
+		nextPointer = i + foundPointerCount;
+		if (nextPointer == pointerCount) {
+			// End of text
+			textToExtractSize = rawTextSize - textToExtractStart;
+		} else {
+			// Text followed by another block
+			textToExtractSize = pointerList[nextPointer]->mOffset - textToExtractStart;
+		}
+
+		ht::Log::d(TAG,
+			"Found %d pointers for a block of size %d start at offset %d",
+			foundPointerCount,
+			textToExtractSize,
+			textToExtractStart);
+
+		// Decode buffer
+		res = decodeBuffer(rawText + textToExtractStart, textToExtractSize, table, block);
+		if (res < 0) {
+			break;
+		}
+
+		mBlockList.push_back(block);
+		i = nextPointer;
+	}
+
+	return res;
 }
 
 } // namespace ht

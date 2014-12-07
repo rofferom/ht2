@@ -5,6 +5,7 @@ namespace ht {
 
 Table::Table()
 {
+	mMaxKeySize = 0;
 	mMaxValueSize = 0;
 }
 
@@ -43,6 +44,10 @@ int Table::addEntry(const uint8_t *key, size_t keySize, const std::u32string &va
 	mEntryByKey.insert(std::make_pair(&newEntry->mKey, newEntry));
 	mEntryByValue.insert(std::make_pair(value, newEntry));
 
+	if (keySize > mMaxKeySize) {
+		mMaxKeySize = keySize;
+	}
+
 	if (value.size() > mMaxValueSize) {
 		mMaxValueSize = value.size();
 	}
@@ -51,6 +56,11 @@ int Table::addEntry(const uint8_t *key, size_t keySize, const std::u32string &va
 
 error:
 	return res;
+}
+
+size_t Table::getMaxKeySize() const
+{
+	return mMaxKeySize;
 }
 
 size_t Table::getMaxValueSize() const

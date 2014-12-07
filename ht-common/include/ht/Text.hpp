@@ -55,7 +55,7 @@ public:
 		const uint8_t *rawText,
 		size_t rawTextSize,
 		const Table &table,
-		const std::list<Pointer *> &pointerList);
+		const std::vector<Pointer *> &pointerList);
 };
 
 } // ht
