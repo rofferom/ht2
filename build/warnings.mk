@@ -25,7 +25,6 @@ COMMON_FLAGS_WARNINGS += -Wall
 COMMON_FLAGS_WARNINGS += -Wextra
 COMMON_FLAGS_WARNINGS += -Wno-unused -Wno-unused-parameter -Wunused-value -Wunused-variable -Wunused-label
 COMMON_FLAGS_WARNINGS += -Wshadow
-COMMON_FLAGS_WARNINGS += -Wswitch-default
 COMMON_FLAGS_WARNINGS += -Wwrite-strings
 COMMON_FLAGS_WARNINGS += -Wundef
 COMMON_FLAGS_WARNINGS += -Wpointer-arith
