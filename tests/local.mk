@@ -22,6 +22,7 @@ LOCAL_CFLAGS := -std=c++11
 
 LOCAL_SRC_FILES := \
 	test-legacy-table.cpp \
+	test-libstr32.cpp \
 	test-main.cpp \
 	test-table.cpp \
 	test-tableparser.cpp \
@@ -34,6 +35,6 @@ LOCAL_STATIC_LIBRARIES := \
 LOCAL_SHARED_LIBRARIES := \
 	ht-common \
 	ht-legacy \
+	libstr32 \
 
 include $(BUILD_EXECUTABLE)
-
