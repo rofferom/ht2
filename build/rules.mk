@@ -85,6 +85,10 @@ built_shared_libraries := \
 	$(foreach lib,$(LOCAL_SHARED_LIBRARIES), \
 		$(TARGET_OUT_BUILD)/$(lib)/$(lib)$(shared_suffix))
 
+target_shared_libraries := \
+	$(foreach lib,$(LOCAL_SHARED_LIBRARIES), \
+		$(TARGET_OUT_FINAL)/$(lib)$(shared_suffix))
+
 built_static_libraries := \
 	$(foreach lib,$(LOCAL_STATIC_LIBRARIES), \
 		$(TARGET_OUT_BUILD)/$(lib)/$(lib)$(TARGET_STATIC_LIB_SUFFIX))
@@ -169,7 +173,7 @@ endif
 ###############################################################################
 
 # Final copy (not for static libraries)
-$(LOCAL_FINAL_MODULE): $(LOCAL_BUILT_MODULE)
+$(LOCAL_FINAL_MODULE): $(LOCAL_BUILT_MODULE) $(target_shared_libraries)
 ifeq ("$(LOCAL_BUILDING_STATIC_LIBRARY)","")
 	@echo "Copy: $@"
 	$(copy-file-to-target)
