@@ -34,6 +34,13 @@ STATIC := 0
 USE_CLANG := 0
 USE_CCACHE := 0
 
+# Directories
+TOP_DIR := .
+BUILD_SYSTEM := $(TOP_DIR)/build
+
+# Detect OS
+include $(BUILD_SYSTEM)/os.mk
+
 # Tools
 ifneq ("$(USE_CLANG)","1")
 
@@ -43,6 +50,13 @@ TARGET_CXX ?= $(TARGET_CROSS)g++
 TARGET_AR ?= $(TARGET_CROSS)ar
 TARGET_LD ?= $(TARGET_CROSS)ld
 TARGET_STRIP ?= $(TARGET_CROSS)strip
+
+ifneq ("$(TARGET_OS)","MACOSX")
+    TARGET_STRIP_SHARED ?= $(TARGET_STRIP)
+else
+    TARGET_STRIP_SHARED ?= $(TARGET_STRIP) -x
+endif
+
 TARGET_WINDRES ?= $(TARGET_CROSS)windres
 
 HOST_CC := gcc
@@ -50,6 +64,12 @@ HOST_CXX := g++
 HOST_AR := ar
 HOST_LD := ld
 HOST_STRIP := strip
+
+ifneq ("$(TARGET_OS)","MACOSX")
+    HOST_STRIP_SHARED := $(HOST_STRIP)
+else
+    HOST_STRIP_SHARED := $(HOST_STRIP) -x
+endif
 
 else
 
@@ -60,11 +80,18 @@ TARGET_AR := ar
 TARGET_LD := llvm-ld
 TARGET_STRIP := strip
 
+ifneq ("$(TARGET_OS)","MACOSX")
+    TARGET_STRIP_SHARED := $(TARGET_STRIP)
+else
+    TARGET_STRIP_SHARED := $(TARGET_STRIP) -x
+endif
+
 HOST_CC := $(TARGET_CC)
 HOST_CXX := $(TARGET_CXX)
 HOST_AR := $(TARGET_AR)
 HOST_LD := $(TARGET_LD)
 HOST_STRIP := $(TARGET_STRIP)
+HOST_STRIP_SHARED := $(TARGET_STRIP_SHARED)
 
 endif
 
@@ -72,10 +99,6 @@ endif
 ifeq ("$(V)","0")
   Q := @
 endif
-
-# Directories
-TOP_DIR := .
-BUILD_SYSTEM := $(TOP_DIR)/build
 
 # This is the default target.  It must be the first declared target.
 all:
@@ -86,15 +109,22 @@ TARGET_GLOBAL_CFLAGS := -fno-exceptions -fstrict-aliasing
 TARGET_GLOBAL_CPPFLAGS :=
 TARGET_GLOBAL_RCFLAGS :=
 TARGET_GLOBAL_ARFLAGS := rcs
-TARGET_GLOBAL_LDFLAGS := -Wl,--gc-sections -Wl,--warn-common -Wl,--warn-constructors
-TARGET_GLOBAL_LDLIBS :=
+TARGET_GLOBAL_LDFLAGS ?=
+TARGET_GLOBAL_LDLIBS ?=
 ALL_MODULES :=
+
+# Some flags are not available on all systems
+ifneq ("$(TARGET_OS)","MACOSX")
+    TARGET_GLOBAL_LDFLAGS += -Wl,--gc-sections -Wl,--warn-common -Wl,--warn-constructors
+endif
 
 # To be able to load automatically .so libraries located in the same
 # folder than the application, we need to add $ORIGIN to DT_RPATH
 # '\' is to escape the '$' in the shell command
 # '$$' is to escape the '$' in the makefile
-TARGET_GLOBAL_LDFLAGS_RPATH += -Wl,-rpath,\$$ORIGIN
+ifneq ("$(TARGET_OS)","MACOSX")
+    TARGET_GLOBAL_LDFLAGS_RPATH += -Wl,-rpath,\$$ORIGIN
+endif
 
 ###############################################################################
 ###############################################################################

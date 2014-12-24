@@ -174,12 +174,19 @@ endif
 
 # Final copy (not for static libraries)
 $(LOCAL_FINAL_MODULE): $(LOCAL_BUILT_MODULE) $(target_shared_libraries)
-ifeq ("$(LOCAL_BUILDING_STATIC_LIBRARY)","")
+ifeq ("$(LOCAL_BUILDING_EXECUTABLE)","1")
 	@echo "Copy: $@"
 	$(copy-file-to-target)
 ifeq ("$(DEBUG)","0")
 	@echo "Strip: $@"
 	$(Q)$(TARGET_STRIP) $@
+endif
+else ifeq ("$(LOCAL_BUILDING_SHARED_LIBRARY)","1")
+	@echo "Copy: $@"
+	$(copy-file-to-target)
+ifeq ("$(DEBUG)","0")
+	@echo "Strip: $@"
+	$(Q)$(TARGET_STRIP_SHARED) $@
 endif
 endif
 

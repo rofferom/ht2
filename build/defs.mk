@@ -352,6 +352,8 @@ endef
 ## Commands to link a shared library.
 ###############################################################################
 
+ifneq ("$(TARGET_OS)","MACOSX")
+
 define transform-o-to-shared-lib
 @mkdir -p $(dir $@)
 @echo "SharedLib: $(PRIVATE_MODULE) ($@)"
@@ -375,9 +377,31 @@ $(Q)$(TARGET_CXX) \
 	$(TARGET_GLOBAL_LDLIBS)
 endef
 
-###############################################################################
+else
+
+define transform-o-to-shared-lib
+@mkdir -p $(dir $@)
+@echo "SharedLib: $(PRIVATE_MODULE) ($@)"
+$(Q)$(TARGET_CXX) \
+	$(TARGET_GLOBAL_LDFLAGS) \
+	-shared \
+	-install_name @rpath/$(notdir $@) \
+	$(PRIVATE_LDFLAGS) \
+	$(PRIVATE_ALL_OBJECTS) \
+	$(PRIVATE_ALL_STATIC_LIBRARIES) \
+	$(PRIVATE_ALL_SHARED_LIBRARIES) \
+	-o $@ \
+	$(PRIVATE_LDLIBS) \
+	$(TARGET_GLOBAL_LDLIBS)
+endef
+
+endif
+
+########################################################################
 ## Commands to link an executable.
 ###############################################################################
+
+ifneq ("$(TARGET_OS)","MACOSX")
 
 define transform-o-to-executable
 @mkdir -p $(dir $@)
@@ -398,6 +422,26 @@ $(Q)$(TARGET_CXX) \
 	$(PRIVATE_LDLIBS) \
 	$(TARGET_GLOBAL_LDLIBS)
 endef
+
+else
+
+define transform-o-to-executable
+@mkdir -p $(dir $@)
+@echo "Executable: $(PRIVATE_MODULE) ($@)"
+$(Q)$(TARGET_CXX) \
+	$(TARGET_GLOBAL_LDFLAGS) \
+	-Wl,-rpath,. \
+	$(PRIVATE_LDFLAGS) \
+	$(PRIVATE_ALL_OBJECTS) \
+	$(PRIVATE_ALL_WHOLE_STATIC_LIBRARIES) \
+	$(PRIVATE_ALL_STATIC_LIBRARIES) \
+	$(PRIVATE_ALL_SHARED_LIBRARIES) \
+	-o $@ \
+	$(PRIVATE_LDLIBS) \
+	$(TARGET_GLOBAL_LDLIBS)
+endef
+
+endif
 
 ###############################################################################
 ## Commands to generate resource list

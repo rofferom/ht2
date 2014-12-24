@@ -18,12 +18,13 @@ endif
 ###############################################################################
 
 # Host OS
-ifneq ("$(shell echo $$OSTYPE | grep msys)","")
-  HOST_OS := MINGW32
+ifneq ("$(HOST_OS)","MINGW32")
   HOST_EXE_SUFFIX := .exe
   HOST_SHARED_LIB_SUFFIX := .dll
+else ifneq ("$(HOST_OS)","MACOSX")
+  HOST_EXE_SUFFIX :=
+  HOST_SHARED_LIB_SUFFIX := .dylib
 else
-  HOST_OS := LINUX
   HOST_EXE_SUFFIX :=
   HOST_SHARED_LIB_SUFFIX := .so
 endif
@@ -38,6 +39,9 @@ TARGET_STATIC_LIB_SUFFIX := .a
 ifeq ("$(TARGET_OS)","MINGW32")
   TARGET_EXE_SUFFIX := .exe
   TARGET_SHARED_LIB_SUFFIX := .dll
+else ifeq ("$(TARGET_OS)","MACOSX")
+  TARGET_EXE_SUFFIX :=
+  TARGET_SHARED_LIB_SUFFIX := .dylib
 else
   TARGET_EXE_SUFFIX :=
   TARGET_SHARED_LIB_SUFFIX := .so
