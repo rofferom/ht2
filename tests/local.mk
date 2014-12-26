@@ -21,6 +21,7 @@ LOCAL_MODULE := ht-test
 LOCAL_CFLAGS := -std=c++11
 
 LOCAL_SRC_FILES := \
+	test-charsetconverter.cpp \
 	test-legacy-table.cpp \
 	test-libstr32.cpp \
 	test-main.cpp \
