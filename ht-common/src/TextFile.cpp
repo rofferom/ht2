@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <iconv.h>
 #include <ht/Log.hpp>
+#include <ht/CharsetConverter.hpp>
 #include <ht/Utils.hpp>
 #include <ht/TextFile.hpp>
 
@@ -34,6 +34,35 @@ size_t removeCr(char *content, size_t size)
 	return res;
 }
 
+struct FileConverter {
+	uint8_t *buffer;
+	size_t size;
+	size_t usedSize;
+};
+
+int inputConvertedData(const void *buff, size_t size, void *userdata)
+{
+	FileConverter *fileConverter = (FileConverter *) userdata;
+
+	if (fileConverter->size - fileConverter->usedSize < size) {
+		if (ALLOCATION_STEP < size) {
+			fileConverter->size += size;
+		} else {
+			fileConverter->size += ALLOCATION_STEP;
+		}
+
+		fileConverter->buffer = (uint8_t *) realloc(fileConverter->buffer, fileConverter->size);
+		if (fileConverter->buffer == NULL) {
+			return -ENOMEM;
+		}
+	}
+
+	memcpy(fileConverter->buffer + fileConverter->usedSize, buff, size);
+	fileConverter->usedSize += size;
+
+	return 0;
+}
+
 int convertToUnicode(
 	const char *encoding,
 	char *rawContent,
@@ -41,80 +70,43 @@ int convertToUnicode(
 	char32_t **outContent,
 	size_t *outContentSize)
 {
-	iconv_t cd = (iconv_t) -1;
-	char *convertedContent = NULL;
-	size_t convertedContentSize;
-	size_t convertedContentRemainingSize;
-	size_t rawContentRemainingSize;
-	size_t iconvRes;
-	char *rawContentPos;
-	char *convertedContentPos;
+	struct ht::CharsetConverter *converter;
+	struct ht::CharsetConverterCb cb;
+	FileConverter fileConverter;
 	int res;
 
-	if (encoding == NULL || rawContent == NULL || outContent == NULL || outContentSize == NULL) {
-		return -EINVAL;
+	fileConverter.buffer = NULL;
+	fileConverter.size = 0;
+	fileConverter.usedSize = 0;
+
+	cb.output = inputConvertedData;
+	cb.userdata = &fileConverter;
+
+	converter = ht::charsetConverterCreate();
+	if (converter == NULL) {
+		return -ENOMEM;
 	}
 
-	cd = iconv_open("UTF-32LE", encoding);
-	if (cd == (iconv_t) -1) {
-		res = -errno;
-		goto error;
+	res = ht::charsetConverterOpen(converter, "UTF-32LE", encoding, &cb);
+	if (res < 0) {
+		goto destroy;
 	}
 
-	convertedContentSize = rawContentSize;
-	convertedContent = (char *) malloc(convertedContentSize);
-	if (convertedContent == NULL) {
-		res = -ENOMEM;
-		goto error;
-	}
-
-	rawContentPos = rawContent;
-	rawContentRemainingSize = rawContentSize;
-
-	convertedContentPos = convertedContent;
-	convertedContentRemainingSize = convertedContentSize;
-	while (rawContentRemainingSize > 0) {
-		iconvRes = iconv(
-			cd,
-			&rawContentPos,
-			&rawContentRemainingSize,
-			&convertedContentPos,
-			&convertedContentRemainingSize);
-		if (iconvRes != (size_t) -1) {
-			// Conversion ok
-			res = 0;
-		} else if (errno == E2BIG) {
-			size_t offset = convertedContentPos - convertedContent;
-
-			convertedContentSize += ALLOCATION_STEP;
-
-			convertedContent = (char *) realloc(convertedContent, convertedContentSize);
-			if (convertedContent == NULL) {
-				res = -ENOMEM;
-				break;
-			}
-
-			convertedContentPos = convertedContent + offset;
-			convertedContentRemainingSize += ALLOCATION_STEP;
-		} else if (errno == EILSEQ) {
-			ht::Log::i(TAG, "Invalid sequence");
-			res = -EINVAL;
-			break;
-		}
-	}
-
-	iconv_close(cd);
-
+	res = ht::charsetConverterInput(converter, rawContent, rawContentSize);
 	if (res == 0) {
-		*outContent = (char32_t *) convertedContent;
-		*outContentSize = (convertedContentSize - convertedContentRemainingSize) / sizeof(char32_t);
+		*outContent = (char32_t *) fileConverter.buffer;
+		*outContentSize = fileConverter.usedSize / sizeof(char32_t);
+	} else {
+		free(fileConverter.buffer);
 	}
 
-	return res;
+	ht::charsetConverterClose(converter);
+	ht::charsetConverterDestroy(converter);
 
-error:
-	free(convertedContent);
-	iconv_close(cd);
+	return 0;
+
+destroy:
+	ht::charsetConverterDestroy(converter);
 
 	return res;
 }
