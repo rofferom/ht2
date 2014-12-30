@@ -5,7 +5,7 @@
 #include <ht/Log.hpp>
 #include <ht/Utils.hpp>
 
-static const char *TAG = "Utils";
+static const char32_t *TAG = U"Utils";
 
 namespace ht {
 
@@ -24,7 +24,7 @@ int loadFile(const char *path, char **outContent, size_t *outContentSize)
 	// Load file content
 	res = stat(path, &pathStat);
 	if (res == -1) {
-		Log::d(TAG, "Unable to open file '%s' : %s", path, strerror(errno));
+		Log::d(TAG, U"Unable to open file '%s' : %s", path, strerror(errno));
 		res = -errno;
 		goto error;
 	}
@@ -38,14 +38,14 @@ int loadFile(const char *path, char **outContent, size_t *outContentSize)
 
 	f = fopen(path, "rb");
 	if (f == NULL) {
-		Log::d(TAG, "Unable to open file '%s' : %s", path, strerror(errno));
+		Log::d(TAG, U"Unable to open file '%s' : %s", path, strerror(errno));
 		res = -errno;
 		goto error;
 	}
 
 	res = fread(content, 1, contentSize, f);
 	if ((size_t) res != contentSize) {
-		Log::d(TAG, "Error while reading file '%s' : %s", path, strerror(errno));
+		Log::d(TAG, U"Error while reading file '%s' : %s", path, strerror(errno));
 		res = -errno;
 		goto error;
 	}

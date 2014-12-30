@@ -9,8 +9,6 @@
 
 #define ALLOCATION_STEP 4096
 
-static const char *TAG = "TextFile";
-
 namespace {
 
 size_t removeCr(char *content, size_t size)

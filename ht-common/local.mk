@@ -26,4 +26,7 @@ LOCAL_SRC_FILES := \
 	src/crypto/sha256.c \
 	src/crypto/sha512.c \
 
+LOCAL_SHARED_LIBRARIES := \
+	libstr32 \
+
 include $(BUILD_SHARED_LIBRARY)

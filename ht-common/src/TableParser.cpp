@@ -4,7 +4,7 @@
 #include <ht/TableParser.hpp>
 #include <ht/TextFile.hpp>
 
-static const char *TAG = "TableParser";
+static const char32_t *TAG = U"TableParser";
 
 namespace {
 
@@ -105,7 +105,7 @@ int parseLine(int lineNumber, char32_t *line, size_t lineSize, const ht::TablePa
 	size_t valueSize;
 	int res;
 
-	ht::Log::d(TAG, "Found new line %d of size %d", lineNumber, lineSize);
+	ht::Log::d(TAG, U"Found new line %d of size %d", lineNumber, lineSize);
 
 	// Ignore empty lines
 	if (lineSize == 0) {
@@ -115,15 +115,15 @@ int parseLine(int lineNumber, char32_t *line, size_t lineSize, const ht::TablePa
 	// Get line separator (=)
 	separator = strchr32(line, lineSize, U'=');
 	if (separator == NULL) {
-		ht::Log::e(TAG, "Line %d is invalid", lineNumber);
+		ht::Log::e(TAG, U"Line %d is invalid", lineNumber);
 		res = -EINVAL;
 		goto error;
 	} else if (line == separator) {
-		ht::Log::e(TAG, "Line %d has no key", lineNumber);
+		ht::Log::e(TAG, U"Line %d has no key", lineNumber);
 		res = -EINVAL;
 		goto error;
 	} else if ((size_t) (line - separator + 1) == lineSize) {
-		ht::Log::e(TAG, "Line %d has no value", lineNumber);
+		ht::Log::e(TAG, U"Line %d has no value", lineNumber);
 		res = -EINVAL;
 		goto error;
 	}
@@ -131,7 +131,7 @@ int parseLine(int lineNumber, char32_t *line, size_t lineSize, const ht::TablePa
 	// Extract key
 	res = parseKey(line, separator - line, &key, &keySize);
 	if (res < 0) {
-		ht::Log::e(TAG, "Line %d has an invalid key", lineNumber);
+		ht::Log::e(TAG, U"Line %d has an invalid key", lineNumber);
 		res = -EINVAL;
 		goto error;
 	}
@@ -139,7 +139,7 @@ int parseLine(int lineNumber, char32_t *line, size_t lineSize, const ht::TablePa
 	// Extract value
 	valueSize = lineSize - (separator - line + 1);
 	if (valueSize == 0) {
-		ht::Log::e(TAG, "Line %d has an empty value", lineNumber);
+		ht::Log::e(TAG, U"Line %d has an empty value", lineNumber);
 		res = -EINVAL;
 		goto error;
 	}

@@ -4,7 +4,7 @@
 #include <ht/Log.hpp>
 #include <ht/CharsetConverter.hpp>
 
-static const char *TAG = "CharsetConverter";
+static const char32_t *TAG = U"CharsetConverter";
 
 namespace ht {
 
@@ -111,7 +111,7 @@ int charsetConverterInput(
 				convertedContentPos - convertedContent,
 				self->cb.userdata);
 		} else if (errno == EILSEQ) {
-			Log::e(TAG, "Invalid sequence");
+			Log::e(TAG, U"Invalid sequence");
 			res = -EINVAL;
 			break;
 		}

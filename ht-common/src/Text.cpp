@@ -3,7 +3,7 @@
 #include <ht/Log.hpp>
 #include <ht/Text.hpp>
 
-static const char *TAG = "Text";
+static const char32_t *TAG = U"Text";
 
 namespace {
 
@@ -49,7 +49,7 @@ int encodeString(
 	while (*sIt != U'\0') {
 		entry = table.findFromValue(std::u32string(sIt, searchSize));
 		if ((entry == NULL) && (searchSize == 1)) {
-			ht::Log::e(TAG, "Invalid char found");
+			ht::Log::e(TAG, U"Invalid char found");
 			res = -EINVAL;
 			break;
 		} else if (entry == NULL) {
@@ -57,7 +57,7 @@ int encodeString(
 		} else {
 			rawText = checkSize(rawText, &rawTextSize, writePos + entry->mKey.mSize);
 
-			ht::Log::d(TAG, "Writing %d bytes at %p", entry->mKey.mSize, rawText + writePos);
+			ht::Log::d(TAG, U"Writing %d bytes at %p", entry->mKey.mSize, rawText + writePos);
 			memcpy(rawText + writePos, entry->mKey.mValue, entry->mKey.mSize);
 			writePos += entry->mKey.mSize;
 			res += entry->mKey.mSize;
@@ -89,7 +89,7 @@ int encodeBlock(
 	size_t rawTextSize;
 	int res = 0;
 
-	ht::Log::d(TAG, "Encoding new Block");
+	ht::Log::d(TAG, U"Encoding new Block");
 
 	rawText = *outRawText;
 	rawTextSize = *outRawTextSize;
@@ -97,7 +97,7 @@ int encodeBlock(
 	for (auto elem : block->mElementList) {
 		switch (elem->mType) {
 		case ht::Text::BlockElement::Type::Text:
-			ht::Log::d(TAG, "Encoding new BlockElement of type Text");
+			ht::Log::d(TAG, U"Encoding new BlockElement of type Text");
 
 			res = encodeString(
 				elem->mTextContent,
@@ -106,23 +106,23 @@ int encodeBlock(
 				&rawTextSize,
 				writePos);
 			if (res > 0) {
-				ht::Log::d(TAG, "%d bytes encoded", res);
+				ht::Log::d(TAG, U"%d bytes encoded", res);
 				writePos += res;
 			}
 
 			break;
 
 		case ht::Text::BlockElement::Type::RawByte:
-			ht::Log::d(TAG, "Encoding new BlockElement of type RawByte");
+			ht::Log::d(TAG, U"Encoding new BlockElement of type RawByte");
 
 			rawText = checkSize(rawText, &rawTextSize, writePos + 1);
-			ht::Log::d(TAG, "Writing 1 byte at %p", rawText + writePos);
+			ht::Log::d(TAG, U"Writing 1 byte at %p", rawText + writePos);
 			rawText[writePos] = elem->mRawByte;
 			writePos++;
 			break;
 
 		default:
-			ht::Log::e(TAG, "Invalid BlockElement type %s", elem->mType);
+			ht::Log::e(TAG, U"Invalid BlockElement type %s", elem->mType);
 			res = -EINVAL;
 			break;
 		}
@@ -190,7 +190,7 @@ int decodeBuffer(
 				break;
 			}
 
-			ht::Log::d(TAG, "Unknown byte %02X", rawByteElement->mRawByte);
+			ht::Log::d(TAG, U"Unknown byte %02X", rawByteElement->mRawByte);
 			currentElement = NULL;
 			block->mElementList.push_back(rawByteElement);
 
@@ -209,7 +209,7 @@ int decodeBuffer(
 					break;
 				}
 
-				ht::Log::d(TAG, "New BlockElement of type Text");
+				ht::Log::d(TAG, U"New BlockElement of type Text");
 				block->mElementList.push_back(currentElement);
 			}
 
@@ -365,7 +365,7 @@ int Text::decode(
 		}
 
 		ht::Log::d(TAG,
-			"Found %d pointers for a block of size %d start at offset %d",
+			U"Found %d pointers for a block of size %d start at offset %d",
 			foundPointerCount,
 			textToExtractSize,
 			textToExtractStart);
