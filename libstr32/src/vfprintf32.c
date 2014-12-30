@@ -546,7 +546,7 @@ static int printf_core(struct OutputStream *f, const char32_t *fmt, va_list *ap,
 
 		if (!f) continue;
 
-		z = buf + sizeof(buf);
+		z = (char32_t *) ((uint8_t *) buf + sizeof(buf));
 		prefix = U"-+   0X0x";
 		pl = 0;
 		t = s[-1];

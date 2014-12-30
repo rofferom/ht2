@@ -42,4 +42,8 @@ TEST(libstr32, fprintf32)
 	fprintf32(&out, U"Hello world 0x%02x (ファイナルファンタジー) %d !", 0x6a, 100);
 	ASSERT_TRUE(strOut == U"Hello world 0x6a (ファイナルファンタジー) 100 !");
 	strOut.clear();
+
+	fprintf32(&out, U"Hello world %p !", (void *) 0x100802000);
+	ASSERT_TRUE(strOut == U"Hello world 0x100802000 !");
+	strOut.clear();
 }
