@@ -10,6 +10,7 @@ namespace ht {
 
 int loadFile(const char *path, char **outContent, size_t *outContentSize);
 int dumpToFile(const char *path, const uint8_t *buffer, size_t size);
+int compareFiles(const char *path1, const char *path2);
 
 } // ht
 

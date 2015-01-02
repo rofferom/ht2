@@ -269,6 +269,15 @@ Text::Block *Text::getBlock(size_t index)
 	return mBlockList[index];
 }
 
+const Text::Block *Text::getBlock(size_t index) const
+{
+	if (index >= mBlockList.size()) {
+		return NULL;
+	}
+
+	return mBlockList[index];
+}
+
 int Text::encode(
 	const Table &table,
 	uint8_t **outRawText,

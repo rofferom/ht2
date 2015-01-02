@@ -44,6 +44,7 @@ public:
 
 	size_t getBlockCount() const;
 	Block *getBlock(size_t index);
+	const Block *getBlock(size_t index) const;
 
 	int encode(
 		const Table &table,

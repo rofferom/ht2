@@ -92,4 +92,43 @@ error:
 	return res;
 }
 
+int compareFiles(const char *path1, const char *path2)
+{
+	char *file1Content = NULL;
+	size_t file1ContentSize;
+	char *file2Content = NULL;
+	size_t file2ContentSize;
+	int res;
+
+	res = loadFile(path1, &file1Content, &file1ContentSize);
+	if (res < 0) {
+		goto error;
+	}
+
+	res = loadFile(path2, &file2Content, &file2ContentSize);
+	if (res < 0) {
+		goto error;
+	}
+
+	if (file1ContentSize != file2ContentSize) {
+		res = -EINVAL;
+		goto error;
+	}
+
+	if (memcmp(file1Content, file2Content, file1ContentSize) != 0) {
+		res = -EINVAL;
+		goto error;
+	}
+
+	free(file1Content);
+	free(file2Content);
+
+	return 0;
+
+error:
+	free(file1Content);
+	free(file2Content);
+	return res;
+}
+
 } // ht

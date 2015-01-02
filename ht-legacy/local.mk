@@ -14,8 +14,10 @@ LOCAL_C_INCLUDES := \
 
 LOCAL_SRC_FILES := \
 	src/TableLoader.cpp \
+	src/Text.cpp \
 
 LOCAL_SHARED_LIBRARIES := \
 	ht-common \
+	libstr32 \
 
 include $(BUILD_SHARED_LIBRARY)

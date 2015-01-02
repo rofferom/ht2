@@ -23,6 +23,7 @@ LOCAL_CFLAGS := -std=c++11
 LOCAL_SRC_FILES := \
 	test-charsetconverter.cpp \
 	test-legacy-table.cpp \
+	test-legacy-text.cpp \
 	test-libstr32.cpp \
 	test-main.cpp \
 	test-table.cpp \
