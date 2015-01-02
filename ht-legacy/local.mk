@@ -15,6 +15,7 @@ LOCAL_C_INCLUDES := \
 LOCAL_SRC_FILES := \
 	src/TableLoader.cpp \
 	src/Text.cpp \
+	src/TextTokenizer.cpp \
 
 LOCAL_SHARED_LIBRARIES := \
 	ht-common \
