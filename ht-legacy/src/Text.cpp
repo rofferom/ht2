@@ -3,10 +3,30 @@
 #include <ht/Log.hpp>
 #include <ht/CharsetConverter.hpp>
 #include <ht-legacy/Text.hpp>
+#include <ht-legacy/TextTokenizer.hpp>
 
 static const char32_t *TAG = U"htl.Text";
 
 namespace {
+
+enum class LoaderState {
+	Idle,
+	Pointer,
+	Text
+};
+
+struct Loader {
+	LoaderState state;
+	ht::Text *text;
+	ht::Text::Block *currentBlock;
+
+	Loader()
+	{
+		state = LoaderState::Idle;
+		text = NULL;
+		currentBlock = NULL;
+	}
+};
 
 static int writeToFile(const void *buff, size_t size, void *userdata)
 {
@@ -23,13 +43,84 @@ static size_t printfCb(const char32_t *s, size_t size, void *userdata)
 	return ht::charsetConverterInput(charsetConv, s, size * sizeof(char32_t));
 }
 
+void pointerFound(uint32_t id, void *userdata)
+{
+	Loader *loader = (Loader *) userdata;
+	ht::Text::Pointer *pointer;
+
+	switch (loader->state) {
+	case LoaderState::Idle:
+	case LoaderState::Text:
+		loader->state = LoaderState::Pointer;
+
+		loader->currentBlock = new ht::Text::Block();
+		loader->text->addBlock(loader->currentBlock);
+		break;
+
+	case LoaderState::Pointer:
+	default:
+		break;
+	}
+
+	pointer = new ht::Text::Pointer{id, 0, 0};
+	loader->currentBlock->mPointerList.push_back(pointer);
+}
+
+void rawByteFound(uint8_t byte, void *userdata)
+{
+	Loader *loader = (Loader *) userdata;
+	ht::Text::BlockElement *elem;
+
+	if (loader->currentBlock == NULL) {
+		loader->currentBlock = new ht::Text::Block();
+		loader->text->addBlock(loader->currentBlock);
+	}
+
+	loader->state = LoaderState::Text;
+
+	elem = new ht::Text::BlockElement();
+	elem->mType = ht::Text::BlockElement::Type::RawByte;
+	elem->mRawByte = byte;
+
+	loader->currentBlock->mElementList.push_back(elem);
+}
+
+void textFound(const char32_t *s, size_t size, void *userdata)
+{
+	Loader *loader = (Loader *) userdata;
+	ht::Text::BlockElement *elem;
+
+	if (loader->currentBlock == NULL) {
+		loader->currentBlock = new ht::Text::Block();
+		loader->text->addBlock(loader->currentBlock);
+	}
+
+	loader->state = LoaderState::Text;
+
+	elem = new ht::Text::BlockElement();
+	elem->mType = ht::Text::BlockElement::Type::Text;
+	elem->mTextContent.assign(s, size);
+
+	loader->currentBlock->mElementList.push_back(elem);
+}
+
 } // anonymous namespace
 
 namespace htl {
 
 int loadText(const char *textPath, const char *encoding, ht::Text *text)
 {
-	return 0;
+	struct TokenizerCb cb;
+	Loader loader;
+
+	loader.text = text;
+
+	cb.pointerFound = pointerFound;
+	cb.rawByteFound = rawByteFound;
+	cb.textFound = textFound;
+	cb.userdata = &loader;
+
+	return tokenizeText(textPath, encoding, cb);
 }
 
 int saveText(const ht::Text *text, const char *textPath, const char *encoding)
