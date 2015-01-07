@@ -123,7 +123,7 @@ endif
 # '\' is to escape the '$' in the shell command
 # '$$' is to escape the '$' in the makefile
 ifneq ("$(TARGET_OS)","MACOSX")
-    TARGET_GLOBAL_LDFLAGS_RPATH += -Wl,-rpath,\$$ORIGIN
+    TARGET_GLOBAL_LDFLAGS_RPATH += -Wl,-rpath,\$$ORIGIN -Wl,-rpath-link,$(TARGET_OUT_FINAL)
 endif
 
 ###############################################################################
