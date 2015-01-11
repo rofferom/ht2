@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string>
 #include <ht/Callback.hpp>
+#include <ht/Table.hpp>
 
 namespace ht {
 
@@ -14,6 +15,11 @@ namespace ht {
  * const char *value
  */
 typedef Callback<void(const uint8_t *, size_t, const std::u32string &)> TableParserNewEntryCb;
+
+int parseKey(const char32_t *strKey, size_t strKeySize, uint8_t **outBuffer, size_t *outSize);
+
+int encodeKey(const Table::Key *key, std::u32string *out);
+int encodeKey(const uint8_t *key, size_t keySize, std::u32string *out);
 
 int parseTable(const char *path, const char *encoding, const TableParserNewEntryCb &cb);
 

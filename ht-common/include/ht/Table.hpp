@@ -21,6 +21,12 @@ public:
 		Key mKey;
 		std::u32string mValue;
 
+		Entry()
+		{
+			mKey.mValue = 0;
+			mKey.mSize = 0;
+		}
+
 		Entry(const uint8_t *key, size_t keySize, const std::u32string &value)
 		{
 			mKey.mValue = (uint8_t *) malloc(keySize * sizeof(uint8_t));
@@ -63,6 +69,8 @@ public:
 	virtual ~Table();
 
 	int addEntry(const uint8_t *key, size_t keySize, const std::u32string &value);
+
+	size_t getEntryCount() const;
 
 	size_t getMaxKeySize() const;
 	size_t getMaxValueSize() const;

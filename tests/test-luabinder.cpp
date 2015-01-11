@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <ht-lua/common/LuaClass.hpp>
+#include <ht-lua/LuaTable.hpp>
 
 extern "C" {
 	#include <lua.h>
@@ -121,6 +122,9 @@ int main(int argc, char *argv[])
 
 	L = luaL_newstate();
 	luaL_openlibs(L);
+
+	// Register Table binding
+	htlua::LuaTable::registerClass(L);
 
 	// Register Test binding
 	registerLuaTest(L);

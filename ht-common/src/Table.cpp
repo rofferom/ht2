@@ -58,6 +58,11 @@ error:
 	return res;
 }
 
+size_t Table::getEntryCount() const
+{
+	return mEntryByKey.size();
+}
+
 size_t Table::getMaxKeySize() const
 {
 	return mMaxKeySize;

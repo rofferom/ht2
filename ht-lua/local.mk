@@ -14,6 +14,7 @@ LOCAL_C_INCLUDES := \
 
 LOCAL_SRC_FILES := \
 	src/LuaPackage.cpp \
+	src/LuaTable.cpp
 
 LOCAL_SHARED_LIBRARIES := \
 	ht-common \
