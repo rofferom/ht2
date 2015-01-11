@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string>
 
 #define HT_SIZEOF_ARRAY(a) (sizeof(a) / sizeof(a[0]))
 
@@ -11,6 +12,9 @@ namespace ht {
 int loadFile(const char *path, char **outContent, size_t *outContentSize);
 int dumpToFile(const char *path, const uint8_t *buffer, size_t size);
 int compareFiles(const char *path1, const char *path2);
+
+std::u32string convertFromEnvStr(const std::string &s);
+std::string convertToEnvStr(const std::u32string &s);
 
 } // ht
 

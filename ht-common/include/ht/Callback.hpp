@@ -31,6 +31,13 @@ public:
 		mMethod = reinterpret_cast<R (Binder:: *)(Args... args)>(c);
 	}
 
+	template <typename T>
+	Callback(T *t, R (T::*c)(Args...) const)
+	{
+		mInstance = reinterpret_cast<Binder *>(t);
+		mMethod = reinterpret_cast<R (Binder:: *)(Args... args)>(c);
+	}
+
 	R operator()(Args... args) const
 	{
 		assert(mInstance != NULL);

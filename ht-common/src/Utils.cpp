@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <ht/Log.hpp>
+#include <ht/CharsetConverter.hpp>
 #include <ht/Utils.hpp>
 
 static const char32_t *TAG = U"Utils";
@@ -129,6 +130,63 @@ error:
 	free(file1Content);
 	free(file2Content);
 	return res;
+}
+
+static int fromEnvCb(const void *buff, size_t size, void *userdata)
+{
+	std::u32string *out = (std::u32string *) userdata;
+
+	out->append((const char32_t *) buff, size / sizeof(char32_t));
+
+	return 0;
+}
+
+static int toEnvCb(const void *buff, size_t size, void *userdata)
+{
+	std::string *out = (std::string *) userdata;
+
+	out->append((const char *) buff, size);
+
+	return 0;
+}
+
+std::u32string convertFromEnvStr(const std::string &s)
+{
+	std::u32string out;
+	struct CharsetConverter *converter;
+	struct CharsetConverterCb cb;
+
+	cb.output = fromEnvCb;
+	cb.invalid_sequence = NULL;
+	cb.userdata = &out;
+
+	converter = charsetConverterCreate();
+	charsetConverterOpen(converter, "UTF-32LE", "UTF-8", &cb);
+	charsetConverterInput(converter, s.c_str(), s.size());
+	charsetConverterClose(converter);
+	charsetConverterDestroy(converter);
+
+	return out;
+
+}
+
+std::string convertToEnvStr(const std::u32string &s)
+{
+	std::string out;
+	struct CharsetConverter *converter;
+	struct CharsetConverterCb cb;
+
+	cb.output = toEnvCb;
+	cb.invalid_sequence = NULL;
+	cb.userdata = &out;
+
+	converter = charsetConverterCreate();
+	charsetConverterOpen(converter, "UTF-8", "UTF-32LE", &cb);
+	charsetConverterInput(converter, s.c_str(), s.size() * sizeof(char32_t));
+	charsetConverterClose(converter);
+	charsetConverterDestroy(converter);
+
+	return out;
 }
 
 } // ht

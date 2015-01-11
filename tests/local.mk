@@ -16,6 +16,22 @@ include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
 
+LOCAL_MODULE := ht-test-luabinder
+
+LOCAL_CFLAGS := -std=c++11
+
+LOCAL_SRC_FILES := \
+	test-luabinder.cpp \
+
+LOCAL_SHARED_LIBRARIES := \
+	ht-common \
+	ht-lua \
+	lua \
+
+include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+
 LOCAL_MODULE := ht-test
 
 LOCAL_CFLAGS := -std=c++11
