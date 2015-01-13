@@ -9,12 +9,15 @@
 
 namespace htlua {
 
+template <typename T>
+using LuaParamRemoveConstRef = typename std::remove_const<typename std::remove_reference<T>::type>::type;
+
 // Prototypes
 template <typename T, typename... Args>
 bool checkParamList(lua_State *L, int argIndex);
 
 template<int... S, typename... Args>
-int fillParamList(lua_State *L, int id, Sequence<S...>, std::tuple<Args...> &t);
+int fillParamListInternal(lua_State *L, int id, Sequence<S...>, std::tuple<Args...> &t);
 
 template<typename T, typename... Args>
 int fillVariableList(lua_State *L, int id, T &t, Args (&...args));
@@ -33,11 +36,6 @@ struct LuaParam {
 		return checkParamList<Params...>(L, id);
 	}
 
-	static int fill(lua_State *L, int id, std::tuple<Params...> &t)
-	{
-		return fillParamList(L, id, typename SequenceGenerator<sizeof...(Params)>::type(), t);
-	}
-
 	static std::string toString()
 	{
 		std::string out;
@@ -46,13 +44,25 @@ struct LuaParam {
 	}
 };
 
+template <typename... Params>
+int luaParamFillList(lua_State *L, int id, std::tuple<Params...> &t)
+{
+	return fillParamListInternal(L, id, typename SequenceGenerator<sizeof...(Params)>::type(), t);
+}
+
 // Prototypes implementation
+template <typename T>
+bool checkParam(lua_State *L, int argIndex)
+{
+	using CleanedT = LuaParamRemoveConstRef<T>;
+	static_assert(LuaType<CleanedT>::known, "Invalid type");
+	return LuaType<CleanedT>::isParamValid(L, argIndex);
+}
+
 template <typename T, typename... Args>
 bool checkParamList(lua_State *L, int argIndex)
 {
-	static_assert(LuaType<T>::known, "Invalid type");
-
-	if (LuaType<T>::isParamValid(L, argIndex) == false) {
+	if (checkParam<T>(L, argIndex) == false) {
 		return false;
 	} else {
 		return checkParamList<Args...>(L, argIndex + 1);
@@ -85,7 +95,7 @@ int fillVariableList(lua_State *L, int id, T &t, Args (&...args))
 }
 
 template<int... S, typename... Args>
-int fillParamList(lua_State *L, int id, Sequence<S...>, std::tuple<Args...> &t)
+int fillParamListInternal(lua_State *L, int id, Sequence<S...>, std::tuple<Args...> &t)
 {
 	return fillVariableList(L, id, std::get<S>(t)...);
 }

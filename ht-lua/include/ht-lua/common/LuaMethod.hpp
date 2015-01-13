@@ -68,6 +68,7 @@ struct LuaMethodBinder;
 template <typename R, typename... Args>
 struct LuaMethodBinder<R(Args...)> {
 	ht::Callback<R(Args...)> mCb;
+	using MethodParamList = std::tuple<LuaParamRemoveConstRef<Args>...>;
 
 	LuaMethodBinder(ht::Callback<R(Args...)> cb)
 	{
@@ -75,7 +76,7 @@ struct LuaMethodBinder<R(Args...)> {
 	}
 
 	template<int ...S>
-	R callMethod(Sequence<S...>, std::tuple<Args...> &args)
+	R callMethod(Sequence<S...>, MethodParamList &args)
 	{
 		return mCb(std::get<S>(args)...);
 	}
@@ -83,14 +84,14 @@ struct LuaMethodBinder<R(Args...)> {
 	int operator()(lua_State *L)
 	{
 		const int expectedArgCount = sizeof...(Args);
-		std::tuple<Args...> args;
+		MethodParamList args;
 		R r;
 
 		if (LuaMethodParamChecker<R(Args...)>::check(L) == false) {
 			return 0;
 		}
 
-		LuaParam<Args...>::fill(L, 2, args);
+		luaParamFillList(L, 2, args);
 		r = callMethod(typename SequenceGenerator<expectedArgCount>::type(), args);
 		LuaType<R>::pushValue(L, r);
 
@@ -101,6 +102,7 @@ struct LuaMethodBinder<R(Args...)> {
 template <typename... Args>
 struct LuaMethodBinder<void(Args...)> {
 	ht::Callback<void(Args...)> mCb;
+	using MethodParamList = std::tuple<LuaParamRemoveConstRef<Args>...>;
 
 	LuaMethodBinder(ht::Callback<void(Args...)> cb)
 	{
@@ -108,7 +110,7 @@ struct LuaMethodBinder<void(Args...)> {
 	}
 
 	template<int ...S>
-	void callMethod(Sequence<S...>, std::tuple<Args...> &args)
+	void callMethod(Sequence<S...>, MethodParamList &args)
 	{
 		mCb(std::get<S>(args)...);
 	}
@@ -116,13 +118,13 @@ struct LuaMethodBinder<void(Args...)> {
 	int operator()(lua_State *L)
 	{
 		const int expectedArgCount = sizeof...(Args);
-		std::tuple<Args...> args;
+		MethodParamList args;
 
 		if (LuaMethodParamChecker<void(Args...)>::check(L) == false) {
 			return 0;
 		}
 
-		LuaParam<Args...>::fill(L, 2, args);
+		luaParamFillList(L, 2, args);
 		callMethod(typename SequenceGenerator<expectedArgCount>::type(), args);
 
 		return 0;

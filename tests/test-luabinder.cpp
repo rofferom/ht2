@@ -56,6 +56,12 @@ public:
 		printf("testStringArg : %s\n", s.c_str());
 		return "Return of testStringArg";
 	}
+
+	std::string testStringArgConst(const std::string &s) const
+	{
+		printf("testStringArgConst : %s\n", s.c_str());
+		return "Return of testStringArg";
+	}
 };
 
 struct LuaTest : htlua::LuaClass<Test> {
@@ -69,6 +75,7 @@ struct LuaTest : htlua::LuaClass<Test> {
 			{ "customHandler", MethodGenerator<int(int)>::get(&customHandler) },
 			{ "testTwoArgs", MethodGenerator<void(int, int)>::get(&Test::testTwoArgs) },
 			{ "testStringArg", MethodGenerator<std::string(std::string)>::get(&Test::testStringArg) },
+			{ "testStringArgConst", MethodGenerator<std::string(const std::string&)>::get(&Test::testStringArgConst) },
 			{ "getA", GetSetGenerator<int>::get(offsetof(Test, mA)) },
 			{ "setA", GetSetGenerator<int>::set(offsetof(Test, mA)) },
 			Method<Test>::empty(),
