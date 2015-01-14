@@ -86,7 +86,7 @@ struct LuaClass {
 			auto createCb = [method] (T *t) -> LuaMethodHandler {
 				ht::Callback<R(Args...)> cb(t, method);
 
-				return [cb] (lua_State *L) mutable -> int {
+				return [cb] (lua_State *L) -> int {
 					LuaMethodBinder<R(Args...)> binder(cb);
 					return binder(L);
 				};
