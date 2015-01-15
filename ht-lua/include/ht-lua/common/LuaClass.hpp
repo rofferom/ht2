@@ -32,36 +32,11 @@ struct LuaClass {
 		}
 	};
 
-	// Instance variables
-	const char *mName;
-	const char *mPackage;
-	const Method<T> *mMethods;
-	size_t mMethodCount;
-
-	// Static variables
+	static const char *mName;
+	static const char *mPackage;
+	static Method<T> *mMethods;
+	static size_t mMethodCount;
 	static const char32_t *TAG;
-	static LuaClass *sInstance;
-
-	LuaClass() {
-		mName = nullptr;
-		mPackage = nullptr;
-		mMethods = nullptr;
-		mMethodCount = 0;
-
-		assert(sInstance == NULL);
-		sInstance = this;
-	}
-
-	int init()
-	{
-		const Method<T> *i;
-
-		for (i = mMethods ; i->mName != nullptr ; i++) {
-			mMethodCount++;
-		}
-
-		return 0;
-	}
 
 	// MethodGenerator
 	template <typename U>
@@ -165,12 +140,7 @@ struct LuaClass {
 		return self->mMethods[methodId](L);
 	}
 
-	static int constructorHandlerStatic(lua_State *L)
-	{
-		return sInstance->constructorHandler(L);
-	}
-
-	int constructorHandler(lua_State *L)
+	static int constructorHandler(lua_State *L)
 	{
 		LuaObject<T> *instance;
 
@@ -186,7 +156,7 @@ struct LuaClass {
 		return 1;
 	}
 
-	int forwardReference(lua_State *L, T *t)
+	static int forwardReference(lua_State *L, T *t)
 	{
 		LuaObject<T> *instance;
 
@@ -202,7 +172,7 @@ struct LuaClass {
 		return 1;
 	}
 
-	int forwardReference(lua_State *L, const T *t)
+	static int forwardReference(lua_State *L, const T *t)
 	{
 		LuaObject<T> *instance;
 
@@ -224,7 +194,7 @@ struct LuaClass {
 		return 0;
 	}
 
-	int buildMethods(lua_State *L, LuaObject<T> *instance)
+	static int buildMethods(lua_State *L, LuaObject<T> *instance)
 	{
 		// Link methods
 		ht::Log::d(TAG, U"Linking %d methods", mMethodCount);
@@ -264,7 +234,7 @@ struct LuaClass {
 		return 0;
 	}
 
-	int createMetatable(lua_State *L)
+	static int createMetatable(lua_State *L)
 	{
 		// Create metatable
 		lua_newtable(L);
@@ -295,11 +265,15 @@ struct LuaClass {
 		return 0;
 	}
 
-	int registerClass(lua_State *L)
+	static int registerClass(lua_State *L)
 	{
+		for (const Method<T> *i = mMethods ; i->mName != nullptr ; i++) {
+			mMethodCount++;
+		}
+
 		// Register constructor
 		lua_pushnumber(L, 0);
-		lua_pushcclosure(L, &constructorHandlerStatic, 1);
+		lua_pushcclosure(L, &constructorHandler, 1);
 
 		if (mPackage != nullptr) {
 			LuaPackage::set(L, mPackage, mName);
@@ -312,7 +286,16 @@ struct LuaClass {
 };
 
 template <typename T>
-LuaClass<T> *LuaClass<T>::sInstance = NULL;
+const char *LuaClass<T>::mName = NULL;
+
+template <typename T>
+const char *LuaClass<T>::mPackage = NULL;
+
+template <typename T>
+LuaClass<T>::Method<T> *LuaClass<T>::mMethods = NULL;
+
+template <typename T>
+size_t LuaClass<T>::mMethodCount = 0;
 
 template <typename T>
 const char32_t *LuaClass<T>::TAG = U"LuaClass";

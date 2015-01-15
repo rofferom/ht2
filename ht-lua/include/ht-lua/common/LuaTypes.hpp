@@ -13,13 +13,13 @@ struct LuaTypeEnd;
 
 template <typename T>
 struct LuaType {
-	static const bool known = false;
+	enum { isValid = 0 };
 	constexpr static const char *name = nullptr;
 };
 
 template <>
 struct LuaType<void> {
-	static const bool known = true;
+	enum { isValid = 1 };
 	constexpr static const char *name = "void";
 
 	static bool isParamValid(lua_State *L, int argIndex)
@@ -30,7 +30,7 @@ struct LuaType<void> {
 
 template <>
 struct LuaType<char> {
-	static const bool known = true;
+	enum { isValid = 1 };
 	constexpr static const char *name = "char";
 
 	static bool isParamValid(lua_State *L, int argIndex)
@@ -41,7 +41,7 @@ struct LuaType<char> {
 
 template <>
 struct LuaType<int> {
-	static const bool known = true;
+	enum { isValid = 1 };
 	constexpr static const char *name = "int";
 
 	static bool isParamValid(lua_State *L, int argIndex)
@@ -62,7 +62,7 @@ struct LuaType<int> {
 
 template <>
 struct LuaType<size_t> {
-	static const bool known = true;
+	enum { isValid = 1 };
 	constexpr static const char *name = "size_t";
 
 	static bool isParamValid(lua_State *L, int argIndex)
@@ -83,7 +83,7 @@ struct LuaType<size_t> {
 
 template <>
 struct LuaType<std::string> {
-	static const bool known = true;
+	enum { isValid = 1 };
 	constexpr static const char *name = "string";
 
 	static bool isParamValid(lua_State *L, int argIndex)
@@ -104,7 +104,7 @@ struct LuaType<std::string> {
 
 template <>
 struct LuaType<std::u32string> {
-	static const bool known = true;
+	enum { isValid = 1 };
 	constexpr static const char *name = "u32string";
 
 	static bool isParamValid(lua_State *L, int argIndex)

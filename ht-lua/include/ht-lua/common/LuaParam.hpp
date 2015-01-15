@@ -55,7 +55,7 @@ template <typename T>
 bool checkParam(lua_State *L, int argIndex)
 {
 	using CleanedT = LuaParamRemoveConstRef<T>;
-	static_assert(LuaType<CleanedT>::known, "Invalid type");
+	static_assert(LuaType<CleanedT>::isValid, "Invalid type");
 	return LuaType<CleanedT>::isParamValid(L, argIndex);
 }
 

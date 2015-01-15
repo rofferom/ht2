@@ -65,7 +65,7 @@ public:
 };
 
 struct LuaTest : htlua::LuaClass<Test> {
-	LuaTest() : htlua::LuaClass<Test>()
+	static void init()
 	{
 		static Method<Test> methods[] = {
 			{ "testVoid", MethodGenerator<void(void)>::get(&Test::testVoid) },
@@ -97,22 +97,20 @@ struct LuaTest : htlua::LuaClass<Test> {
 	}
 };
 
-static LuaTest luaTestClass;
-
 int registerLuaTest(lua_State *L)
 {
-	luaTestClass.init();
-	return luaTestClass.registerClass(L);
+	LuaTest::init();
+	return LuaTest::registerClass(L);
 }
 
 int forwardTestReference(lua_State *L, Test *test)
 {
-	return luaTestClass.forwardReference(L, test);
+	return LuaTest::forwardReference(L, test);
 }
 
 int forwardTestReference(lua_State *L, const Test *test)
 {
-	return luaTestClass.forwardReference(L, test);
+	return LuaTest::forwardReference(L, test);
 }
 
 int main(int argc, char *argv[])

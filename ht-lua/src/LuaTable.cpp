@@ -7,7 +7,7 @@
 namespace htlua {
 
 struct LuaTableEntryClass : LuaClass<ht::Table::Entry> {
-	LuaTableEntryClass() : LuaClass<ht::Table::Entry>()
+	static void init()
 	{
 		static Method<ht::Table::Entry> methods[] = {
 			{ "getKey", MethodGenerator<std::u32string(void)>::get(&getKeyHandler, true) },
@@ -35,7 +35,7 @@ struct LuaTableEntryClass : LuaClass<ht::Table::Entry> {
 static LuaTableEntryClass luaTableEntryClass;
 
 struct LuaTableClass : LuaClass<ht::Table> {
-	LuaTableClass() : LuaClass<ht::Table>()
+	static void init()
 	{
 		static Method<ht::Table> methods[] = {
 			{ "addEntry", MethodGenerator<int(std::string, std::string)>::get(&addEntryHandler) },
@@ -120,17 +120,15 @@ struct LuaTableClass : LuaClass<ht::Table> {
 	}
 };
 
-static LuaTableClass luaTableClass;
-
 int LuaTable::registerClass(lua_State *L)
 {
 	int res = 0;
 
-	luaTableEntryClass.init();
-	luaTableClass.init();
+	LuaTableEntryClass::init();
+	res |= LuaTableEntryClass::registerClass(L);
 
-	res |= luaTableEntryClass.registerClass(L);
-	res |= luaTableClass.registerClass(L);
+	LuaTableClass::init();
+	res |= LuaTableClass::registerClass(L);
 
 	return res;
 }
