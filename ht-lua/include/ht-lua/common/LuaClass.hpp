@@ -21,10 +21,9 @@ namespace htlua {
 template <typename T>
 struct LuaClass {
 	// Class description part
-	template <typename U>
 	struct Method {
 		const char *mName;
-		LuaMethodHandlerGen<U> mHandlerGen;
+		LuaMethodHandlerGen<T> mHandlerGen;
 
 		static Method empty()
 		{
@@ -34,7 +33,7 @@ struct LuaClass {
 
 	static const char *mName;
 	static const char *mPackage;
-	static Method<T> *mMethods;
+	static Method *mMethods;
 	static size_t mMethodCount;
 	static const char32_t *TAG;
 
@@ -271,7 +270,7 @@ struct LuaClass {
 
 	static int registerClass(lua_State *L)
 	{
-		for (const Method<T> *i = mMethods ; i->mName != nullptr ; i++) {
+		for (const Method *i = mMethods ; i->mName != nullptr ; i++) {
 			mMethodCount++;
 		}
 
@@ -296,7 +295,7 @@ template <typename T>
 const char *LuaClass<T>::mPackage = NULL;
 
 template <typename T>
-LuaClass<T>::Method<T> *LuaClass<T>::mMethods = NULL;
+typename LuaClass<T>::Method *LuaClass<T>::mMethods = NULL;
 
 template <typename T>
 size_t LuaClass<T>::mMethodCount = 0;

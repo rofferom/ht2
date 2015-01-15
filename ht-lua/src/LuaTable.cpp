@@ -9,10 +9,10 @@ namespace htlua {
 struct LuaTableEntryClass : LuaClass<ht::Table::Entry> {
 	static void init()
 	{
-		static Method<ht::Table::Entry> methods[] = {
+		static Method methods[] = {
 			{ "getKey", MethodGenerator<std::u32string(void)>::get(&getKeyHandler, true) },
 			{ "getValue", GetSetGenerator<std::u32string>::get(offsetof(ht::Table::Entry, mValue)) },
-			Method<ht::Table::Entry>::empty(),
+			Method::empty(),
 		};
 
 		mName = "TableEntry";
@@ -37,14 +37,14 @@ static LuaTableEntryClass luaTableEntryClass;
 struct LuaTableClass : LuaClass<ht::Table> {
 	static void init()
 	{
-		static Method<ht::Table> methods[] = {
+		static Method methods[] = {
 			{ "addEntry", MethodGenerator<int(std::string, std::string)>::get(&addEntryHandler) },
 			{ "getEntryCount", MethodGenerator<size_t(void)>::get(&ht::Table::getEntryCount) },
 			{ "findFromValue", MethodGenerator<ht::Table::Entry *(std::string)>::get(&findFromValueHandler) },
 			{ "findFromKey", MethodGenerator<ht::Table::Entry *(std::string)>::get(&findFromKeyHandler) },
 			{ "getMaxKeySize", MethodGenerator<size_t(void)>::get(&ht::Table::getMaxKeySize) },
 			{ "getMaxValueSize", MethodGenerator<size_t(void)>::get(&ht::Table::getMaxValueSize) },
-			Method<ht::Table>::empty(),
+			Method::empty(),
 		};
 
 		mName = "Table";

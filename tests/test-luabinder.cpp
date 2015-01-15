@@ -121,7 +121,7 @@ struct LuaType<Test> {
 struct LuaTest : htlua::LuaClass<Test> {
 	static void init()
 	{
-		static Method<Test> methods[] = {
+		static Method methods[] = {
 			{ "testVoid", MethodGenerator<void(void)>::get(&Test::testVoid) },
 			{ "testReturnValue", MethodGenerator<int(void)>::get(&Test::testReturnValue) },
 			{ "testOneArg", MethodGenerator<void(int)>::get(&Test::testOneArg) },
@@ -132,7 +132,7 @@ struct LuaTest : htlua::LuaClass<Test> {
 			{ "testStringArgConst", MethodGenerator<std::string(const std::string&)>::get(&Test::testStringArgConst) },
 			{ "getA", GetSetGenerator<int>::get(offsetof(Test, mA)) },
 			{ "setA", GetSetGenerator<int>::set(offsetof(Test, mA)) },
-			Method<Test>::empty(),
+			Method::empty(),
 		};
 
 		mName = "Test";
@@ -154,11 +154,11 @@ struct LuaTest : htlua::LuaClass<Test> {
 struct LuaTest2 : htlua::LuaClass<Test2> {
 	static void init()
 	{
-		static Method<Test2> methods[] = {
+		static Method methods[] = {
 			{ "testOtherClass", MethodGenerator<void(Test *)>::get(&Test2::testOtherClass) },
 			{ "getA", GetSetGenerator<int>::get(offsetof(Test2, mA)) },
 			{ "setA", GetSetGenerator<int>::set(offsetof(Test2, mA)) },
-			Method<Test2>::empty(),
+			Method::empty(),
 		};
 
 		mName = "Test2";
@@ -169,10 +169,10 @@ struct LuaTest2 : htlua::LuaClass<Test2> {
 struct LuaTest3 : htlua::LuaClass<Test3> {
 	static void init()
 	{
-		static Method<Test3> methods[] = {
+		static Method methods[] = {
 			{ "getA", GetSetGenerator<int>::get(offsetof(Test3, mA)) },
 			{ "setA", GetSetGenerator<int>::set(offsetof(Test3, mA)) },
-			Method<Test3>::empty(),
+			Method::empty(),
 		};
 
 		mName = "Test3";
