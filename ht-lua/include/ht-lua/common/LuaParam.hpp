@@ -12,6 +12,12 @@ namespace htlua {
 template <typename T>
 using LuaParamRemoveConstRef = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 
+template <typename T>
+using LuaParamClean = typename std::remove_const<typename std::remove_pointer<typename std::remove_reference<T>::type>::type>::type;
+
+template <typename T>
+using LuaParamIsConst = std::is_const<typename std::remove_pointer<typename std::remove_reference<T>::type>::type>;
+
 // Prototypes
 template <typename T, typename... Args>
 bool checkParamList(lua_State *L, int argIndex);
@@ -54,9 +60,11 @@ int luaParamFillList(lua_State *L, int id, std::tuple<Params...> &t)
 template <typename T>
 bool checkParam(lua_State *L, int argIndex)
 {
-	using CleanedT = LuaParamRemoveConstRef<T>;
+	using CleanedT = LuaParamClean<T>;
+	constexpr bool typeConst = LuaParamIsConst<T>::value;
+
 	static_assert(LuaType<CleanedT>::isValid, "Invalid type");
-	return LuaType<CleanedT>::isParamValid(L, argIndex);
+	return LuaType<CleanedT>::isParamValid(L, argIndex, typeConst);
 }
 
 template <typename T, typename... Args>
@@ -89,8 +97,11 @@ int fillVariableList(lua_State *L, int id)
 template<typename T, typename... Args>
 int fillVariableList(lua_State *L, int id, T &t, Args (&...args))
 {
+	using CleanedT = typename std::remove_pointer<T>::type;
+
 	// Here id is the C-array index
-	LuaType<T>::getValue(L, id, t);
+	// At this point, const and ref has been removed from T. Is still can be a pointer
+	LuaType<CleanedT>::getValue(L, id, t);
 	return fillVariableList(L, id + 1, args...);
 }
 
@@ -103,12 +114,16 @@ int fillParamListInternal(lua_State *L, int id, Sequence<S...>, std::tuple<Args.
 template <typename T, typename... Args>
 void paramListToString(int id, std::string *out)
 {
+	using CleanedT = LuaParamClean<T>;
+
+	static_assert(LuaType<CleanedT>::isValid, "Invalid type");
+
 	if (id == 0) {
 		out->append("(");
-		out->append(LuaType<T>::name);
+		out->append(LuaType<CleanedT>::name);
 	} else {
 		out->append(", ");
-		out->append(LuaType<T>::name);
+		out->append(LuaType<CleanedT>::name);
 	}
 
 	paramListToString<Args...>(id + 1, out);

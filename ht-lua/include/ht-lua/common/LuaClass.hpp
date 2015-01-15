@@ -146,6 +146,7 @@ struct LuaClass {
 
 		// Create userdata
 		instance = (LuaObject<T> *) lua_newuserdata(L, sizeof(LuaObject<T>));
+		new(instance) LuaObject<T>();
 
 		// Force initialization the object allocated by Lua
 		instance->mInstance = new T();
@@ -162,6 +163,7 @@ struct LuaClass {
 
 		// Create userdata
 		instance = (LuaObject<T> *) lua_newuserdata(L, sizeof(LuaObject<T>));
+		new(instance) LuaObject<T>();
 
 		// Force initialization the object allocated by Lua
 		instance->mInstance = t;
@@ -178,6 +180,7 @@ struct LuaClass {
 
 		// Create userdata
 		instance = (LuaObject<T> *) lua_newuserdata(L, sizeof(LuaObject<T>));
+		new(instance) LuaObject<T>();
 
 		// Force initialization the object allocated by Lua
 		instance->mInstance = const_cast<T *>(t);
@@ -197,7 +200,7 @@ struct LuaClass {
 	static int buildMethods(lua_State *L, LuaObject<T> *instance)
 	{
 		// Link methods
-		ht::Log::d(TAG, U"Linking %d methods", mMethodCount);
+		ht::Log::d(TAG, U"Linking %d methods on object %p", mMethodCount, instance);
 		instance->mMethods = new LuaMethodHandler[mMethodCount];
 
 		for (size_t i = 0 ; i < mMethodCount ; i++) {
@@ -230,6 +233,7 @@ struct LuaClass {
 		}
 
 		delete[] instance->mMethods;
+		instance->~LuaObject<T>();
 
 		return 0;
 	}

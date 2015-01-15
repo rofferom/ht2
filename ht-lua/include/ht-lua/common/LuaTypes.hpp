@@ -15,6 +15,8 @@ template <typename T>
 struct LuaType {
 	enum { isValid = 0 };
 	constexpr static const char *name = nullptr;
+
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst);
 };
 
 template <>
@@ -22,7 +24,7 @@ struct LuaType<void> {
 	enum { isValid = 1 };
 	constexpr static const char *name = "void";
 
-	static bool isParamValid(lua_State *L, int argIndex)
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
 	{
 		return true;
 	}
@@ -33,7 +35,7 @@ struct LuaType<char> {
 	enum { isValid = 1 };
 	constexpr static const char *name = "char";
 
-	static bool isParamValid(lua_State *L, int argIndex)
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
 	{
 		return true;
 	}
@@ -44,7 +46,7 @@ struct LuaType<int> {
 	enum { isValid = 1 };
 	constexpr static const char *name = "int";
 
-	static bool isParamValid(lua_State *L, int argIndex)
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
 	{
 		return lua_isnumber(L, argIndex);
 	}
@@ -65,7 +67,7 @@ struct LuaType<size_t> {
 	enum { isValid = 1 };
 	constexpr static const char *name = "size_t";
 
-	static bool isParamValid(lua_State *L, int argIndex)
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
 	{
 		return lua_isnumber(L, argIndex);
 	}
@@ -86,7 +88,7 @@ struct LuaType<std::string> {
 	enum { isValid = 1 };
 	constexpr static const char *name = "string";
 
-	static bool isParamValid(lua_State *L, int argIndex)
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
 	{
 		return lua_isstring(L, argIndex);
 	}
@@ -107,7 +109,7 @@ struct LuaType<std::u32string> {
 	enum { isValid = 1 };
 	constexpr static const char *name = "u32string";
 
-	static bool isParamValid(lua_State *L, int argIndex)
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
 	{
 		return lua_isstring(L, argIndex);
 	}

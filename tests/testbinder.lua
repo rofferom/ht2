@@ -63,6 +63,16 @@ print(r)
 
 --testRefConst:setA(10)
 
-r = testRefConst:customHandler(46)
-print(r)
+--r = testRefConst:customHandler(46)
+--print(r)
 
+print("---------")
+print("Param forward")
+print("---------")
+tParam = Test()
+tParam:setA(43)
+
+t2 = Test2()
+t3 = Test3()
+t2:testOtherClass(t3)
+--t2:testOtherClass(testRefConst)

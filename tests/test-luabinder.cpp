@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <ht-lua/common/LuaClass.hpp>
+#include <ht-lua/common/LuaObjectParam.hpp>
 #include <ht-lua/LuaTable.hpp>
 
 extern "C" {
@@ -64,6 +65,59 @@ public:
 	}
 };
 
+class Test2 {
+public:
+	int mA;
+
+public:
+	Test2()
+	{
+		mA = 0;
+	}
+
+	void testOtherClass(Test *test)
+	{
+		printf("Test2 : Got Test class with Test::mA == %d\n", test->mA);
+	}
+};
+
+class Test3 {
+public:
+	int mA;
+
+public:
+	Test3()
+	{
+		mA = 0;
+	}
+};
+
+namespace htlua {
+
+template <>
+struct LuaType<Test> {
+	enum { isValid = 1 };
+	constexpr static const char *name = "Test";
+
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
+	{
+		return LuaObjectParam<Test>::isParamValid(L, argIndex, typeConst);
+	}
+
+	static void pushValue(lua_State *L, Test *test)
+	{
+		LuaClass<Test>::forwardReference(L, test);
+	}
+
+	static void getValue(lua_State *L, int argIndex, Test *&t)
+	{
+		LuaObjectParam<Test>::getValue(L, argIndex, t);
+	}
+};
+
+} // namespace htlua
+
+
 struct LuaTest : htlua::LuaClass<Test> {
 	static void init()
 	{
@@ -97,10 +151,58 @@ struct LuaTest : htlua::LuaClass<Test> {
 	}
 };
 
+struct LuaTest2 : htlua::LuaClass<Test2> {
+	static void init()
+	{
+		static Method<Test2> methods[] = {
+			{ "testOtherClass", MethodGenerator<void(Test *)>::get(&Test2::testOtherClass) },
+			{ "getA", GetSetGenerator<int>::get(offsetof(Test2, mA)) },
+			{ "setA", GetSetGenerator<int>::set(offsetof(Test2, mA)) },
+			Method<Test2>::empty(),
+		};
+
+		mName = "Test2";
+		mMethods = methods;
+	}
+};
+
+struct LuaTest3 : htlua::LuaClass<Test3> {
+	static void init()
+	{
+		static Method<Test3> methods[] = {
+			{ "getA", GetSetGenerator<int>::get(offsetof(Test3, mA)) },
+			{ "setA", GetSetGenerator<int>::set(offsetof(Test3, mA)) },
+			Method<Test3>::empty(),
+		};
+
+		mName = "Test3";
+		mMethods = methods;
+	}
+};
+
+
 int registerLuaTest(lua_State *L)
 {
 	LuaTest::init();
-	return LuaTest::registerClass(L);
+	LuaTest::registerClass(L);
+
+	return 0;
+}
+
+int registerLuaTest2(lua_State *L)
+{
+	LuaTest2::init();
+	LuaTest2::registerClass(L);
+
+	return 0;
+}
+
+int registerLuaTest3(lua_State *L)
+{
+	LuaTest3::init();
+	LuaTest3::registerClass(L);
+
+	return 0;
 }
 
 int forwardTestReference(lua_State *L, Test *test)
@@ -133,6 +235,8 @@ int main(int argc, char *argv[])
 
 	// Register Test binding
 	registerLuaTest(L);
+	registerLuaTest2(L);
+	registerLuaTest3(L);
 
 	forwardTestReference(L, &test);
 	lua_setglobal(L, "testRef");

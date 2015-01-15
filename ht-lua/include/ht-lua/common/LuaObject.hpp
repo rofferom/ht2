@@ -5,8 +5,12 @@
 
 namespace htlua {
 
+struct LuaBaseObject {
+	virtual ~LuaBaseObject() {}
+};
+
 template <typename T>
-struct LuaObject {
+struct LuaObject : LuaBaseObject {
 	enum class Type {
 		Managed,
 		Reference,
