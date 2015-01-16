@@ -173,7 +173,7 @@ endif
 ###############################################################################
 
 # Final copy (not for static libraries)
-$(LOCAL_FINAL_MODULE): $(LOCAL_BUILT_MODULE) $(target_shared_libraries)
+$(LOCAL_FINAL_MODULE): $(LOCAL_BUILT_MODULE)
 ifeq ("$(LOCAL_BUILDING_EXECUTABLE)","1")
 	@echo "Copy: $@"
 	$(copy-file-to-target)
@@ -233,7 +233,7 @@ $(foreach f,$(LOCAL_COPY_FILES), \
   $(eval copy_files += $(_dst)) \
   $(eval $(call copy-one-file,$(_src),$(_dst))) \
 )
-$(LOCAL_BUILT_MODULE): $(copy_files)
+$(LOCAL_BUILT_MODULE): $(copy_files) $(target_shared_libraries)
 
 # clean- targets
 cleantarget := $(LOCAL_MODULE)-clean
