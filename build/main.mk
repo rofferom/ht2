@@ -104,7 +104,7 @@ endif
 all:
 
 # Global variables
-TARGET_GLOBAL_C_INCLUDES :=
+TARGET_GLOBAL_C_INCLUDES ?=
 TARGET_GLOBAL_CFLAGS := -fno-exceptions -fstrict-aliasing
 TARGET_GLOBAL_CPPFLAGS :=
 TARGET_GLOBAL_RCFLAGS :=
