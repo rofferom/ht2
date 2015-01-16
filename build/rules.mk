@@ -81,10 +81,6 @@ LOCAL_SHARED_LIBRARIES += \
 LOCAL_SHARED_LIBRARIES += \
 	$(call module-get-depends,$(LOCAL_WHOLE_STATIC_LIBRARIES),SHARED_LIBRARIES)
 
-built_shared_libraries := \
-	$(foreach lib,$(LOCAL_SHARED_LIBRARIES), \
-		$(TARGET_OUT_BUILD)/$(lib)/$(lib)$(shared_suffix))
-
 target_shared_libraries := \
 	$(foreach lib,$(LOCAL_SHARED_LIBRARIES), \
 		$(TARGET_OUT_FINAL)/$(lib)$(shared_suffix))
@@ -103,7 +99,7 @@ built_external_libraries := \
 
 # all_libraries is used for the dependencies on LOCAL_BUILT_MODULE.
 all_libraries := \
-	$(built_shared_libraries) \
+	$(target_shared_libraries) \
 	$(built_static_libraries) \
 	$(built_whole_static_libraries) \
 	$(built_external_libraries) \
@@ -322,7 +318,7 @@ $(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_RCFLAGS := $(LOCAL_RCFLAGS)
 $(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_ARFLAGS := $(LOCAL_ARFLAGS)
 $(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_LDFLAGS := $(LOCAL_LDFLAGS)
 $(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_LDLIBS := $(LOCAL_LDLIBS)
-$(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_ALL_SHARED_LIBRARIES := $(built_shared_libraries)
+$(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_ALL_SHARED_LIBRARIES := $(target_shared_libraries)
 $(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_ALL_STATIC_LIBRARIES := $(built_static_libraries)
 $(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_ALL_WHOLE_STATIC_LIBRARIES := $(built_whole_static_libraries)
 $(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_ALL_OBJECTS := $(all_objects)
