@@ -1,9 +1,12 @@
 #ifndef __HTLUA_LUAPARAM_HPP__
 #define __HTLUA_LUAPARAM_HPP__
 
+extern "C" {
+	#include <lua.h>
+}
+
 #include <string>
 #include <tuple>
-#include <ht-lua/common/LuaClass.hpp>
 #include <ht-lua/common/LuaTypes.hpp>
 #include <ht-lua/common/Sequence.hpp>
 
@@ -20,18 +23,18 @@ using LuaParamIsConst = std::is_const<typename std::remove_pointer<typename std:
 
 // Prototypes
 template <typename T, typename... Args>
-bool checkParamList(lua_State *L, int argIndex);
+static bool checkParamList(lua_State *L, int argIndex);
 
 template<int... S, typename... Args>
-int fillParamListInternal(lua_State *L, int id, Sequence<S...>, std::tuple<Args...> &t);
+static int fillParamListInternal(lua_State *L, int id, Sequence<S...>, std::tuple<Args...> &t);
 
 template<typename T, typename... Args>
-int fillVariableList(lua_State *L, int id, T &t, Args (&...args));
+static int fillVariableList(lua_State *L, int id, T &t, Args (&...args));
 
-int fillVariableList(lua_State *L, int id);
+static int fillVariableList(lua_State *L, int id);
 
 template <typename T, typename... Args>
-void paramListToString(int id, std::string *out);
+static void paramListToString(int id, std::string *out);
 
 // Public API
 template <typename ...Params>
@@ -68,7 +71,7 @@ bool checkParam(lua_State *L, int argIndex)
 }
 
 template <typename T, typename... Args>
-bool checkParamList(lua_State *L, int argIndex)
+static bool checkParamList(lua_State *L, int argIndex)
 {
 	if (checkParam<T>(L, argIndex) == false) {
 		return false;
@@ -89,13 +92,13 @@ bool checkParamList<LuaTypeEnd>(lua_State *L, int argIndex)
 	return true;
 }
 
-int fillVariableList(lua_State *L, int id)
+static int fillVariableList(lua_State *L, int id)
 {
 	return 0;
 }
 
 template<typename T, typename... Args>
-int fillVariableList(lua_State *L, int id, T &t, Args (&...args))
+static int fillVariableList(lua_State *L, int id, T &t, Args (&...args))
 {
 	using CleanedT = typename std::remove_pointer<T>::type;
 
@@ -106,13 +109,13 @@ int fillVariableList(lua_State *L, int id, T &t, Args (&...args))
 }
 
 template<int... S, typename... Args>
-int fillParamListInternal(lua_State *L, int id, Sequence<S...>, std::tuple<Args...> &t)
+static int fillParamListInternal(lua_State *L, int id, Sequence<S...>, std::tuple<Args...> &t)
 {
 	return fillVariableList(L, id, std::get<S>(t)...);
 }
 
 template <typename T, typename... Args>
-void paramListToString(int id, std::string *out)
+static void paramListToString(int id, std::string *out)
 {
 	using CleanedT = LuaParamClean<T>;
 

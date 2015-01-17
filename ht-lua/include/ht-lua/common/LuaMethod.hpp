@@ -11,7 +11,7 @@
 
 namespace htlua {
 
-const char32_t *LUAMETHOD_TAG = U"LuaMethod";
+static const char32_t *LUAMETHOD_TAG = U"LuaMethod";
 
 typedef std::function<int(lua_State *)> LuaMethodHandler;
 

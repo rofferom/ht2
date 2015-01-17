@@ -1,11 +1,13 @@
 #ifndef __HTLUA_LUATYPES_HPP__
 #define __HTLUA_LUATYPES_HPP__
 
+extern "C" {
+	#include <lua.h>
+}
+
 #include <string>
 #include <tuple>
 #include <ht/Utils.hpp>
-#include <ht-lua/common/LuaClass.hpp>
-#include <ht-lua/common/Sequence.hpp>
 
 namespace htlua {
 
