@@ -14,10 +14,25 @@ public:
 		uint32_t mId;
 		uint32_t mOffset;
 		uint32_t mSourceAddress;
+
+		Pointer()
+		{
+			mId = 0;
+			mOffset = 0;
+			mSourceAddress = 0;
+		}
+
+		Pointer(uint32_t id, uint32_t offset, uint32_t sourceAddress)
+		{
+			mId = id;
+			mOffset = offset;
+			mSourceAddress = sourceAddress;
+		}
 	};
 
 	struct BlockElement {
 		enum class Type {
+			None,
 			Text,
 			RawByte
 		};
@@ -26,11 +41,24 @@ public:
 
 		std::u32string mTextContent;
 		uint8_t mRawByte;
+
+		BlockElement()
+		{
+			mType = Type::None;
+			mRawByte = 0;
+		}
+
+		BlockElement(Type type, const char32_t *textContent, uint8_t rawByte)
+		{
+			mType = type;
+			mTextContent = textContent;
+			mRawByte = rawByte;
+		}
 	};
 
 	struct Block {
-		std::list<Pointer *> mPointerList;
-		std::list<BlockElement *> mElementList;
+		std::vector<Pointer *> mPointerList;
+		std::vector<BlockElement *> mElementList;
 	};
 
 private:

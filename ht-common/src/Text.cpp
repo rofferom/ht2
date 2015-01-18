@@ -145,7 +145,7 @@ int extractMatchingPointers(
 	uint32_t offset,
 	size_t start,
 	const std::vector<ht::Text::Pointer *> &src,
-	std::list<ht::Text::Pointer *> *dest)
+	std::vector<ht::Text::Pointer *> *dest)
 {
 	size_t srcSize = src.size();
 	int res = 0;

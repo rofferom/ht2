@@ -5,6 +5,7 @@ extern "C" {
 	#include <lua.h>
 }
 
+#include <stdint.h>
 #include <string>
 #include <tuple>
 #include <ht/Utils.hpp>
@@ -29,6 +30,27 @@ struct LuaType<void> {
 	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
 	{
 		return true;
+	}
+};
+
+template <>
+struct LuaType<bool> {
+	enum { isValid = 1 };
+	constexpr static const char *name = "bol";
+
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
+	{
+		return lua_isboolean(L, argIndex);;
+	}
+
+	static void pushValue(lua_State *L, bool value)
+	{
+		lua_pushboolean(L, value);
+	}
+
+	static void getValue(lua_State *L, int argIndex, bool &value)
+	{
+		value = lua_toboolean(L, argIndex);
 	}
 };
 
@@ -65,6 +87,48 @@ struct LuaType<int> {
 };
 
 template <>
+struct LuaType<uint8_t> {
+	enum { isValid = 1 };
+	constexpr static const char *name = "uint8_t";
+
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
+	{
+		return lua_isnumber(L, argIndex);
+	}
+
+	static void pushValue(lua_State *L, uint8_t value)
+	{
+		lua_pushnumber(L, value);
+	}
+
+	static void getValue(lua_State *L, int argIndex, uint8_t &value)
+	{
+		value = lua_tointeger(L, argIndex);
+	}
+};
+
+template <>
+struct LuaType<uint32_t> {
+	enum { isValid = 1 };
+	constexpr static const char *name = "uint32_t";
+
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
+	{
+		return lua_isnumber(L, argIndex);
+	}
+
+	static void pushValue(lua_State *L, uint32_t value)
+	{
+		lua_pushnumber(L, value);
+	}
+
+	static void getValue(lua_State *L, int argIndex, uint32_t &value)
+	{
+		value = lua_tointeger(L, argIndex);
+	}
+};
+
+template <>
 struct LuaType<size_t> {
 	enum { isValid = 1 };
 	constexpr static const char *name = "size_t";
@@ -95,10 +159,16 @@ struct LuaType<std::string> {
 		return lua_isstring(L, argIndex);
 	}
 
+	static void pushValue(lua_State *L, const char *value)
+	{
+		lua_pushstring(L, value);
+	}
+
 	static void pushValue(lua_State *L, std::string &value)
 	{
 		lua_pushstring(L, value.c_str());
 	}
+
 
 	static void getValue(lua_State *L, int argIndex, std::string &value)
 	{

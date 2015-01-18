@@ -38,7 +38,7 @@ struct LuaObjectParam {
 		return true;
 	}
 
-	static void getValue(lua_State *L, int argIndex, T *&t)
+	static void getValue(lua_State *L, int argIndex, T *&t, bool takeOwnership = true)
 	{
 		LuaBaseObject *base;
 		LuaObject<T> *self;
@@ -61,6 +61,11 @@ struct LuaObjectParam {
 		// luaObjectIsParamValid() should have been called before.
 		assert(self->mType != LuaObject<T>::Type::ConstReference);
 		t = self->mInstance;
+
+		if (takeOwnership == true) {
+			assert(self->mType == LuaObject<T>::Type::Managed);
+			self->mType = LuaObject<T>::Type::Reference;
+		}
 	}
 
 	static void getValue(lua_State *L, int argIndex, const T *&t)

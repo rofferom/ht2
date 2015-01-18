@@ -2,6 +2,7 @@
 #include <ht-lua/common/LuaClass.hpp>
 #include <ht-lua/common/LuaObjectParam.hpp>
 #include <ht-lua/LuaTable.hpp>
+#include <ht-lua/LuaText.hpp>
 
 extern "C" {
 	#include <lua.h>
@@ -232,6 +233,9 @@ int main(int argc, char *argv[])
 
 	// Register Table binding
 	htlua::LuaTable::registerClass(L);
+
+	// Register Text binding
+	htlua::LuaText::registerClass(L);
 
 	// Register Test binding
 	registerLuaTest(L);
