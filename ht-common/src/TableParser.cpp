@@ -26,7 +26,8 @@ bool isHexChar(char32_t c)
 	return ((c >= U'A' && c <= U'F') || (c >= U'a' && c <= U'f') || (c >= U'0' && c <= U'9'));
 }
 
-int parseLine(int lineNumber, char32_t *line, size_t lineSize, const ht::TableParserNewEntryCb &cb)
+int parseLine(int lineNumber, char32_t *line, size_t lineSize,
+	const ht::TableParserNewEntryCb::Type &cb)
 {
 	char32_t *separator;
 	std::u32string value;
@@ -89,7 +90,8 @@ error:
 	return res;
 }
 
-int parseTableContent(char32_t *content, size_t contentSize, const ht::TableParserNewEntryCb &cb)
+int parseTableContent(char32_t *content, size_t contentSize,
+	const ht::TableParserNewEntryCb::Type &cb)
 {
 	char32_t *position;
 	char32_t *eol;
@@ -236,7 +238,7 @@ int encodeKey(const uint8_t *key, size_t keySize, std::u32string *out)
 	return 0;
 }
 
-int parseTable(const char *path, const char *encoding, const TableParserNewEntryCb &cb)
+int parseTable(const char *path, const char *encoding, const TableParserNewEntryCb::Type &cb)
 {
 	char32_t *content;
 	size_t contentSize;

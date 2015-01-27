@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string>
-#include <ht/Callback.hpp>
+#include <ht/Utils.hpp>
 #include <ht/Table.hpp>
 
 namespace ht {
@@ -21,7 +21,7 @@ int parseKey(const char32_t *strKey, size_t strKeySize, uint8_t **outBuffer, siz
 int encodeKey(const Table::Key *key, std::u32string *out);
 int encodeKey(const uint8_t *key, size_t keySize, std::u32string *out);
 
-int parseTable(const char *path, const char *encoding, const TableParserNewEntryCb &cb);
+int parseTable(const char *path, const char *encoding, const TableParserNewEntryCb::Type &cb);
 
 } // ht
 

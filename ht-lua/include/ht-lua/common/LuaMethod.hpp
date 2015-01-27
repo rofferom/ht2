@@ -4,7 +4,7 @@
 #include <functional>
 #include <tuple>
 #include <ht/Log.hpp>
-#include <ht/Callback.hpp>
+#include <functional>
 #include <ht-lua/common/Sequence.hpp>
 #include <ht-lua/common/LuaTypes.hpp>
 #include <ht-lua/common/LuaParam.hpp>
@@ -67,10 +67,10 @@ struct LuaMethodBinder;
 
 template <typename R, typename... Args>
 struct LuaMethodBinder<R(Args...)> {
-	ht::Callback<R(Args...)> mCb;
+	std::function<R(Args...)> mCb;
 	using MethodParamList = std::tuple<LuaParamRemoveConstRef<Args>...>;
 
-	LuaMethodBinder(ht::Callback<R(Args...)> cb)
+	LuaMethodBinder(std::function<R(Args...)> cb)
 	{
 		mCb = cb;
 	}
@@ -101,10 +101,10 @@ struct LuaMethodBinder<R(Args...)> {
 
 template <typename... Args>
 struct LuaMethodBinder<void(Args...)> {
-	ht::Callback<void(Args...)> mCb;
+	std::function<void(Args...)> mCb;
 	using MethodParamList = std::tuple<LuaParamRemoveConstRef<Args>...>;
 
-	LuaMethodBinder(ht::Callback<void(Args...)> cb)
+	LuaMethodBinder(std::function<void(Args...)> cb)
 	{
 		mCb = cb;
 	}
@@ -133,9 +133,9 @@ struct LuaMethodBinder<void(Args...)> {
 
 template <typename R>
 struct LuaMethodBinder<R(void)> {
-	ht::Callback<R(void)> mCb;
+	std::function<R(void)> mCb;
 
-	LuaMethodBinder(ht::Callback<R(void)> cb)
+	LuaMethodBinder(std::function<R(void)> cb)
 	{
 		mCb = cb;
 	}
@@ -164,9 +164,9 @@ struct LuaMethodBinder<R(void)> {
 
 template <>
 struct LuaMethodBinder<void()> {
-	ht::Callback<void()> mCb;
+	std::function<void()> mCb;
 
-	LuaMethodBinder(ht::Callback<void()> cb)
+	LuaMethodBinder(std::function<void()> cb)
 	{
 		mCb = cb;
 	}

@@ -1,5 +1,6 @@
 #include <string.h>
 #include <gtest/gtest.h>
+#include <ht/Utils.hpp>
 #include <ht/TableParser.hpp>
 
 #define TABLE_FILE "test-table.txt"
@@ -47,7 +48,7 @@ struct TestParser {
 TEST(TableParserParse, ValidTable)
 {
 	TestParser testParser;
-	ht::TableParserNewEntryCb cb(&testParser, &TestParser::entryFound);
+	ht::TableParserNewEntryCb::Type cb = ht::TableParserNewEntryCb::get(&testParser, &TestParser::entryFound);
 	int res;
 
 	res = ht::parseTable(TABLE_FILE, "utf-8", cb);
@@ -58,7 +59,7 @@ TEST(TableParserParse, ValidTable)
 TEST(TableParserParse, InvalidKeyChar)
 {
 	TestParser testParser;
-	ht::TableParserNewEntryCb cb(&testParser, &TestParser::entryFound);
+	ht::TableParserNewEntryCb::Type cb = ht::TableParserNewEntryCb::get(&testParser, &TestParser::entryFound);
 	int res;
 
 	res = ht::parseTable(TABLE_FILE_INVALIDKEYCHAR, "utf-8", cb);
@@ -68,7 +69,7 @@ TEST(TableParserParse, InvalidKeyChar)
 TEST(TableParserParse, EmptyKey)
 {
 	TestParser testParser;
-	ht::TableParserNewEntryCb cb(&testParser, &TestParser::entryFound);
+	ht::TableParserNewEntryCb::Type cb = ht::TableParserNewEntryCb::get(&testParser, &TestParser::entryFound);
 	int res;
 
 	res = ht::parseTable(TABLE_FILE_EMPTYKEY, "utf-8", cb);
@@ -78,7 +79,7 @@ TEST(TableParserParse, EmptyKey)
 TEST(TableParserParse, EmptyValue)
 {
 	TestParser testParser;
-	ht::TableParserNewEntryCb cb(&testParser, &TestParser::entryFound);
+	ht::TableParserNewEntryCb::Type cb = ht::TableParserNewEntryCb::get(&testParser, &TestParser::entryFound);
 	int res;
 
 	res = ht::parseTable(TABLE_FILE_EMPTYVALUE, "utf-8", cb);
@@ -88,7 +89,7 @@ TEST(TableParserParse, EmptyValue)
 TEST(TableParserParse, NoSeparator)
 {
 	TestParser testParser;
-	ht::TableParserNewEntryCb cb(&testParser, &TestParser::entryFound);
+	ht::TableParserNewEntryCb::Type cb = ht::TableParserNewEntryCb::get(&testParser, &TestParser::entryFound);
 	int res;
 
 	res = ht::parseTable(TABLE_FILE_NOSEPARATOR, "utf-8", cb);

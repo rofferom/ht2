@@ -76,8 +76,9 @@ namespace htl {
 int loadTable(const char *tablePath, const char *encoding, ht::Table *table)
 {
 	TableLoader loader(table);
-	ht::TableParserNewEntryCb cb(&loader, &TableLoader::entryFound);
+	ht::TableParserNewEntryCb::Type cb;
 
+	cb = ht::TableParserNewEntryCb::get(&loader, &TableLoader::entryFound);
 	return ht::parseTable(tablePath, encoding, cb);
 }
 

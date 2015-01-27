@@ -45,7 +45,7 @@ struct LuaClass {
 	struct MethodGenerator<R(Args...)> {
 		static LuaMethodHandlerGen<T> get(R (T::*method)(Args...)) {
 			auto createCb = [method] (T *t) -> LuaMethodHandler {
-				ht::Callback<R(Args...)> cb(t, method);
+				std::function<R(Args...)> cb = ht::Callback<R(Args...)>::get(t, method);
 
 				return [cb] (lua_State *L) mutable -> int {
 					LuaMethodBinder<R(Args...)> binder(cb);
@@ -58,7 +58,7 @@ struct LuaClass {
 
 		static LuaMethodHandlerGen<T> get(R (T::*method)(Args...) const) {
 			auto createCb = [method] (T *t) -> LuaMethodHandler {
-				ht::Callback<R(Args...)> cb(t, method);
+				std::function<R(Args...)> cb = ht::Callback<R(Args...)>::get(t, method);
 
 				return [cb] (lua_State *L) -> int {
 					LuaMethodBinder<R(Args...)> binder(cb);
