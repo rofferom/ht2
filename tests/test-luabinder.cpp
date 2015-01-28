@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ht-lua/common/LuaClass.hpp>
 #include <ht-lua/common/LuaObjectParam.hpp>
+#include <ht-lua/common/LuaFunction.hpp>
 #include <ht-lua/LuaTable.hpp>
 #include <ht-lua/LuaText.hpp>
 
@@ -216,6 +217,60 @@ int forwardTestReference(lua_State *L, const Test *test)
 	return LuaTest::forwardReference(L, test);
 }
 
+int testFunction1(int a)
+{
+	printf("%s : %d\n", __func__, a);
+
+	return 1;
+}
+
+int testFunction2(int a, int b)
+{
+	printf("%s : %d %d\n", __func__, a, b);
+
+	return 2;
+}
+
+int testFunction3(int a, int b, int c)
+{
+	printf("%s : %d %d %d\n", __func__, a, b, c);
+
+	return 3;
+}
+
+struct TestFunctionBinder : htlua::LuaFunction<TestFunctionBinder> {
+	static void init()
+	{
+		static Function functions[] = {
+			{ "testFunction1", FunctionGenerator<int(int)>::get(testFunction1), },
+			{ "testFunction2", FunctionGenerator<int(int, int)>::get(testFunction2), },
+			{ "testFunction4", FunctionGenerator<int(int, int, int)>::get(customHandler), },
+			Function::empty(),
+		};
+
+		mFunctions = functions;
+	}
+
+	static int customHandler(lua_State *L)
+	{
+		printf("%s\n", __func__);
+
+		return 0;
+	}
+};
+
+struct TestFunctionBinder2 : htlua::LuaFunction<TestFunctionBinder2> {
+	static void init()
+	{
+		static Function functions[] = {
+			{ "testFunction3", FunctionGenerator<int(int, int, int)>::get(testFunction3), },
+			Function::empty(),
+		};
+
+		mFunctions = functions;
+	}
+};
+
 int main(int argc, char *argv[])
 {
 	lua_State * L;
@@ -241,6 +296,13 @@ int main(int argc, char *argv[])
 	registerLuaTest(L);
 	registerLuaTest2(L);
 	registerLuaTest3(L);
+
+	// Register function binding
+	TestFunctionBinder::init();
+	TestFunctionBinder::registerFunction(L);
+
+	TestFunctionBinder2::init();
+	TestFunctionBinder2::registerFunction(L);
 
 	forwardTestReference(L, &test);
 	lua_setglobal(L, "testRef");

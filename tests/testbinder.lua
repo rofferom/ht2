@@ -74,5 +74,22 @@ tParam:setA(43)
 
 t2 = Test2()
 t3 = Test3()
-t2:testOtherClass(t3)
+--t2:testOtherClass(t3)
 --t2:testOtherClass(testRefConst)
+
+
+print("---------")
+print("Function binder")
+print("---------")
+
+r = testFunction1(1)
+print(r)
+
+r = testFunction2(2, 3)
+print(r)
+
+r = testFunction3(4, 5, 6)
+print(r)
+
+r = testFunction4(7, 8, 9)
+print(r)
