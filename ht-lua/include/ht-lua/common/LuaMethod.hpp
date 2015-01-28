@@ -29,7 +29,7 @@ struct LuaMethodParamChecker;
 
 template <typename R, typename... Args>
 struct LuaMethodParamChecker<R(Args...)> {
-	static bool check(lua_State *L, int ignoreArgs = 1)
+	static bool check(lua_State *L, int ignoreArgs)
 	{
 		const int argCount = lua_gettop(L) - ignoreArgs;
 		const int expectedArgCount = sizeof...(Args);
@@ -68,11 +68,13 @@ struct LuaMethodBinder;
 template <typename R, typename... Args>
 struct LuaMethodBinder<R(Args...)> {
 	std::function<R(Args...)> mCb;
+	int mIgnoreCount;
 	using MethodParamList = std::tuple<LuaParamRemoveConstRef<Args>...>;
 
-	LuaMethodBinder(std::function<R(Args...)> cb)
+	LuaMethodBinder(std::function<R(Args...)> cb, int ignoreCount)
 	{
 		mCb = cb;
+		mIgnoreCount = ignoreCount;
 	}
 
 	template<int ...S>
@@ -87,11 +89,11 @@ struct LuaMethodBinder<R(Args...)> {
 		MethodParamList args;
 		R r;
 
-		if (LuaMethodParamChecker<R(Args...)>::check(L) == false) {
+		if (LuaMethodParamChecker<R(Args...)>::check(L, mIgnoreCount) == false) {
 			return 0;
 		}
 
-		luaParamFillList(L, 2, args);
+		luaParamFillList(L, mIgnoreCount + 1, args);
 		r = callMethod(typename SequenceGenerator<expectedArgCount>::type(), args);
 		LuaType<R>::pushValue(L, r);
 
@@ -102,11 +104,13 @@ struct LuaMethodBinder<R(Args...)> {
 template <typename... Args>
 struct LuaMethodBinder<void(Args...)> {
 	std::function<void(Args...)> mCb;
+	int mIgnoreCount;
 	using MethodParamList = std::tuple<LuaParamRemoveConstRef<Args>...>;
 
-	LuaMethodBinder(std::function<void(Args...)> cb)
+	LuaMethodBinder(std::function<void(Args...)> cb, int ignoreCount)
 	{
 		mCb = cb;
+		mIgnoreCount = ignoreCount;
 	}
 
 	template<int ...S>
@@ -120,11 +124,11 @@ struct LuaMethodBinder<void(Args...)> {
 		const int expectedArgCount = sizeof...(Args);
 		MethodParamList args;
 
-		if (LuaMethodParamChecker<void(Args...)>::check(L) == false) {
+		if (LuaMethodParamChecker<void(Args...)>::check(L, mIgnoreCount) == false) {
 			return 0;
 		}
 
-		luaParamFillList(L, 2, args);
+		luaParamFillList(L, mIgnoreCount + 1, args);
 		callMethod(typename SequenceGenerator<expectedArgCount>::type(), args);
 
 		return 0;
@@ -135,7 +139,7 @@ template <typename R>
 struct LuaMethodBinder<R(void)> {
 	std::function<R(void)> mCb;
 
-	LuaMethodBinder(std::function<R(void)> cb)
+	LuaMethodBinder(std::function<R(void)> cb, int ignoreCount)
 	{
 		mCb = cb;
 	}
@@ -166,7 +170,7 @@ template <>
 struct LuaMethodBinder<void()> {
 	std::function<void()> mCb;
 
-	LuaMethodBinder(std::function<void()> cb)
+	LuaMethodBinder(std::function<void()> cb, int ignoreCount)
 	{
 		mCb = cb;
 	}

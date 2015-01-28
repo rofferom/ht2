@@ -48,7 +48,7 @@ struct LuaClass {
 				std::function<R(Args...)> cb = ht::Callback<R(Args...)>::get(t, method);
 
 				return [cb] (lua_State *L) mutable -> int {
-					LuaMethodBinder<R(Args...)> binder(cb);
+					LuaMethodBinder<R(Args...)> binder(cb, 1);
 					return binder(L);
 				};
 			};
@@ -61,7 +61,7 @@ struct LuaClass {
 				std::function<R(Args...)> cb = ht::Callback<R(Args...)>::get(t, method);
 
 				return [cb] (lua_State *L) -> int {
-					LuaMethodBinder<R(Args...)> binder(cb);
+					LuaMethodBinder<R(Args...)> binder(cb, 1);
 					return binder(L);
 				};
 			};
@@ -72,7 +72,7 @@ struct LuaClass {
 		static LuaMethodHandlerGen<T> get(int (*cb)(lua_State *L, T *t), bool isConst = false) {
 			auto createCb = [cb] (T *t) -> LuaMethodHandler {
 				return [cb, t] (lua_State *L) mutable -> int {
-					if (LuaMethodParamChecker<R(Args...)>::check(L) == false) {
+					if (LuaMethodParamChecker<R(Args...)>::check(L, 1) == false) {
 						return 0;
 					}
 
@@ -92,7 +92,7 @@ struct LuaClass {
 				return [offset, t] (lua_State *L) mutable -> int {
 					U *u;
 
-					if (LuaMethodParamChecker<U(void)>::check(L) == false) {
+					if (LuaMethodParamChecker<U(void)>::check(L, 1) == false) {
 						return 0;
 					}
 
@@ -111,7 +111,7 @@ struct LuaClass {
 				return [offset, t] (lua_State *L) mutable -> int {
 					U *u;
 
-					if (LuaMethodParamChecker<void(U)>::check(L) == false) {
+					if (LuaMethodParamChecker<void(U)>::check(L, 1) == false) {
 						return 0;
 					}
 
