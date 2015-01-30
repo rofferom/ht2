@@ -26,6 +26,7 @@ LOCAL_SRC_FILES := \
 LOCAL_SHARED_LIBRARIES := \
 	ht-common \
 	ht-lua \
+	ht-legacy-lua \
 	lua \
 
 include $(BUILD_EXECUTABLE)

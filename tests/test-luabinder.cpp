@@ -4,6 +4,8 @@
 #include <ht-lua/common/LuaFunction.hpp>
 #include <ht-lua/LuaTable.hpp>
 #include <ht-lua/LuaText.hpp>
+#include <ht-lua-legacy/LuaTable.hpp>
+#include <ht-lua-legacy/LuaText.hpp>
 
 extern "C" {
 	#include <lua.h>
@@ -291,6 +293,12 @@ int main(int argc, char *argv[])
 
 	// Register Text binding
 	htlua::LuaText::registerClass(L);
+
+	// Register legacy Table binding
+	htlual::LuaTable::registerFunctions(L);
+
+	// Register legacy Text binding
+	htlual::LuaText::registerFunctions(L);
 
 	// Register Test binding
 	registerLuaTest(L);
