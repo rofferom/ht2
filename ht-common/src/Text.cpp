@@ -7,39 +7,17 @@ static const char32_t *TAG = U"Text";
 
 namespace {
 
-uint8_t *checkSize(uint8_t *array, size_t *size, size_t requiredSize)
-{
-	if (*size > requiredSize) {
-		return array;
-	} else {
-		if (*size == 0) {
-			*size = 1024;
-		} else {
-			*size *= 2;
-		}
-
-		return (uint8_t *) realloc(array, *size);
-	}
-}
-
 int encodeString(
 	const std::u32string &s,
 	const ht::Table &table,
-	uint8_t **outRawText,
-	size_t *outRawTextSize,
-	size_t writePos)
+	ht::Buffer *buffer)
 {
 	size_t maxValueSize = table.getMaxValueSize();
-	uint8_t *rawText;
-	size_t rawTextSize;
 	const char32_t *sIt;
 	size_t sItSize;
 	size_t searchSize;
 	const ht::Table::Entry *entry;
 	int res;
-
-	rawText = *outRawText;
-	rawTextSize = *outRawTextSize;
 
 	res = 0;
 	sIt = s.c_str();
@@ -55,11 +33,8 @@ int encodeString(
 		} else if (entry == NULL) {
 			searchSize--;
 		} else {
-			rawText = checkSize(rawText, &rawTextSize, writePos + entry->mKey.mSize);
-
-			ht::Log::d(TAG, U"Writing %d bytes at %p", entry->mKey.mSize, rawText + writePos);
-			memcpy(rawText + writePos, entry->mKey.mValue, entry->mKey.mSize);
-			writePos += entry->mKey.mSize;
+			ht::Log::d(TAG, U"Writing %d bytes", entry->mKey.mSize);
+			buffer->append(entry->mKey.mValue, entry->mKey.mSize);
 			res += entry->mKey.mSize;
 
 			sIt += searchSize;
@@ -69,30 +44,18 @@ int encodeString(
 		}
 	}
 
-	if (res > 0) {
-		*outRawText = rawText;
-		*outRawTextSize = rawTextSize;
-	}
-
 	return res;
 }
 
 int encodeBlock(
 	const ht::Text::Block *block,
 	const ht::Table &table,
-	uint8_t **outRawText,
-	size_t *outRawTextSize,
-	size_t inWritePos)
+	ht::Buffer *buffer)
 {
-	size_t writePos = inWritePos;
-	uint8_t *rawText;
-	size_t rawTextSize;
+	size_t inSize = buffer->getSize();
 	int res = 0;
 
 	ht::Log::d(TAG, U"Encoding new Block");
-
-	rawText = *outRawText;
-	rawTextSize = *outRawTextSize;
 
 	for (auto elem : block->mElementList) {
 		switch (elem->mType) {
@@ -102,23 +65,17 @@ int encodeBlock(
 			res = encodeString(
 				elem->mTextContent,
 				table,
-				&rawText,
-				&rawTextSize,
-				writePos);
+				buffer);
 			if (res > 0) {
 				ht::Log::d(TAG, U"%d bytes encoded", res);
-				writePos += res;
 			}
 
 			break;
 
 		case ht::Text::BlockElement::Type::RawByte:
 			ht::Log::d(TAG, U"Encoding new BlockElement of type RawByte");
-
-			rawText = checkSize(rawText, &rawTextSize, writePos + 1);
-			ht::Log::d(TAG, U"Writing 1 byte at %p", rawText + writePos);
-			rawText[writePos] = elem->mRawByte;
-			writePos++;
+			ht::Log::d(TAG, U"Writing 1 byte at %p");
+			buffer->append(&elem->mRawByte, 1);
 			break;
 
 		default:
@@ -135,9 +92,7 @@ int encodeBlock(
 	if (res < 0) {
 		return res;
 	} else {
-		*outRawText = rawText;
-		*outRawTextSize = rawTextSize;
-		return (writePos - inWritePos);
+		return (buffer->getSize() - inSize);
 	}
 }
 
@@ -280,30 +235,24 @@ const Text::Block *Text::getBlock(size_t index) const
 
 int Text::encode(
 	const Table &table,
-	uint8_t **outRawText,
-	size_t *outRawTextSize,
+	Buffer *buffer,
 	std::list<Pointer *> *pointerList) const
 {
 	int res;
-	size_t writePos;
 
-	if (outRawText == NULL || outRawTextSize == NULL || pointerList == NULL) {
+	if (buffer == NULL || pointerList == NULL) {
 		return -EINVAL;
 	}
 
-	*outRawText = NULL;
-	*outRawTextSize = 0;
-
 	res = 0;
-	writePos = 0;
 
 	for (auto block : mBlockList) {
+		size_t writePos = buffer->getSize();
+
 		res = encodeBlock(
 			block,
 			table,
-			outRawText,
-			outRawTextSize,
-			writePos);
+			buffer);
 		if (res < 0) {
 			break;
 		}
@@ -313,20 +262,14 @@ int Text::encode(
 			pointerList->push_back(pointer);
 		}
 
-		writePos += res;
 		res = 0;
-	}
-
-	if (res == 0) {
-		*outRawTextSize = writePos;
 	}
 
 	return res;
 }
 
 int Text::decode(
-	const uint8_t *rawText,
-	size_t rawTextSize,
+	const Buffer &buffer,
 	const Table &table,
 	const std::vector<Pointer *> &inPointerList)
 {
@@ -336,7 +279,12 @@ int Text::decode(
 	uint32_t textToExtractStart;
 	size_t textToExtractSize;
 	int foundPointerCount;
+	const uint8_t *rawText;
+	size_t rawTextSize;
 	int res;
+
+	rawText = buffer.getData();
+	rawTextSize = buffer.getSize();
 
 	pointerList = inPointerList;
 	std::sort(

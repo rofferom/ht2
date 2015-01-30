@@ -29,8 +29,7 @@ TEST(Text, Encode)
 	ht::Table table;
 	ht::Text text;
 	ht::Text::Block *block;
-	uint8_t *rawText;
-	size_t rawTextSize;
+	ht::Buffer rawText;
 	std::list<ht::Text::Pointer *> pointerList;
 	int res;
 
@@ -73,10 +72,10 @@ TEST(Text, Encode)
 	text.addBlock(block);
 
 	// Try to encode text
-	res = text.encode(table, &rawText, &rawTextSize, &pointerList);
+	res = text.encode(table, &rawText, &pointerList);
 	ASSERT_EQ(res, 0);
-	ASSERT_EQ(rawTextSize, HT_SIZEOF_ARRAY(encodedValue));
-	ASSERT_EQ(memcmp(rawText, encodedValue, HT_SIZEOF_ARRAY(encodedValue)), 0);
+	ASSERT_EQ(rawText.getSize(), HT_SIZEOF_ARRAY(encodedValue));
+	ASSERT_EQ(memcmp(rawText.getData(), encodedValue, HT_SIZEOF_ARRAY(encodedValue)), 0);
 
 	// Check pointers
 	ASSERT_EQ(pointerList.size(), 4);
@@ -90,14 +89,13 @@ TEST(Text, Encode)
 		ASSERT_EQ((*pointerIt)->mId, 2 + i);
 		ASSERT_EQ((*pointerIt)->mOffset, 12);
 	}
-
-	free(rawText);
 }
 
 TEST(Text, Decode)
 {
 	ht::Table table;
 	ht::Text text;
+	ht::Buffer buffer(encodedValue, HT_SIZEOF_ARRAY(encodedValue));
 	std::vector<ht::Text::Pointer *> pointerList;
 	int res;
 
@@ -126,7 +124,7 @@ TEST(Text, Decode)
 	pointerList.push_back(new ht::Text::Pointer{4, 12, 0});
 
 	// Try to decode text
-	res = text.decode(encodedValue, HT_SIZEOF_ARRAY(encodedValue), table, pointerList);
+	res = text.decode(buffer, table, pointerList);
 	ASSERT_EQ(res, 0);
 	ASSERT_EQ(text.getBlockCount(), 2);
 

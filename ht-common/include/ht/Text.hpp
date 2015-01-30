@@ -4,6 +4,7 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <ht/Buffer.hpp>
 #include <ht/Table.hpp>
 
 namespace ht {
@@ -76,13 +77,11 @@ public:
 
 	int encode(
 		const Table &table,
-		uint8_t **outRawText,
-		size_t *outRawTextSize,
+		Buffer *buffer,
 		std::list<Pointer *> *pointerList) const;
 
 	int decode(
-		const uint8_t *rawText,
-		size_t rawTextSize,
+		const Buffer &buffer,
 		const Table &table,
 		const std::vector<Pointer *> &pointerList);
 };
