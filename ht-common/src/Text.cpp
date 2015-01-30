@@ -236,7 +236,7 @@ const Text::Block *Text::getBlock(size_t index) const
 int Text::encode(
 	const Table &table,
 	Buffer *buffer,
-	std::list<Pointer *> *pointerList) const
+	std::vector<Pointer *> *pointerList) const
 {
 	int res;
 

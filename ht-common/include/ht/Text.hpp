@@ -2,7 +2,6 @@
 #define __HT_TEXT_HPP__
 
 #include <string>
-#include <list>
 #include <vector>
 #include <ht/Buffer.hpp>
 #include <ht/Table.hpp>
@@ -78,7 +77,7 @@ public:
 	int encode(
 		const Table &table,
 		Buffer *buffer,
-		std::list<Pointer *> *pointerList) const;
+		std::vector<Pointer *> *pointerList) const;
 
 	int decode(
 		const Buffer &buffer,
