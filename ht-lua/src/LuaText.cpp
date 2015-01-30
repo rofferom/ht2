@@ -54,7 +54,7 @@ struct LuaType<ht::Text::Pointer> {
 	}
 };
 
-struct LuaPointerListClass : LuaClass<std::vector<ht::Text::Pointer *>> {
+struct LuaPointerListClass : LuaClass<ht::Text::PointerList> {
 	static void init()
 	{
 		static Method methods[] = {
@@ -68,13 +68,13 @@ struct LuaPointerListClass : LuaClass<std::vector<ht::Text::Pointer *>> {
 		mMethods = methods;
 	}
 
-	static int getCount(lua_State *L, std::vector<ht::Text::Pointer *> *pointerList)
+	static int getCount(lua_State *L, ht::Text::PointerList *pointerList)
 	{
 		LuaType<size_t>::pushValue(L, pointerList->size());
 		return 1;
 	}
 
-	static int get(lua_State *L, std::vector<ht::Text::Pointer *> *pointerList)
+	static int get(lua_State *L, ht::Text::PointerList *pointerList)
 	{
 		ht::Text::Pointer *pointer;
 		int index;
@@ -88,33 +88,33 @@ struct LuaPointerListClass : LuaClass<std::vector<ht::Text::Pointer *>> {
 };
 
 template <>
-struct LuaType<std::vector<ht::Text::Pointer *>> {
+struct LuaType<ht::Text::PointerList> {
 	enum { isValid = 1 };
 	constexpr static const char *name = "TextPointerList";
 
 	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
 	{
-		return LuaObjectParam<std::vector<ht::Text::Pointer *>>::isParamValid(L, argIndex, typeConst);
+		return LuaObjectParam<ht::Text::PointerList>::isParamValid(L, argIndex, typeConst);
 	}
 
-	static void pushValue(lua_State *L, std::vector<ht::Text::Pointer *> *pointerList)
+	static void pushValue(lua_State *L, ht::Text::PointerList *pointerList)
 	{
-		LuaClass<std::vector<ht::Text::Pointer *>>::forwardReference(L, pointerList);
+		LuaClass<ht::Text::PointerList>::forwardReference(L, pointerList);
 	}
 
-	static void pushValue(lua_State *L, const std::vector<ht::Text::Pointer *> *pointerList)
+	static void pushValue(lua_State *L, const ht::Text::PointerList *pointerList)
 	{
-		LuaClass<std::vector<ht::Text::Pointer *>>::forwardReference(L, pointerList);
+		LuaClass<ht::Text::PointerList>::forwardReference(L, pointerList);
 	}
 
-	static void getValue(lua_State *L, int argIndex, std::vector<ht::Text::Pointer *> *&pointerList, bool takeOwnership = true)
+	static void getValue(lua_State *L, int argIndex, ht::Text::PointerList *&pointerList, bool takeOwnership = true)
 	{
-		LuaObjectParam<std::vector<ht::Text::Pointer *>>::getValue(L, argIndex, pointerList, takeOwnership);
+		LuaObjectParam<ht::Text::PointerList>::getValue(L, argIndex, pointerList, takeOwnership);
 	}
 
-	static void getValue(lua_State *L, int argIndex, const std::vector<ht::Text::Pointer *> *&pointerList)
+	static void getValue(lua_State *L, int argIndex, const ht::Text::PointerList *&pointerList)
 	{
-		LuaObjectParam<std::vector<ht::Text::Pointer *>>::getValue(L, argIndex, pointerList);
+		LuaObjectParam<ht::Text::PointerList>::getValue(L, argIndex, pointerList);
 	}
 };
 
@@ -333,8 +333,8 @@ struct LuaTextClass : LuaClass<ht::Text> {
 	{
 		static Method methods[] = {
 			{ "getBlockCount", MethodGenerator<size_t(void)>::get(&ht::Text::getBlockCount) },
-			{ "encode", MethodGenerator<int(ht::Table, ht::Buffer, std::vector<ht::Text::Pointer *>)>::get(encodeHandler, true) },
-			{ "decode", MethodGenerator<int(ht::Buffer, ht::Table, std::vector<ht::Text::Pointer *>)>::get(decodeHandler, true) },
+			{ "encode", MethodGenerator<int(ht::Table, ht::Buffer, ht::Text::PointerList)>::get(encodeHandler, true) },
+			{ "decode", MethodGenerator<int(ht::Buffer, ht::Table, ht::Text::PointerList)>::get(decodeHandler, true) },
 			Method::empty(),
 		};
 
@@ -347,12 +347,12 @@ struct LuaTextClass : LuaClass<ht::Text> {
 	{
 		const ht::Table *table;
 		ht::Buffer *buffer;
-		std::vector<ht::Text::Pointer *> *pointerList;
+		ht::Text::PointerList *pointerList;
 		int res;
 
 		LuaType<ht::Table>::getValue(L, 2, table);
 		LuaType<ht::Buffer>::getValue(L, 3, buffer, false);
-		LuaType<std::vector<ht::Text::Pointer *>>::getValue(L, 4, pointerList);
+		LuaType<ht::Text::PointerList>::getValue(L, 4, pointerList);
 
 		res = text->encode(*table, buffer, pointerList);
 
@@ -364,12 +364,12 @@ struct LuaTextClass : LuaClass<ht::Text> {
 	{
 		const ht::Buffer *buffer;
 		const ht::Table *table;
-		const std::vector<ht::Text::Pointer *> *pointerList;
+		const ht::Text::PointerList *pointerList;
 		int res;
 
 		LuaType<ht::Buffer>::getValue(L, 2, buffer);
 		LuaType<ht::Table>::getValue(L, 3, table);
-		LuaType<std::vector<ht::Text::Pointer *>>::getValue(L, 4, pointerList);
+		LuaType<ht::Text::PointerList>::getValue(L, 4, pointerList);
 
 		res = text->decode(*buffer, *table, *pointerList);
 

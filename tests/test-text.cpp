@@ -30,7 +30,7 @@ TEST(Text, Encode)
 	ht::Text text;
 	ht::Text::Block *block;
 	ht::Buffer rawText;
-	std::vector<ht::Text::Pointer *> pointerList;
+	ht::Text::PointerList pointerList;
 	int res;
 
 	// Fill table
@@ -96,7 +96,7 @@ TEST(Text, Decode)
 	ht::Table table;
 	ht::Text text;
 	ht::Buffer buffer(encodedValue, HT_SIZEOF_ARRAY(encodedValue));
-	std::vector<ht::Text::Pointer *> pointerList;
+	ht::Text::PointerList pointerList;
 	int res;
 
 	// Fill table

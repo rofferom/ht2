@@ -236,7 +236,7 @@ const Text::Block *Text::getBlock(size_t index) const
 int Text::encode(
 	const Table &table,
 	Buffer *buffer,
-	std::vector<Pointer *> *pointerList) const
+	PointerList *pointerList) const
 {
 	int res;
 
@@ -271,9 +271,9 @@ int Text::encode(
 int Text::decode(
 	const Buffer &buffer,
 	const Table &table,
-	const std::vector<Pointer *> &inPointerList)
+	const PointerList &inPointerList)
 {
-	std::vector<Pointer *> pointerList;
+	PointerList pointerList;
 	size_t pointerCount;
 	size_t nextPointer;
 	uint32_t textToExtractStart;

@@ -30,6 +30,8 @@ public:
 		}
 	};
 
+	typedef std::vector<Pointer *> PointerList;
+
 	struct BlockElement {
 		enum class Type {
 			None,
@@ -57,7 +59,7 @@ public:
 	};
 
 	struct Block {
-		std::vector<Pointer *> mPointerList;
+		PointerList mPointerList;
 		std::vector<BlockElement *> mElementList;
 	};
 
@@ -77,12 +79,12 @@ public:
 	int encode(
 		const Table &table,
 		Buffer *buffer,
-		std::vector<Pointer *> *pointerList) const;
+		PointerList *pointerList) const;
 
 	int decode(
 		const Buffer &buffer,
 		const Table &table,
-		const std::vector<Pointer *> &pointerList);
+		const PointerList &pointerList);
 };
 
 } // ht
