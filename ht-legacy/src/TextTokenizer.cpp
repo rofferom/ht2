@@ -3,7 +3,7 @@
 #include <ht/TextFile.hpp>
 #include <ht-legacy/TextTokenizer.hpp>
 
-#define POINTER_LEN 10
+#define POINTER_LEN 9
 #define RAWBYTE_LEN 4
 
 namespace {
@@ -28,29 +28,29 @@ int getPointerId(const char32_t *s)
 {
 	int res;
 
-	res = convertDigit(s[7]);
-	res += convertDigit(s[6]) * 10;
-	res += convertDigit(s[5]) * 100;
-	res += convertDigit(s[4]) * 1000;
+	res = convertDigit(s[6]);
+	res += convertDigit(s[5]) * 10;
+	res += convertDigit(s[4]) * 100;
+	res += convertDigit(s[3]) * 1000;
 
 	return res;
 }
 
 bool isPointer(const char32_t *s, size_t size)
 {
-	// <PTRxxxx>\n
+	// <PTxxxx>\n
 	if (size < POINTER_LEN) {
 		return false;
 	}
 
 	// Check global pattern
-	if (s[0] != U'<' || s[1] != U'P' || s[2] != U'T' || s[3] != U'R' || s[8] != U'>' || s[9] != U'\n') {
+	if (s[0] != U'<' || s[1] != U'P' || s[2] != U'T' || s[7] != U'>' || s[8] != U'\n') {
 		return false;
 	}
 
 	// Check pointer ID
 	for (int i = 0 ; i < 4 ; i++) {
-		if (isDigit(s[4+i]) == false) {
+		if (isDigit(s[3+i]) == false) {
 			return false;
 		}
 	}

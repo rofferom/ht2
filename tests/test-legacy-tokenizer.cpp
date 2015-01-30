@@ -21,7 +21,7 @@ static const BlockDescr blocks[] = {
 	{BlockType::Pointer, 1},
 	{BlockType::Text, 5},
 	{BlockType::RawByte, 0x43},
-	{BlockType::Text, 15},
+	{BlockType::Text, 14},
 	{BlockType::RawByte, 0x44},
 	{BlockType::Pointer, 2},
 	{BlockType::Pointer, 3},

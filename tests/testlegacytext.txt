@@ -1,5 +1,5 @@
-<PTR0001>
+<PT0001>
 Hello, World...
 
-<PTR0002>
+<PT0002>
 Goodbye, World...

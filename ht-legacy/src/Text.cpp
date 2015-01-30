@@ -165,7 +165,7 @@ int saveText(const ht::Text *text, const char *textPath, const char *encoding)
 		const ht::Text::Block *block = text->getBlock(i);
 
 		for (const auto &ptr : block->mPointerList) {
-			fprintf32(&printfOut, U"<PTR%04d>\n", ptr->mId);
+			fprintf32(&printfOut, U"<PT%04d>\n", ptr->mId);
 		}
 
 		for (const auto &elem : block->mElementList) {
