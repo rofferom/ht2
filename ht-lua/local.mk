@@ -13,6 +13,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_EXPORT_C_INCLUDES)
 
 LOCAL_SRC_FILES := \
+	src/LuaBuffer.cpp \
 	src/LuaPackage.cpp \
 	src/LuaTable.cpp \
 	src/LuaText.cpp \
