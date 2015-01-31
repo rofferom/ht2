@@ -46,7 +46,6 @@ static size_t printfCb(const char32_t *s, size_t size, void *userdata)
 void pointerFound(uint32_t id, void *userdata)
 {
 	Loader *loader = (Loader *) userdata;
-	ht::Text::Pointer *pointer;
 
 	switch (loader->state) {
 	case LoaderState::Idle:
@@ -62,8 +61,7 @@ void pointerFound(uint32_t id, void *userdata)
 		break;
 	}
 
-	pointer = new ht::Text::Pointer{id, 0, 0};
-	loader->currentBlock->mPointerList.push_back(pointer);
+	loader->currentBlock->mPointerList.push_back(ht::Pointer{id, 0, 0});
 }
 
 void rawByteFound(uint8_t byte, void *userdata)
@@ -165,7 +163,7 @@ int saveText(const ht::Text *text, const char *textPath, const char *encoding)
 		const ht::Text::Block *block = text->getBlock(i);
 
 		for (const auto &ptr : block->mPointerList) {
-			fprintf32(&printfOut, U"<PT%04d>\n", ptr->mId);
+			fprintf32(&printfOut, U"<PT%04d>\n", ptr.mId);
 		}
 
 		for (const auto &elem : block->mElementList) {

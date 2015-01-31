@@ -30,7 +30,8 @@ TEST(Text, Encode)
 	ht::Text text;
 	ht::Text::Block *block;
 	ht::Buffer rawText;
-	ht::Text::PointerList pointerList;
+	ht::Pointer *pointer;
+	ht::PointerTable pointerTable;
 	int res;
 
 	// Fill table
@@ -53,7 +54,7 @@ TEST(Text, Encode)
 
 	// Fill text
 	block = new ht::Text::Block();
-	block->mPointerList.push_back(new ht::Text::Pointer{1, 0, 0});
+	block->mPointerList.push_back(ht::Pointer{1, 0, 0});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::Text, U"AAÉDC", 0});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::RawByte, U"", 0x43});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::Text, U"ÉDCBA", 0});
@@ -61,9 +62,9 @@ TEST(Text, Encode)
 	text.addBlock(block);
 
 	block = new ht::Text::Block();
-	block->mPointerList.push_back(new ht::Text::Pointer{2, 0, 0});
-	block->mPointerList.push_back(new ht::Text::Pointer{3, 0, 0});
-	block->mPointerList.push_back(new ht::Text::Pointer{4, 0, 0});
+	block->mPointerList.push_back(ht::Pointer{2, 0, 0});
+	block->mPointerList.push_back(ht::Pointer{3, 0, 0});
+	block->mPointerList.push_back(ht::Pointer{4, 0, 0});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::Text, U"AA[TestBlock1]AA", 0});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::RawByte, U"", 0x43});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::RawByte, U"", 0x44});
@@ -72,22 +73,22 @@ TEST(Text, Encode)
 	text.addBlock(block);
 
 	// Try to encode text
-	res = text.encode(table, &rawText, &pointerList);
+	res = text.encode(table, &rawText, &pointerTable);
 	ASSERT_EQ(res, 0);
 	ASSERT_EQ(rawText.getSize(), HT_SIZEOF_ARRAY(encodedValue));
 	ASSERT_EQ(memcmp(rawText.getData(), encodedValue, HT_SIZEOF_ARRAY(encodedValue)), 0);
 
 	// Check pointers
-	ASSERT_EQ(pointerList.size(), 4);
-	auto pointerIt = pointerList.begin();
-	ASSERT_EQ((*pointerIt)->mId, 1);
-	ASSERT_EQ((*pointerIt)->mOffset, 0);
+	ASSERT_EQ(pointerTable.getCount(), 4);
+	pointer = pointerTable.getPointer(0);
+	ASSERT_EQ(pointer->mId, 1);
+	ASSERT_EQ(pointer->mOffset, 0);
 
-	for (int i = 0 ; i < 3 ; i++) {
-		pointerIt++;
+	for (int i = 1 ; i < 4 ; i++) {
+		pointer = pointerTable.getPointer(i);
 
-		ASSERT_EQ((*pointerIt)->mId, 2 + i);
-		ASSERT_EQ((*pointerIt)->mOffset, 12);
+		ASSERT_EQ(pointer->mId, 1 + i);
+		ASSERT_EQ(pointer->mOffset, 12);
 	}
 }
 
@@ -96,7 +97,7 @@ TEST(Text, Decode)
 	ht::Table table;
 	ht::Text text;
 	ht::Buffer buffer(encodedValue, HT_SIZEOF_ARRAY(encodedValue));
-	ht::Text::PointerList pointerList;
+	ht::PointerTable pointerTable;
 	int res;
 
 	// Fill table
@@ -118,20 +119,20 @@ TEST(Text, Decode)
 	ASSERT_EQ(res, 0);
 
 	// Fill pointer table
-	pointerList.push_back(new ht::Text::Pointer{1, 0, 0});
-	pointerList.push_back(new ht::Text::Pointer{2, 12, 0});
-	pointerList.push_back(new ht::Text::Pointer{3, 12, 0});
-	pointerList.push_back(new ht::Text::Pointer{4, 12, 0});
+	pointerTable.add(ht::Pointer{1, 0, 0});
+	pointerTable.add(ht::Pointer{2, 12, 0});
+	pointerTable.add(ht::Pointer{3, 12, 0});
+	pointerTable.add(ht::Pointer{4, 12, 0});
 
 	// Try to decode text
-	res = text.decode(buffer, table, pointerList);
+	res = text.decode(buffer, table, pointerTable);
 	ASSERT_EQ(res, 0);
 	ASSERT_EQ(text.getBlockCount(), 2);
 
 	// Test block 0
 	ASSERT_EQ(text.getBlock(0)->mPointerList.size(), 1);
 	auto pointerIt = text.getBlock(0)->mPointerList.begin();
-	ASSERT_EQ((*pointerIt)->mId, 1);
+	ASSERT_EQ(pointerIt->mId, 1);
 
 	ASSERT_EQ(text.getBlock(0)->mElementList.size(), 4);
 
@@ -154,11 +155,11 @@ TEST(Text, Decode)
 	// Test block 1
 	ASSERT_EQ(text.getBlock(1)->mPointerList.size(), 3);
 	pointerIt = text.getBlock(1)->mPointerList.begin();
-	ASSERT_EQ((*pointerIt)->mId, 2);
+	ASSERT_EQ(pointerIt->mId, 2);
 	pointerIt++;
-	ASSERT_EQ((*pointerIt)->mId, 3);
+	ASSERT_EQ(pointerIt->mId, 3);
 	pointerIt++;
-	ASSERT_EQ((*pointerIt)->mId, 4);
+	ASSERT_EQ(pointerIt->mId, 4);
 
 	ASSERT_EQ(text.getBlock(1)->mElementList.size(), 5);
 

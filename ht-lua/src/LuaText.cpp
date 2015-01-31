@@ -5,118 +5,10 @@
 #include <ht-lua/common/LuaObjectParam.hpp>
 #include <ht-lua/LuaBuffer.hpp>
 #include <ht-lua/LuaTable.hpp>
+#include <ht-lua/LuaPointer.hpp>
 #include <ht-lua/LuaText.hpp>
 
 namespace htlua {
-
-struct LuaTextPointerClass : LuaClass<ht::Text::Pointer> {
-	static void init()
-	{
-		static Method methods[] = {
-			{ "getId", GetSetGenerator<uint32_t>::get(offsetof(ht::Text::Pointer, mId)) },
-			{ "setId", GetSetGenerator<uint32_t>::set(offsetof(ht::Text::Pointer, mId)) },
-			{ "getOffset", GetSetGenerator<uint32_t>::get(offsetof(ht::Text::Pointer, mOffset)) },
-			{ "setOffset", GetSetGenerator<uint32_t>::set(offsetof(ht::Text::Pointer, mOffset)) },
-			{ "getSourceAddress", GetSetGenerator<uint32_t>::get(offsetof(ht::Text::Pointer, mSourceAddress)) },
-			{ "setSourceAddress", GetSetGenerator<uint32_t>::set(offsetof(ht::Text::Pointer, mSourceAddress)) },
-			Method::empty(),
-		};
-
-		mName = "TextPointer";
-		mPackage = "ht";
-		mMethods = methods;
-	}
-};
-
-template <>
-struct LuaType<ht::Text::Pointer> {
-	enum { isValid = 1 };
-	constexpr static const char *name = "TextPointer";
-
-	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
-	{
-		return LuaObjectParam<ht::Text::Pointer>::isParamValid(L, argIndex, typeConst);
-	}
-
-	static void pushValue(lua_State *L, ht::Text::Pointer *pointer)
-	{
-		LuaClass<ht::Text::Pointer>::forwardReference(L, pointer);
-	}
-
-	static void pushValue(lua_State *L, const ht::Text::Pointer *pointer)
-	{
-		LuaClass<ht::Text::Pointer>::forwardReference(L, pointer);
-	}
-
-	static void getValue(lua_State *L, int argIndex, ht::Text::Pointer *&pointer, bool takeOwnership = true)
-	{
-		LuaObjectParam<ht::Text::Pointer>::getValue(L, argIndex, pointer, takeOwnership);
-	}
-};
-
-struct LuaPointerListClass : LuaClass<ht::Text::PointerList> {
-	static void init()
-	{
-		static Method methods[] = {
-			{ "getCount", MethodGenerator<size_t(void)>::get(getCount, true) },
-			{ "get", MethodGenerator<ht::Text::Pointer(int)>::get(get) },
-			Method::empty(),
-		};
-
-		mName = "TextPointerList";
-		mPackage = "ht";
-		mMethods = methods;
-	}
-
-	static int getCount(lua_State *L, ht::Text::PointerList *pointerList)
-	{
-		LuaType<size_t>::pushValue(L, pointerList->size());
-		return 1;
-	}
-
-	static int get(lua_State *L, ht::Text::PointerList *pointerList)
-	{
-		ht::Text::Pointer *pointer;
-		int index;
-
-		LuaType<int>::getValue(L, 2, index);
-
-		pointer = pointerList->at(index);
-		LuaType<ht::Text::Pointer>::pushValue(L, pointer);
-		return 1;
-	}
-};
-
-template <>
-struct LuaType<ht::Text::PointerList> {
-	enum { isValid = 1 };
-	constexpr static const char *name = "TextPointerList";
-
-	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
-	{
-		return LuaObjectParam<ht::Text::PointerList>::isParamValid(L, argIndex, typeConst);
-	}
-
-	static void pushValue(lua_State *L, ht::Text::PointerList *pointerList)
-	{
-		LuaClass<ht::Text::PointerList>::forwardReference(L, pointerList);
-	}
-
-	static void pushValue(lua_State *L, const ht::Text::PointerList *pointerList)
-	{
-		LuaClass<ht::Text::PointerList>::forwardReference(L, pointerList);
-	}
-
-	static void getValue(lua_State *L, int argIndex, ht::Text::PointerList *&pointerList, bool takeOwnership = true)
-	{
-		LuaObjectParam<ht::Text::PointerList>::getValue(L, argIndex, pointerList, takeOwnership);
-	}
-
-	static void getValue(lua_State *L, int argIndex, const ht::Text::PointerList *&pointerList)
-	{
-		LuaObjectParam<ht::Text::PointerList>::getValue(L, argIndex, pointerList);
-	}
-};
 
 struct LuaTextBlockElementClass : LuaClass<ht::Text::BlockElement> {
 	static void init()
@@ -248,8 +140,8 @@ struct LuaTextBlockClass : LuaClass<ht::Text::Block> {
 	{
 		static Method methods[] = {
 			{ "getPointerCount", MethodGenerator<size_t(void)>::get(getPointerCount) },
-			{ "getPointer", MethodGenerator<ht::Text::Pointer *(size_t)>::get(getPointer) },
-			{ "addPointer", MethodGenerator<void(ht::Text::Pointer *)>::get(addPointer) },
+			{ "getPointer", MethodGenerator<ht::Pointer *(size_t)>::get(getPointer) },
+			{ "addPointer", MethodGenerator<void(ht::Pointer *)>::get(addPointer) },
 			{ "getElementCount", MethodGenerator<size_t(void)>::get(getElementCount) },
 			{ "getElement", MethodGenerator<ht::Text::BlockElement *(size_t)>::get(getElement) },
 			{ "addElement", MethodGenerator<void(ht::Text::BlockElement *)>::get(addElement) },
@@ -275,7 +167,7 @@ struct LuaTextBlockClass : LuaClass<ht::Text::Block> {
 		LuaType<size_t>::getValue(L, 2, index);
 
 		if (index < block->mPointerList.size()) {
-			LuaType<ht::Text::Pointer>::pushValue(L, block->mPointerList[index]);
+			LuaType<ht::Pointer>::pushValue(L, &block->mPointerList[index]);
 		} else {
 			lua_pushnil(L);
 		}
@@ -285,11 +177,11 @@ struct LuaTextBlockClass : LuaClass<ht::Text::Block> {
 
 	static int addPointer(lua_State *L, ht::Text::Block *block)
 	{
-		ht::Text::Pointer *pointer;
+		ht::Pointer *pointer;
 
-		LuaType<ht::Text::Pointer>::getValue(L, 2, pointer, true);
+		LuaType<ht::Pointer>::getValue(L, 2, pointer, true);
 
-		block->mPointerList.push_back(pointer);
+		block->mPointerList.push_back(*pointer);
 
 		return 0;
 	}
@@ -333,8 +225,8 @@ struct LuaTextClass : LuaClass<ht::Text> {
 	{
 		static Method methods[] = {
 			{ "getBlockCount", MethodGenerator<size_t(void)>::get(&ht::Text::getBlockCount) },
-			{ "encode", MethodGenerator<int(ht::Table, ht::Buffer, ht::Text::PointerList)>::get(encodeHandler, true) },
-			{ "decode", MethodGenerator<int(ht::Buffer, ht::Table, ht::Text::PointerList)>::get(decodeHandler, true) },
+			{ "encode", MethodGenerator<int(ht::Table, ht::Buffer, ht::PointerTable)>::get(encodeHandler, true) },
+			{ "decode", MethodGenerator<int(ht::Buffer, ht::Table, ht::PointerTable)>::get(decodeHandler, true) },
 			Method::empty(),
 		};
 
@@ -347,12 +239,12 @@ struct LuaTextClass : LuaClass<ht::Text> {
 	{
 		const ht::Table *table;
 		ht::Buffer *buffer;
-		ht::Text::PointerList *pointerList;
+		ht::PointerTable *pointerList;
 		int res;
 
 		LuaType<ht::Table>::getValue(L, 2, table);
 		LuaType<ht::Buffer>::getValue(L, 3, buffer, false);
-		LuaType<ht::Text::PointerList>::getValue(L, 4, pointerList);
+		LuaType<ht::PointerTable>::getValue(L, 4, pointerList, false);
 
 		res = text->encode(*table, buffer, pointerList);
 
@@ -364,12 +256,12 @@ struct LuaTextClass : LuaClass<ht::Text> {
 	{
 		const ht::Buffer *buffer;
 		const ht::Table *table;
-		const ht::Text::PointerList *pointerList;
+		const ht::PointerTable *pointerList;
 		int res;
 
 		LuaType<ht::Buffer>::getValue(L, 2, buffer);
 		LuaType<ht::Table>::getValue(L, 3, table);
-		LuaType<ht::Text::PointerList>::getValue(L, 4, pointerList);
+		LuaType<ht::PointerTable>::getValue(L, 4, pointerList);
 
 		res = text->decode(*buffer, *table, *pointerList);
 
@@ -381,12 +273,6 @@ struct LuaTextClass : LuaClass<ht::Text> {
 int LuaText::registerClass(lua_State *L)
 {
 	int res = 0;
-
-	LuaTextPointerClass::init();
-	res |= LuaTextPointerClass::registerClass(L);
-
-	LuaPointerListClass::init();
-	res |= LuaPointerListClass::registerClass(L);
 
 	LuaTextBlockElementClass::init();
 	res |= LuaTextBlockElementClass::registerClass(L);

@@ -4,34 +4,13 @@
 #include <string>
 #include <vector>
 #include <ht/Buffer.hpp>
+#include <ht/Pointer.hpp>
 #include <ht/Table.hpp>
 
 namespace ht {
 
 class Text {
 public:
-	struct Pointer {
-		uint32_t mId;
-		uint32_t mOffset;
-		uint32_t mSourceAddress;
-
-		Pointer()
-		{
-			mId = 0;
-			mOffset = 0;
-			mSourceAddress = 0;
-		}
-
-		Pointer(uint32_t id, uint32_t offset, uint32_t sourceAddress)
-		{
-			mId = id;
-			mOffset = offset;
-			mSourceAddress = sourceAddress;
-		}
-	};
-
-	typedef std::vector<Pointer *> PointerList;
-
 	struct BlockElement {
 		enum class Type {
 			None,
@@ -59,7 +38,7 @@ public:
 	};
 
 	struct Block {
-		PointerList mPointerList;
+		std::vector<Pointer> mPointerList;
 		std::vector<BlockElement *> mElementList;
 	};
 
@@ -79,12 +58,12 @@ public:
 	int encode(
 		const Table &table,
 		Buffer *buffer,
-		PointerList *pointerList) const;
+		PointerTable *pointerList) const;
 
 	int decode(
 		const Buffer &buffer,
 		const Table &table,
-		const PointerList &pointerList);
+		const PointerTable &pointerList);
 };
 
 } // ht

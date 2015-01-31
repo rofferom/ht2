@@ -13,17 +13,17 @@ TEST(TextLegacy, Save)
 
 	// Fill text
 	block = new ht::Text::Block();
-	block->mPointerList.push_back(new ht::Text::Pointer{1, 0, 0});
+	block->mPointerList.push_back(ht::Pointer{1, 0, 0});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::Text, U"AAÉDC", 0});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::RawByte, U"", 0x43});
-	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::Text, U"ÉDCBA<PTR000A>\n", 0});
+	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::Text, U"ÉDCBA<PT000A>\n", 0});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::RawByte, U"", 0x44});
 	text.addBlock(block);
 
 	block = new ht::Text::Block();
-	block->mPointerList.push_back(new ht::Text::Pointer{2, 0, 0});
-	block->mPointerList.push_back(new ht::Text::Pointer{3, 0, 0});
-	block->mPointerList.push_back(new ht::Text::Pointer{4, 0, 0});
+	block->mPointerList.push_back(ht::Pointer{2, 0, 0});
+	block->mPointerList.push_back(ht::Pointer{3, 0, 0});
+	block->mPointerList.push_back(ht::Pointer{4, 0, 0});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::Text, U"AA[TestBlock1]AA", 0});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::RawByte, U"", 0x43});
 	block->mElementList.push_back(new ht::Text::BlockElement{ht::Text::BlockElement::Type::RawByte, U"", 0x44});
@@ -50,7 +50,7 @@ TEST(TextLegacy, Load)
 	// Test block 0
 	ASSERT_EQ(text.getBlock(0)->mPointerList.size(), 1);
 	auto pointerIt = text.getBlock(0)->mPointerList.begin();
-	ASSERT_EQ((*pointerIt)->mId, 1);
+	ASSERT_EQ(pointerIt->mId, 1);
 
 	ASSERT_EQ(text.getBlock(0)->mElementList.size(), 4);
 
@@ -64,7 +64,7 @@ TEST(TextLegacy, Load)
 
 	elementIt++;
 	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::Text);
-	ASSERT_TRUE((*elementIt)->mTextContent == U"ÉDCBA<PTR000A>\n");
+	ASSERT_TRUE((*elementIt)->mTextContent == U"ÉDCBA<PT000A>\n");
 
 	elementIt++;
 	ASSERT_EQ((*elementIt)->mType, ht::Text::BlockElement::Type::RawByte);
@@ -73,11 +73,11 @@ TEST(TextLegacy, Load)
 	// Test block 1
 	ASSERT_EQ(text.getBlock(1)->mPointerList.size(), 3);
 	pointerIt = text.getBlock(1)->mPointerList.begin();
-	ASSERT_EQ((*pointerIt)->mId, 2);
+	ASSERT_EQ(pointerIt->mId, 2);
 	pointerIt++;
-	ASSERT_EQ((*pointerIt)->mId, 3);
+	ASSERT_EQ(pointerIt->mId, 3);
 	pointerIt++;
-	ASSERT_EQ((*pointerIt)->mId, 4);
+	ASSERT_EQ(pointerIt->mId, 4);
 
 	ASSERT_EQ(text.getBlock(1)->mElementList.size(), 5);
 

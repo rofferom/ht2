@@ -17,6 +17,7 @@ LOCAL_SRC_FILES := \
 	src/CharsetConverter.cpp \
 	src/File.cpp \
 	src/Log.cpp \
+	src/Pointer.cpp \
 	src/Table.cpp \
 	src/TableParser.cpp \
 	src/Text.cpp \

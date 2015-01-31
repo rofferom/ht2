@@ -99,15 +99,17 @@ int encodeBlock(
 int extractMatchingPointers(
 	uint32_t offset,
 	size_t start,
-	const std::vector<ht::Text::Pointer *> &src,
-	std::vector<ht::Text::Pointer *> *dest)
+	const ht::PointerTable &src,
+	std::vector<ht::Pointer> *dest)
 {
-	size_t srcSize = src.size();
+	size_t srcSize = src.getCount();
 	int res = 0;
 
 	for (size_t i = start ; i < srcSize ; i++) {
-		if (src[i]->mOffset == offset) {
-			dest->push_back(src[i]);
+		const ht::Pointer *pointer = src.getPointer(i);
+
+		if (pointer->mOffset == offset) {
+			dest->push_back(*pointer);
 			res++;
 		} else {
 			break;
@@ -191,10 +193,6 @@ Text::Text()
 Text::~Text()
 {
 	for (Block *block : mBlockList) {
-		for (Pointer *pointer : block->mPointerList) {
-			delete pointer;
-		}
-
 		for (BlockElement *element : block->mElementList) {
 			delete element;
 		}
@@ -236,7 +234,7 @@ const Text::Block *Text::getBlock(size_t index) const
 int Text::encode(
 	const Table &table,
 	Buffer *buffer,
-	PointerList *pointerList) const
+	PointerTable *pointerList) const
 {
 	int res;
 
@@ -258,8 +256,8 @@ int Text::encode(
 		}
 
 		for (auto pointer : block->mPointerList) {
-			pointer->mOffset = writePos;
-			pointerList->push_back(pointer);
+			pointer.mOffset = writePos;
+			pointerList->add(pointer);
 		}
 
 		res = 0;
@@ -271,11 +269,11 @@ int Text::encode(
 int Text::decode(
 	const Buffer &buffer,
 	const Table &table,
-	const PointerList &inPointerList)
+	const PointerTable &inPointerTable)
 {
-	PointerList pointerList;
+	PointerTable pointerTable;
 	size_t pointerCount;
-	size_t nextPointer;
+	size_t nextPointerId;
 	uint32_t textToExtractStart;
 	size_t textToExtractSize;
 	int foundPointerCount;
@@ -286,39 +284,43 @@ int Text::decode(
 	rawText = buffer.getData();
 	rawTextSize = buffer.getSize();
 
-	pointerList = inPointerList;
-	std::sort(
-		pointerList.begin(), pointerList.end(),
-		[](const Pointer *x, const Pointer *y) {
-			return (x->mOffset < y->mOffset); }
+	pointerTable = inPointerTable;
+	pointerTable.sort(
+		[](const Pointer &x, const Pointer &y) {
+			return (x.mOffset < y.mOffset); }
 	);
 
 	res = 0;
-	pointerCount = pointerList.size();
+	pointerCount = pointerTable.getCount();
 	for (size_t i = 0 ; i < pointerCount ;) {
+		Pointer *pointer;
+
 		Block *block = new Block();
 		if (block == NULL) {
 			res = -ENOMEM;
 			break;
 		}
 
-		textToExtractStart = pointerList[i]->mOffset;
+		pointer = pointerTable.getPointer(i);
+		textToExtractStart = pointer->mOffset;
 
 		// Find matching pointers
 		foundPointerCount = extractMatchingPointers(
 			textToExtractStart,
 			i,
-			pointerList,
+			pointerTable,
 			&block->mPointerList);
 
 		// Find size of rawText to extract for this block
-		nextPointer = i + foundPointerCount;
-		if (nextPointer == pointerCount) {
+		nextPointerId = i + foundPointerCount;
+		if (nextPointerId == pointerCount) {
 			// End of text
 			textToExtractSize = rawTextSize - textToExtractStart;
 		} else {
+			Pointer *nextPointer;
 			// Text followed by another block
-			textToExtractSize = pointerList[nextPointer]->mOffset - textToExtractStart;
+			nextPointer = pointerTable.getPointer(nextPointerId);
+			textToExtractSize = nextPointer->mOffset - textToExtractStart;
 		}
 
 		ht::Log::d(TAG,
@@ -334,7 +336,7 @@ int Text::decode(
 		}
 
 		mBlockList.push_back(block);
-		i = nextPointer;
+		i = nextPointerId;
 	}
 
 	return res;

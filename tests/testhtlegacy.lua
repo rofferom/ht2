@@ -16,17 +16,17 @@ print(text:getBlockCount())
 buffer = ht.Buffer()
 print(buffer)
 
-pointerList = ht.TextPointerList()
-print(pointerList)
+pointerTable = ht.PointerTable()
+print(pointerTable)
 
 print(buffer:getSize())
-r = text:encode(table, buffer, pointerList)
+r = text:encode(table, buffer, pointerTable)
 print(r)
 print(buffer:getSize())
 
-pointerCount = pointerList:getCount()
+pointerCount = pointerTable:getCount()
 for i = 0, pointerCount-1 do
-	pointer = pointerList:get(i)
+	pointer = pointerTable:getPointer(i)
 	print(string.format("Id : %d, Offset : %d", pointer:getId(), pointer:getOffset()))
 end
 
