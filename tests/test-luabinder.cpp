@@ -3,6 +3,7 @@
 #include <ht-lua/common/LuaObjectParam.hpp>
 #include <ht-lua/common/LuaFunction.hpp>
 #include <ht-lua/LuaBuffer.hpp>
+#include <ht-lua/LuaFile.hpp>
 #include <ht-lua/LuaTable.hpp>
 #include <ht-lua/LuaText.hpp>
 #include <ht-lua-legacy/LuaTable.hpp>
@@ -288,6 +289,9 @@ int main(int argc, char *argv[])
 
 	L = luaL_newstate();
 	luaL_openlibs(L);
+
+	// Register File binding
+	htlua::LuaFile::registerClass(L);
 
 	// Register Buffer binding
 	htlua::LuaBuffer::registerClass(L);

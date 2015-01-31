@@ -5,6 +5,7 @@ extern "C" {
 	#include <lua.h>
 }
 
+#include <stdio.h>
 #include <stdint.h>
 #include <string>
 #include <tuple>
@@ -144,6 +145,27 @@ struct LuaType<size_t> {
 	}
 
 	static void getValue(lua_State *L, int argIndex, size_t &value)
+	{
+		value = lua_tointeger(L, argIndex);
+	}
+};
+
+template <>
+struct LuaType<off64_t> {
+	enum { isValid = 1 };
+	constexpr static const char *name = "off64_t";
+
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
+	{
+		return lua_isnumber(L, argIndex);
+	}
+
+	static void pushValue(lua_State *L, off64_t value)
+	{
+		lua_pushnumber(L, value);
+	}
+
+	static void getValue(lua_State *L, int argIndex, off64_t &value)
 	{
 		value = lua_tointeger(L, argIndex);
 	}

@@ -14,6 +14,7 @@ LOCAL_C_INCLUDES := \
 
 LOCAL_SRC_FILES := \
 	src/LuaBuffer.cpp \
+	src/LuaFile.cpp \
 	src/LuaPackage.cpp \
 	src/LuaTable.cpp \
 	src/LuaText.cpp \
