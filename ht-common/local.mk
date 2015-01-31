@@ -23,11 +23,6 @@ LOCAL_SRC_FILES := \
 	src/Text.cpp \
 	src/TextFile.cpp \
 	src/Utils.cpp \
-	src/crypto/int64.c \
-	src/crypto/md5.c \
-	src/crypto/sha1.c \
-	src/crypto/sha256.c \
-	src/crypto/sha512.c \
 
 LOCAL_SHARED_LIBRARIES := \
 	libstr32 \
