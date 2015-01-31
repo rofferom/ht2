@@ -109,32 +109,6 @@ struct LuaTextBlockElementClass : LuaClass<ht::Text::BlockElement> {
 	}
 };
 
-template <>
-struct LuaType<ht::Text::BlockElement> {
-	enum { isValid = 1 };
-	constexpr static const char *name = "TextBlockElement";
-
-	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
-	{
-		return LuaObjectParam<ht::Text::BlockElement>::isParamValid(L, argIndex, typeConst);
-	}
-
-	static void pushValue(lua_State *L, ht::Text::BlockElement *blockElement)
-	{
-		LuaClass<ht::Text::BlockElement>::forwardReference(L, blockElement);
-	}
-
-	static void pushValue(lua_State *L, const ht::Text::BlockElement *blockElement)
-	{
-		LuaClass<ht::Text::BlockElement>::forwardReference(L, blockElement);
-	}
-
-	static void getValue(lua_State *L, int argIndex, ht::Text::BlockElement *&blockElement, bool takeOwnership = true)
-	{
-		LuaObjectParam<ht::Text::BlockElement>::getValue(L, argIndex, blockElement, takeOwnership);
-	}
-};
-
 struct LuaTextBlockClass : LuaClass<ht::Text::Block> {
 	static void init()
 	{
