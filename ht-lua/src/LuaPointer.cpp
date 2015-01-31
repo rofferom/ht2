@@ -21,7 +21,7 @@ struct LuaTextPointerClass : LuaClass<ht::Pointer> {
 			Method::empty(),
 		};
 
-		mName = "Pointer";
+		mName = LuaType<ht::Pointer>::name;
 		mPackage = "ht";
 		mMethods = methods;
 	}
@@ -37,7 +37,7 @@ struct LuaPointerTableClass : LuaClass<ht::PointerTable> {
 			Method::empty(),
 		};
 
-		mName = "PointerTable";
+		mName = LuaType<ht::PointerTable>::name;
 		mPackage = "ht";
 		mMethods = methods;
 	}

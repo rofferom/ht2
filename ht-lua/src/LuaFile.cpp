@@ -16,7 +16,7 @@ struct LuaFileClass : LuaClass<ht::File> {
 			Method::empty(),
 		};
 
-		mName = "File";
+		mName = LuaType<ht::File>::name;
 		mPackage = "ht";
 		mMethods = methods;
 	}

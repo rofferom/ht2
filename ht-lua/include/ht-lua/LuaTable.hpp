@@ -7,6 +7,11 @@
 namespace htlua {
 
 template <>
+struct LuaType<ht::Table::Entry> : LuaUserType<ht::Table::Entry> {
+	constexpr static const char *name = "TableEntry";
+};
+
+template <>
 struct LuaType<ht::Table> : LuaUserType<ht::Table> {
 	constexpr static const char *name = "Table";
 };

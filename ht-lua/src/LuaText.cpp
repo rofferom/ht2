@@ -24,7 +24,7 @@ struct LuaTextBlockElementClass : LuaClass<ht::Text::BlockElement> {
 			Method::empty(),
 		};
 
-		mName = "TextBlockElement";
+		mName = LuaType<ht::Text::BlockElement>::name;
 		mPackage = "ht";
 		mMethods = methods;
 	}
@@ -122,7 +122,7 @@ struct LuaTextBlockClass : LuaClass<ht::Text::Block> {
 			Method::empty(),
 		};
 
-		mName = "TextBlock";
+		mName = LuaType<ht::Text::Block>::name;
 		mPackage = "ht";
 		mMethods = methods;
 	}
@@ -204,7 +204,7 @@ struct LuaTextClass : LuaClass<ht::Text> {
 			Method::empty(),
 		};
 
-		mName = "Text";
+		mName = LuaType<ht::Text>::name;
 		mPackage = "ht";
 		mMethods = methods;
 	}

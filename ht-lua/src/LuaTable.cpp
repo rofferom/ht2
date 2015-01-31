@@ -15,7 +15,7 @@ struct LuaTableEntryClass : LuaClass<ht::Table::Entry> {
 			Method::empty(),
 		};
 
-		mName = "TableEntry";
+		mName = LuaType<ht::Table::Entry>::name;
 		mPackage = "ht";
 		mMethods = methods;
 	}
@@ -47,7 +47,7 @@ struct LuaTableClass : LuaClass<ht::Table> {
 			Method::empty(),
 		};
 
-		mName = "Table";
+		mName = LuaType<ht::Table>::name;
 		mPackage = "ht";
 		mMethods = methods;
 	}

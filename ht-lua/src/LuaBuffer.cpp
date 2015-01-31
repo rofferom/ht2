@@ -13,7 +13,7 @@ struct LuaBufferClass : LuaClass<ht::Buffer> {
 			Method::empty(),
 		};
 
-		mName = "Buffer";
+		mName = LuaType<ht::Buffer>::name;
 		mPackage = "ht";
 		mMethods = methods;
 	}

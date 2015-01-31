@@ -278,6 +278,7 @@ struct LuaClass {
 		lua_pushnumber(L, 0);
 		lua_pushcclosure(L, &constructorHandler, 1);
 
+		assert(mName != NULL);
 		if (mPackage != nullptr) {
 			LuaPackage::set(L, mPackage, mName);
 		} else {
