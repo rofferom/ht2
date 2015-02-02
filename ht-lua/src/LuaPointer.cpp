@@ -37,6 +37,7 @@ struct LuaPointerTableClass : LuaClass<ht::PointerTable> {
 			{ "updateSourceAddress", MethodGenerator<int(htlua::LuaCallback<uint32_t(uint32_t)>)>::get(&updateSourceAddressHandler) },
 			{ "updateOffset", MethodGenerator<int(htlua::LuaCallback<uint32_t(uint32_t)>)>::get(&updateOffsetHandler) },
 			{ "write", MethodGenerator<int(ht::File, size_t, int)>::get(&writeHandler) },
+			{ "read", MethodGenerator<int(ht::File, off64_t, uint32_t, size_t, int)>::get(&readHandler) },
 			Method::empty(),
 		};
 
@@ -69,6 +70,27 @@ struct LuaPointerTableClass : LuaClass<ht::PointerTable> {
 		LuaType<int>::getValue(L, 4, endianness);
 
 		res = pointerTable->write(file, width, (ht::PointerTable::Endianness) endianness);
+
+		LuaType<int>::pushValue(L, res);
+		return 1;
+	}
+
+	static int readHandler(lua_State *L, ht::PointerTable *pointerTable)
+	{
+		ht::File *file;
+		off64_t pos;
+		uint32_t count;
+		size_t width;
+		int endianness;
+		int res;
+
+		LuaType<ht::File>::getValue(L, 2, file, false);
+		LuaType<off64_t>::getValue(L, 3, pos);
+		LuaType<uint32_t>::getValue(L, 4, count);
+		LuaType<size_t>::getValue(L, 5, width);
+		LuaType<int>::getValue(L, 6, endianness);
+
+		res = pointerTable->read(file, pos, count, width, (ht::PointerTable::Endianness) endianness);
 
 		LuaType<int>::pushValue(L, res);
 		return 1;

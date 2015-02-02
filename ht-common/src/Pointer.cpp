@@ -76,14 +76,36 @@ int PointerTable::updateOffset(std::function<uint32_t(uint32_t)> cb)
 	return 0;
 }
 
-void PointerTable::fillLittleEndian(uint8_t *out, size_t len, uint32_t value)
+void PointerTable::readLittleEndian(const uint8_t *in, size_t len, uint32_t *value)
+{
+	uint32_t tmp = 0;
+
+	for (size_t i = 0 ; i < len ; i++) {
+		tmp |= in[i] << (i * 8);
+	}
+
+	*value = tmp;
+}
+
+void PointerTable::writeLittleEndian(uint8_t *out, size_t len, uint32_t value)
 {
 	for (size_t i = 0 ; i < len ; i++) {
 		out[i] = (value >> (i * 8)) & 0xFF;
 	}
 }
 
-void PointerTable::fillBigEndian(uint8_t *out, size_t len, uint32_t value)
+void PointerTable::readBigEndian(const uint8_t *in, size_t len, uint32_t *value)
+{
+	uint32_t tmp = 0;
+
+	for (size_t i = 0 ; i < len ; i++) {
+		tmp |= in[len-i-1] << (i * 8);
+	}
+
+	*value = tmp;
+}
+
+void PointerTable::writeBigEndian(uint8_t *out, size_t len, uint32_t value)
 {
 	for (size_t i = 0 ; i < len ; i++) {
 		out[len-i-1] = (value >> (i * 8)) & 0xFF;
@@ -108,11 +130,11 @@ int PointerTable::write(IOutput *out, size_t width, Endianness endianness)
 
 		switch (endianness) {
 		case Endianness::Little:
-			fillLittleEndian(tmp, width, p.mOffset);
+			writeLittleEndian(tmp, width, p.mOffset);
 			break;
 
 		case Endianness::Big:
-			fillBigEndian(tmp, width, p.mOffset);
+			writeBigEndian(tmp, width, p.mOffset);
 			break;
 
 		default:
@@ -123,6 +145,57 @@ int PointerTable::write(IOutput *out, size_t width, Endianness endianness)
 		if (res < 0) {
 			break;
 		}
+	}
+
+	return res;
+}
+
+int PointerTable::read(
+	IInput *input,
+	off64_t pos,
+	uint32_t count,
+	size_t width,
+	Endianness endianness)
+{
+	int res;
+
+	if (!input) {
+		return -EINVAL;
+	} else if (count == 0) {
+		return -EINVAL;
+	} else if (width == 0) {
+		return -EINVAL;
+	} else if (width > MAX_WIDTH) {
+		return -EINVAL;
+	}
+
+	res = 0;
+	for (uint32_t i = 0 ; i < count ; i++) {
+		Pointer p;
+		uint8_t tmp[MAX_WIDTH];
+
+		res = input->readRawBuffer(pos + i * width, tmp, width);
+		if (res < 0) {
+			break;
+		}
+
+		p.mId = i + 1;
+		p.mSourceAddress = pos + i * width;
+
+		switch (endianness) {
+		case Endianness::Little:
+			readLittleEndian(tmp, width, &p.mOffset);
+			break;
+
+		case Endianness::Big:
+			readBigEndian(tmp, width, &p.mOffset);
+			break;
+
+		default:
+			break;
+		}
+
+		mPointers.push_back(p);
 	}
 
 	return res;

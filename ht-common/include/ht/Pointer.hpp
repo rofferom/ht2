@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vector>
 #include <functional>
+#include <ht/IInput.hpp>
 #include <ht/IOutput.hpp>
 
 namespace ht {
@@ -39,8 +40,11 @@ private:
 	std::vector<Pointer> mPointers;
 
 private:
-	void fillLittleEndian(uint8_t *out, size_t len, uint32_t value);
-	void fillBigEndian(uint8_t *out, size_t len, uint32_t value);
+	void readLittleEndian(const uint8_t *in, size_t len, uint32_t *value);
+	void writeLittleEndian(uint8_t *out, size_t len, uint32_t value);
+
+	void readBigEndian(const uint8_t *in, size_t len, uint32_t *value);
+	void writeBigEndian(uint8_t *out, size_t len, uint32_t value);
 
 public:
 	PointerTable();
@@ -58,6 +62,7 @@ public:
 	int updateOffset(std::function<uint32_t(uint32_t)> cb);
 
 	int write(IOutput *out, size_t width, Endianness endianness);
+	int read(IInput *input, off64_t pos, uint32_t count, size_t width, Endianness endianness);
 };
 
 } // namespace ht
