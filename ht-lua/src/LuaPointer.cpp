@@ -9,7 +9,7 @@
 
 namespace htlua {
 
-struct LuaTextPointerClass : LuaClass<ht::Pointer> {
+struct LuaPointerClass : LuaClass<ht::Pointer> {
 	static void init()
 	{
 		static Method methods[] = {
@@ -101,8 +101,8 @@ int LuaPointer::registerClass(lua_State *L)
 {
 	int res = 0;
 
-	LuaTextPointerClass::init();
-	res |= LuaTextPointerClass::registerClass(L);
+	LuaPointerClass::init();
+	res |= LuaPointerClass::registerClass(L);
 
 	LuaPointerTableClass::init();
 	res |= LuaPointerTableClass::registerClass(L);
