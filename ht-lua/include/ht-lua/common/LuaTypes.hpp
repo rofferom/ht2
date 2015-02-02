@@ -16,6 +16,9 @@ namespace htlua {
 struct LuaTypeEnd;
 
 template <typename T>
+struct LuaCallback;
+
+template <typename T>
 struct LuaType {
 	enum { isValid = 0 };
 	constexpr static const char *name = nullptr;
@@ -221,6 +224,17 @@ struct LuaType<std::u32string> {
 		std::string value = lua_tostring(L, argIndex);
 
 		u32value = ht::convertFromEnvStr(value);
+	}
+};
+
+template <typename R, typename... Args>
+struct LuaType<LuaCallback<R(Args...)>> {
+	enum { isValid = 1 };
+	constexpr static const char *name = "LuaCallback";
+
+	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
+	{
+		return lua_isfunction(L, argIndex);
 	}
 };
 

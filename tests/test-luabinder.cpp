@@ -2,6 +2,7 @@
 #include <ht-lua/common/LuaClass.hpp>
 #include <ht-lua/common/LuaObjectParam.hpp>
 #include <ht-lua/common/LuaFunction.hpp>
+#include <ht-lua/common/LuaCallback.hpp>
 #include <ht-lua/LuaBuffer.hpp>
 #include <ht-lua/LuaFile.hpp>
 #include <ht-lua/LuaPointer.hpp>
@@ -137,6 +138,7 @@ struct LuaTest : htlua::LuaClass<Test> {
 			{ "testTwoArgs", MethodGenerator<void(int, int)>::get(&Test::testTwoArgs) },
 			{ "testStringArg", MethodGenerator<std::string(std::string)>::get(&Test::testStringArg) },
 			{ "testStringArgConst", MethodGenerator<std::string(const std::string&)>::get(&Test::testStringArgConst) },
+			{ "testCallback", MethodGenerator<void(htlua::LuaCallback<int(int, int)>)>::get(&testCallbackHandler) },
 			{ "getA", GetSetGenerator<int>::get(offsetof(Test, mA)) },
 			{ "setA", GetSetGenerator<int>::set(offsetof(Test, mA)) },
 			Method::empty(),
@@ -155,6 +157,18 @@ struct LuaTest : htlua::LuaClass<Test> {
 		lua_pushnumber(L, res);
 
 		return 1;
+	}
+
+	static int testCallbackHandler(lua_State *L, Test *test)
+	{
+		auto cb = htlua::LuaCallback<int(int, int)>::get(L, 2);
+		int res;
+
+		printf("Calling callback\n");
+		res = cb(1, 2);
+		printf("res : %d\n", res);
+
+		return 0;
 	}
 };
 

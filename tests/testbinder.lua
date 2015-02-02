@@ -24,6 +24,13 @@ print(r)
 r = t:testStringArg("TestArg")
 print(r)
 
+t:testCallback(
+	function (a, b)
+		print(string.format("Callback, got a=%d, b=%d", a, b))
+		return a + b
+	end
+)
+
 print("getA")
 r = t:getA()
 print(r)
