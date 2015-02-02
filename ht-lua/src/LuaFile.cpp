@@ -13,6 +13,7 @@ struct LuaFileClass : LuaClass<ht::File> {
 			{ "open", MethodGenerator<int(std::string, std::string)>::get(&openHandler) },
 			{ "close", MethodGenerator<int(void)>::get(&ht::File::close) },
 			{ "writeBuffer", MethodGenerator<int(off64_t, ht::Buffer)>::get(&writeBufferHandler) },
+			{ "readBuffer", MethodGenerator<int(off64_t, ht::Buffer, size_t)>::get(&readBufferHandler) },
 			Method::empty(),
 		};
 
@@ -46,6 +47,23 @@ struct LuaFileClass : LuaClass<ht::File> {
 		LuaType<ht::Buffer>::getValue(L, 3, buffer, false);
 
 		res = file->writeBuffer(pos, buffer);
+
+		LuaType<int>::pushValue(L, res);
+		return 1;
+	}
+
+	static int readBufferHandler(lua_State *L, ht::File *file)
+	{
+		off64_t pos;
+		ht::Buffer *buffer;
+		size_t len;
+		int res;
+
+		LuaType<off64_t>::getValue(L, 2, pos);
+		LuaType<ht::Buffer>::getValue(L, 3, buffer, false);
+		LuaType<size_t>::getValue(L, 4, len);
+
+		res = file->readBuffer(pos, buffer, len);
 
 		LuaType<int>::pushValue(L, res);
 		return 1;
