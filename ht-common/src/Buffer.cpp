@@ -9,8 +9,8 @@ namespace ht {
 Buffer::Buffer()
 {
 	mData = NULL;
+	mCapacity = 0;
 	mSize = 0;
-	mUsedSize = 0;
 }
 
 Buffer::Buffer(const uint8_t *data, size_t len)
@@ -18,17 +18,46 @@ Buffer::Buffer(const uint8_t *data, size_t len)
 	mData = (uint8_t *) malloc(len);
 	memcpy(mData, data, len);
 
+	mCapacity = len;
 	mSize = len;
-	mUsedSize = len;
 }
 
 Buffer::~Buffer()
 {
 }
 
+void Buffer::clear()
+{
+	free(mData);
+	mCapacity = 0;
+	mSize = 0;
+}
+
+size_t Buffer::getCapacity() const
+{
+	return mCapacity;
+}
+
+int Buffer::setCapacity(size_t capacity)
+{
+	mData = (uint8_t *) realloc(mData, capacity);
+	if (mData == NULL) {
+		return -ENOMEM;
+	}
+
+	mCapacity = capacity;
+
+	return 0;
+}
+
 size_t Buffer::getSize() const
 {
-	return mUsedSize;
+	return mSize;
+}
+
+void Buffer::setSize(size_t size)
+{
+	mSize = size;
 }
 
 const uint8_t *Buffer::getData() const
@@ -36,23 +65,39 @@ const uint8_t *Buffer::getData() const
 	return mData;
 }
 
+uint8_t *Buffer::getData()
+{
+	return mData;
+}
+
+uint8_t Buffer::getByte(size_t pos) const
+{
+	return mData[pos];
+}
+
+void Buffer::setByte(size_t pos, uint8_t value)
+{
+	mData[pos] = value;
+}
+
 int Buffer::append(const uint8_t *data, size_t len)
 {
-	if (len + mUsedSize > mSize) {
-		if (mSize == 0) {
-			mSize = 1024;
+	if (len + mSize > mCapacity) {
+		int res;
+
+		if (mCapacity == 0) {
+			res = setCapacity(1024);
 		} else {
-			mSize *= 2;
+			res = setCapacity(mCapacity * 2);
 		}
 
-		mData = (uint8_t *) realloc(mData, mSize);
-		if (mData == NULL) {
-			return -ENOMEM;
+		if (res < 0) {
+			return res;
 		}
 	}
 
-	memcpy(mData + mUsedSize, data, len);
-	mUsedSize += len;
+	memcpy(mData + mSize, data, len);
+	mSize += len;
 
 	return len;
 }
