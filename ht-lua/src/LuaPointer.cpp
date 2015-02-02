@@ -3,6 +3,7 @@
 #include <ht/Utils.hpp>
 #include <ht-lua/common/LuaClass.hpp>
 #include <ht-lua/common/LuaObjectParam.hpp>
+#include <ht-lua/common/LuaCallback.hpp>
 #include <ht-lua/LuaFile.hpp>
 #include <ht-lua/LuaPointer.hpp>
 
@@ -33,6 +34,8 @@ struct LuaPointerTableClass : LuaClass<ht::PointerTable> {
 		static Method methods[] = {
 			{ "getCount", MethodGenerator<size_t(void)>::get(&ht::PointerTable::getCount) },
 			{ "getPointer", MethodGenerator<ht::Pointer(size_t)>::get(&getPointerHandler) },
+			{ "updateSourceAddress", MethodGenerator<int(htlua::LuaCallback<uint32_t(uint32_t)>)>::get(&updateSourceAddressHandler) },
+			{ "updateOffset", MethodGenerator<int(htlua::LuaCallback<uint32_t(uint32_t)>)>::get(&updateOffsetHandler) },
 			{ "write", MethodGenerator<int(ht::File, size_t, int)>::get(&writeHandler) },
 			Method::empty(),
 		};
@@ -68,6 +71,28 @@ struct LuaPointerTableClass : LuaClass<ht::PointerTable> {
 		res = pointerTable->write(file, width, (ht::PointerTable::Endianness) endianness);
 
 		LuaType<int>::pushValue(L, res);
+		return 1;
+	}
+
+	static int updateSourceAddressHandler(lua_State *L, ht::PointerTable *pointerTable)
+	{
+		uint32_t res;
+
+		auto cb = htlua::LuaCallback<uint32_t(uint32_t)>::get(L, 2);
+		res = pointerTable->updateSourceAddress(cb);
+
+		LuaType<uint32_t>::pushValue(L, res);
+		return 1;
+	}
+
+	static int updateOffsetHandler(lua_State *L, ht::PointerTable *pointerTable)
+	{
+		uint32_t res;
+
+		auto cb = htlua::LuaCallback<uint32_t(uint32_t)>::get(L, 2);
+		res = pointerTable->updateOffset(cb);
+
+		LuaType<uint32_t>::pushValue(L, res);
 		return 1;
 	}
 };
