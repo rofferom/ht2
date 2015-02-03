@@ -2,6 +2,7 @@
 #define __HT_BUFFER_HPP__
 
 #include <stdint.h>
+#include <ht/Env.hpp>
 
 namespace ht {
 
@@ -12,25 +13,25 @@ private:
 	size_t mSize;
 
 public:
-	Buffer();
-	Buffer(const uint8_t *data, size_t len);
-	~Buffer();
+	HTAPI Buffer();
+	HTAPI Buffer(const uint8_t *data, size_t len);
+	HTAPI ~Buffer();
 
-	void clear();
+	HTAPI void clear();
 
-	size_t getCapacity() const;
-	int setCapacity(size_t capacity);
+	HTAPI size_t getCapacity() const;
+	HTAPI int setCapacity(size_t capacity);
 
-	size_t getSize() const;
-	void setSize(size_t size);
+	HTAPI size_t getSize() const;
+	HTAPI void setSize(size_t size);
 
-	const uint8_t *getData() const;
-	uint8_t *getData();
+	HTAPI const uint8_t *getData() const;
+	HTAPI uint8_t *getData();
 
-	uint8_t getByte(size_t pos) const;
-	void setByte(size_t pos, uint8_t value);
+	HTAPI uint8_t getByte(size_t pos) const;
+	HTAPI void setByte(size_t pos, uint8_t value);
 
-	int append(const uint8_t *data, size_t len);
+	HTAPI int append(const uint8_t *data, size_t len);
 };
 
 } // namespace ht

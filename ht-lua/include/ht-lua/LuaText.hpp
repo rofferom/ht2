@@ -7,6 +7,7 @@ extern "C" {
 
 #include <ht/Text.hpp>
 #include <ht-lua/common/LuaUserType.hpp>
+#include <ht/Env.hpp>
 
 namespace htlua {
 
@@ -26,7 +27,7 @@ struct LuaType<ht::Text> : LuaUserType<ht::Text> {
 };
 
 struct LuaText {
-	static int registerClass(lua_State *L);
+	HTAPI static int registerClass(lua_State *L);
 };
 
 } // namespace htlua

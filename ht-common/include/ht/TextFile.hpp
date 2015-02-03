@@ -2,18 +2,19 @@
 #define __HT_TEXTFILE_HPP__
 
 #include <stdlib.h>
+#include <ht/Env.hpp>
 
 namespace ht {
 
 class TextFile {
 public:
-	static int load(
+	HTAPI static int load(
 		const char *path,
 		const char *encoding,
 		char32_t **outContent,
 		size_t *outSize);
 
-	static void clear(char32_t *content);
+	HTAPI static void clear(char32_t *content);
 };
 
 } // ht

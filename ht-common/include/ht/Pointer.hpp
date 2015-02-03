@@ -6,6 +6,7 @@
 #include <functional>
 #include <ht/IInput.hpp>
 #include <ht/IOutput.hpp>
+#include <ht/Env.hpp>
 
 namespace ht {
 
@@ -47,22 +48,22 @@ private:
 	void writeBigEndian(uint8_t *out, size_t len, uint32_t value);
 
 public:
-	PointerTable();
-	~PointerTable();
+	HTAPI PointerTable();
+	HTAPI ~PointerTable();
 
-	int add(const Pointer &pointer);
-	int add(const Pointer &&pointer);
-	Pointer *getPointer(size_t index);
-	const Pointer *getPointer(size_t index) const;
-	size_t getCount() const;
+	HTAPI int add(const Pointer &pointer);
+	HTAPI int add(const Pointer &&pointer);
+	HTAPI Pointer *getPointer(size_t index);
+	HTAPI const Pointer *getPointer(size_t index) const;
+	HTAPI size_t getCount() const;
 
-	int sort(std::function<bool(const Pointer &p1, const Pointer &p2)> cb);
+	HTAPI int sort(std::function<bool(const Pointer &p1, const Pointer &p2)> cb);
 
-	int updateSourceAddress(std::function<uint32_t(uint32_t)> cb);
-	int updateOffset(std::function<uint32_t(uint32_t)> cb);
+	HTAPI int updateSourceAddress(std::function<uint32_t(uint32_t)> cb);
+	HTAPI int updateOffset(std::function<uint32_t(uint32_t)> cb);
 
-	int write(IOutput *out, size_t width, Endianness endianness);
-	int read(IInput *input, off64_t pos, uint32_t count, size_t width, Endianness endianness);
+	HTAPI int write(IOutput *out, size_t width, Endianness endianness);
+	HTAPI int read(IInput *input, off64_t pos, uint32_t count, size_t width, Endianness endianness);
 };
 
 } // namespace ht

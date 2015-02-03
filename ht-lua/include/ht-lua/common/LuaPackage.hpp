@@ -5,10 +5,12 @@ extern "C" {
 	#include <lua.h>
 }
 
+#include <ht/Env.hpp>
+
 namespace htlua {
 
 struct LuaPackage {
-	static void set(lua_State *L, const char *packageName, const char *variableName);
+	HTAPI static void set(lua_State *L, const char *packageName, const char *variableName);
 };
 
 } // namespace htlua

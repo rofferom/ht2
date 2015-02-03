@@ -2,6 +2,7 @@
 #define __HTL_TEXT_TOKENIZER_HPP__
 
 #include <stdint.h>
+#include <ht/Env.hpp>
 
 namespace htl {
 
@@ -12,7 +13,7 @@ struct TokenizerCb {
 	void *userdata;
 };
 
-int tokenizeText(const char *textPath, const char *encoding, const TokenizerCb &cb);
+HTAPI int tokenizeText(const char *textPath, const char *encoding, const TokenizerCb &cb);
 
 } // namespace htl
 

@@ -2,6 +2,7 @@
 #define __HT_LOG_HPP__
 
 #include <stdarg.h>
+#include <ht/Env.hpp>
 
 namespace ht {
 
@@ -21,12 +22,12 @@ private:
 	static LogCb sCb;
 
 public:
-	static int setCallback(LogCb cb);
+	HTAPI static int setCallback(LogCb cb);
 
-	static int d(const char32_t *tag, const char32_t *format, ...);
-	static int i(const char32_t *tag, const char32_t *format, ...);
-	static int w(const char32_t *tag, const char32_t *format, ...);
-	static int e(const char32_t *tag, const char32_t *format, ...);
+	HTAPI static int d(const char32_t *tag, const char32_t *format, ...);
+	HTAPI static int i(const char32_t *tag, const char32_t *format, ...);
+	HTAPI static int w(const char32_t *tag, const char32_t *format, ...);
+	HTAPI static int e(const char32_t *tag, const char32_t *format, ...);
 };
 
 } // ht

@@ -4,6 +4,8 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := ht-legacy-lua
 
+LOCAL_CFLAGS := -fvisibility=hidden -fvisibility-inlines-hidden
+
 LOCAL_CPPFLAGS := -std=c++11
 
 LOCAL_EXPORT_C_INCLUDES := \

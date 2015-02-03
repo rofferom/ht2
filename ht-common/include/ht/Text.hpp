@@ -6,6 +6,7 @@
 #include <ht/Buffer.hpp>
 #include <ht/Pointer.hpp>
 #include <ht/Table.hpp>
+#include <ht/Env.hpp>
 
 namespace ht {
 
@@ -46,21 +47,21 @@ private:
 	std::vector<Block *> mBlockList;
 
 public:
-	Text();
-	virtual ~Text();
+	HTAPI Text();
+	HTAPI virtual ~Text();
 
-	int addBlock(Block *block);
+	HTAPI int addBlock(Block *block);
 
-	size_t getBlockCount() const;
-	Block *getBlock(size_t index);
-	const Block *getBlock(size_t index) const;
+	HTAPI size_t getBlockCount() const;
+	HTAPI Block *getBlock(size_t index);
+	HTAPI const Block *getBlock(size_t index) const;
 
-	int encode(
+	HTAPI int encode(
 		const Table &table,
 		Buffer *buffer,
 		PointerTable *pointerList) const;
 
-	int decode(
+	HTAPI int decode(
 		const Buffer &buffer,
 		const Table &table,
 		const PointerTable &pointerList);

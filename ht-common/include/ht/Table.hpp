@@ -7,6 +7,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <ht/Env.hpp>
 
 namespace ht {
 
@@ -65,18 +66,18 @@ private:
 	size_t mMaxValueSize;
 
 public:
-	Table();
-	virtual ~Table();
+	HTAPI Table();
+	HTAPI virtual ~Table();
 
-	int addEntry(const uint8_t *key, size_t keySize, const std::u32string &value);
+	HTAPI int addEntry(const uint8_t *key, size_t keySize, const std::u32string &value);
 
-	size_t getEntryCount() const;
+	HTAPI size_t getEntryCount() const;
 
-	size_t getMaxKeySize() const;
-	size_t getMaxValueSize() const;
+	HTAPI size_t getMaxKeySize() const;
+	HTAPI size_t getMaxValueSize() const;
 
-	const Entry *findFromValue(const std::u32string &value) const;
-	const Entry *findFromKey(const uint8_t *key, size_t keySize) const;
+	HTAPI const Entry *findFromValue(const std::u32string &value) const;
+	HTAPI const Entry *findFromKey(const uint8_t *key, size_t keySize) const;
 };
 
 } // ht

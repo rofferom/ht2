@@ -2,11 +2,12 @@
 #define __HTLUALEGACY_LUATABLE_HPP__
 
 #include <ht-lua/common/LuaFunction.hpp>
+#include <ht/Env.hpp>
 
 namespace htlual {
 
 struct LuaTable {
-	static int registerFunctions(lua_State *L);
+	HTAPI static int registerFunctions(lua_State *L);
 };
 
 } // namespace htlual

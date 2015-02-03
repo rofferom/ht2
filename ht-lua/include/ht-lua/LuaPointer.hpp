@@ -3,6 +3,7 @@
 
 #include <ht/Pointer.hpp>
 #include <ht-lua/common/LuaUserType.hpp>
+#include <ht/Env.hpp>
 
 namespace htlua {
 
@@ -17,7 +18,7 @@ struct LuaType<ht::PointerTable> : LuaUserType<ht::PointerTable> {
 };
 
 struct LuaPointer {
-	static int registerClass(lua_State *L);
+	HTAPI static int registerClass(lua_State *L);
 };
 
 } // namespace htlua

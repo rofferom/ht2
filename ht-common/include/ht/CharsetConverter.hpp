@@ -2,6 +2,7 @@
 #define __HT_CHARSETCONVERTER_HPP__
 
 #include <stdlib.h>
+#include <ht/Env.hpp>
 
 namespace ht {
 
@@ -13,19 +14,19 @@ struct CharsetConverterCb {
 	void *userdata;
 };
 
-struct CharsetConverter *charsetConverterCreate();
+HTAPI struct CharsetConverter *charsetConverterCreate();
 
-void charsetConverterDestroy(struct CharsetConverter *self);
+HTAPI void charsetConverterDestroy(struct CharsetConverter *self);
 
-int charsetConverterOpen(
+HTAPI int charsetConverterOpen(
 	struct CharsetConverter *self,
 	const char* tocode,
 	const char* fromcode,
 	const struct CharsetConverterCb *cb);
 
-int charsetConverterClose(struct CharsetConverter *self);
+HTAPI int charsetConverterClose(struct CharsetConverter *self);
 
-int charsetConverterInput(
+HTAPI int charsetConverterInput(
 	struct CharsetConverter *self,
 	const void *rawContent,
 	size_t rawContentSize);
