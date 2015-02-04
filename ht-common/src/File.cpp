@@ -21,7 +21,7 @@ int File::open(const char *path, const char *mode)
 		return -EINVAL;
 	}
 
-	mFile = fopen(path, mode);
+	mFile = fopen64(path, mode);
 	if (!mFile) {
 		return -EINVAL;
 	}
