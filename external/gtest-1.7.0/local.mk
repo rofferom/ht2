@@ -22,7 +22,13 @@ LOCAL_SRC_FILES := \
 
 LOCAL_CFLAGS := \
 	-DGTEST_HAS_PTHREAD=1 \
-	-DGTEST_OS_LINUX=1
+	-DGTEST_OS_LINUX=1 \
+	-Wno-undef \
+	-Wno-missing-field-initializers \
+	-Wno-ctor-dtor-privacy \
+	-Wno-sign-compare \
+
+LOCAL_EXPORT_CFLAGS := $(LOCAL_CFLAGS)
 
 ifeq ("$(TARGET_OS)","LINUX")
 	LOCAL_EXPORT_LDLIBS := -lpthread
