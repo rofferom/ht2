@@ -10,6 +10,7 @@ extern "C" {
 namespace htlua {
 
 struct LuaPackage {
+	HTAPI static void get(lua_State *L, const char *packageName);
 	HTAPI static void set(lua_State *L, const char *packageName, const char *variableName);
 };
 

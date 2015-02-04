@@ -100,3 +100,12 @@ print(r)
 
 r = testFunction4(7, 8, 9)
 print(r)
+
+print("---------")
+print("Enum binder")
+print("---------")
+
+print(TestEnum)
+print(TestEnum.A)
+print(TestEnum.B)
+print(TestEnum.C)

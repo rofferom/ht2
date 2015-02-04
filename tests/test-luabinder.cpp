@@ -3,6 +3,7 @@
 #include <ht-lua/common/LuaObjectParam.hpp>
 #include <ht-lua/common/LuaFunction.hpp>
 #include <ht-lua/common/LuaCallback.hpp>
+#include <ht-lua/common/LuaEnum.hpp>
 #include <ht-lua/LuaBuffer.hpp>
 #include <ht-lua/LuaFile.hpp>
 #include <ht-lua/LuaPointer.hpp>
@@ -290,6 +291,27 @@ struct TestFunctionBinder2 : htlua::LuaFunction<TestFunctionBinder2> {
 	}
 };
 
+enum class TestEnum {
+	A = -1,
+	B,
+	C
+};
+
+struct LuaTestEnum : htlua::LuaEnum<TestEnum> {
+	static void init()
+	{
+		static Enum enums[] = {
+			{"A", TestEnum::A},
+			{"B", TestEnum::B},
+			{"C", TestEnum::C},
+			Enum::empty(),
+		};
+
+		mName = "TestEnum";
+		mEnums = enums;
+	}
+};
+
 int main(int argc, char *argv[])
 {
 	lua_State * L;
@@ -337,6 +359,10 @@ int main(int argc, char *argv[])
 
 	TestFunctionBinder2::init();
 	TestFunctionBinder2::registerFunction(L);
+
+	// Register enum
+	LuaTestEnum::init();
+	LuaTestEnum::registerEnum(L);
 
 	forwardTestReference(L, &test);
 	lua_setglobal(L, "testRef");

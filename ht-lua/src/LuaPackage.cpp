@@ -3,11 +3,8 @@
 
 namespace htlua {
 
-void LuaPackage::set(lua_State *L, const char *packageName, const char *variableName)
+void LuaPackage::get(lua_State *L, const char *packageName)
 {
-	// Stack
-	// -1 : variable
-
 	// Get package. Create it if not exist
 	lua_getglobal(L, packageName);
 	if (lua_isnil(L, -1) == 1) {
@@ -22,6 +19,13 @@ void LuaPackage::set(lua_State *L, const char *packageName, const char *variable
 		lua_setglobal(L, packageName);
 		lua_getglobal(L, packageName);
 	}
+}
+
+void LuaPackage::set(lua_State *L, const char *packageName, const char *variableName)
+{
+	// Stack
+	// -1 : variable
+	get(L, packageName);
 
 	// Stack
 	// -1 : package
