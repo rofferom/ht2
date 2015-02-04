@@ -132,6 +132,7 @@ struct LuaType<uint32_t> {
 	}
 };
 
+#ifdef __LP64__
 template <>
 struct LuaType<size_t> {
 	enum { isValid = 1 };
@@ -152,6 +153,7 @@ struct LuaType<size_t> {
 		value = lua_tointeger(L, argIndex);
 	}
 };
+#endif
 
 template <>
 struct LuaType<off64_t> {
