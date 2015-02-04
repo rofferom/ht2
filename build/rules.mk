@@ -186,6 +186,15 @@ ifeq ("$(DEBUG)","0")
 endif
 endif
 
+# Final copy of .dll.a for Mingw
+ifeq ("$(LOCAL_BUILDING_SHARED_LIBRARY)","1")
+ifeq ("$(TARGET_OS)","MINGW32")
+$(LOCAL_FINAL_MODULE)$(TARGET_STATIC_LIB_SUFFIX): $(LOCAL_FINAL_MODULE)
+	@echo "Copy: $@"
+	$(copy-file-to-target)
+endif
+endif
+
 # cpp files
 ifneq ("$(strip $(cpp_objects))","")
 $(cpp_objects): $(intermediates)/%.o: $(TOP_DIR)/$(LOCAL_PATH)/%.cpp

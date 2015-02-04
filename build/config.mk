@@ -85,9 +85,14 @@ endif
 # Update flags based on architecture
 # 64-bit requires -fPIC to build shared libraries
 ifeq ("$(TARGET_ARCH)","X64")
-  TARGET_GLOBAL_CFLAGS += -m64 -fPIC
+  TARGET_GLOBAL_CFLAGS += -m64
+  TARGET_GLOBAL_LDFLAGS += -m64
+ifneq ("$(TARGET_OS)","MINGW32")
+  TARGET_GLOBAL_CFLAGS += -fPIC
+endif
 else
   TARGET_GLOBAL_CFLAGS += -m32
+  TARGET_GLOBAL_LDFLAGS += -m32
 endif
 
 # Update flags based on DEBUG.
