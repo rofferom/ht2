@@ -94,7 +94,11 @@ int charsetConverterInput(
 
 		iconvRes = iconv(
 			self->cd,
+#ifdef __GLIBC__
 			(char **) &rawContentPos,
+#else
+			&rawContentPos,
+#endif // __GLIBC__
 			&rawContentRemainingSize,
 			&convertedContentPos,
 			&convertedContentRemainingSize);
