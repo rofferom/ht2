@@ -141,6 +141,15 @@ static int fromEnvCb(const void *buff, size_t size, void *userdata)
 	return 0;
 }
 
+static int fromEnvInvalidCb(void *userdata)
+{
+	std::u32string *out = (std::u32string *) userdata;
+
+	out->append(U"?");
+
+	return 0;
+}
+
 static int toEnvCb(const void *buff, size_t size, void *userdata)
 {
 	std::string *out = (std::string *) userdata;
@@ -150,6 +159,16 @@ static int toEnvCb(const void *buff, size_t size, void *userdata)
 	return 0;
 }
 
+static int toEnvInvalidCb(void *userdata)
+{
+	std::string *out = (std::string *) userdata;
+
+	out->append("?");
+
+	return 0;
+}
+
+
 std::u32string convertFromEnvStr(const std::string &s)
 {
 	std::u32string out;
@@ -157,7 +176,7 @@ std::u32string convertFromEnvStr(const std::string &s)
 	struct CharsetConverterCb cb;
 
 	cb.output = fromEnvCb;
-	cb.invalid_sequence = NULL;
+	cb.invalid_sequence = fromEnvInvalidCb;
 	cb.userdata = &out;
 
 	converter = charsetConverterCreate();
@@ -177,11 +196,12 @@ std::string convertToEnvStr(const std::u32string &s)
 	struct CharsetConverterCb cb;
 
 	cb.output = toEnvCb;
-	cb.invalid_sequence = NULL;
+	cb.invalid_sequence = toEnvInvalidCb;
 	cb.userdata = &out;
 
 	converter = charsetConverterCreate();
-	charsetConverterOpen(converter, "UTF-8", "UTF-32LE", &cb);
+	charsetConverterOpen(converter, "CP850", "UTF-32LE", &cb);
+	//charsetConverterOpen(converter, "UTF-8", "UTF-32LE", &cb);
 	charsetConverterInput(converter, s.c_str(), s.size() * sizeof(char32_t));
 	charsetConverterClose(converter);
 	charsetConverterDestroy(converter);

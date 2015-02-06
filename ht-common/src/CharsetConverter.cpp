@@ -105,9 +105,9 @@ int charsetConverterInput(
 		if (iconvRes != (size_t) -1) {
 			// Conversion ok
 			self->cb.output(
-					convertedContent,
-					convertedContentPos - convertedContent,
-					self->cb.userdata);
+				convertedContent,
+				convertedContentPos - convertedContent,
+				self->cb.userdata);
 		} else if (errno == E2BIG) {
 			// Convertion ok but not enough space to convert all the input
 			self->cb.output(
@@ -115,9 +115,24 @@ int charsetConverterInput(
 				convertedContentPos - convertedContent,
 				self->cb.userdata);
 		} else if (errno == EILSEQ) {
-			Log::e(TAG, U"Invalid sequence");
-			res = -EINVAL;
-			break;
+			// Partial conversion
+			if (convertedContentRemainingSize < BUFFSIZE) {
+				self->cb.output(
+					convertedContent,
+					convertedContentPos - convertedContent,
+					self->cb.userdata);
+			}
+
+			rawContentPos++;
+			rawContentRemainingSize--;
+
+			if (self->cb.invalid_sequence != NULL) {
+				self->cb.invalid_sequence(self->cb.userdata);
+			} else {
+				Log::e(TAG, U"Invalid sequence");
+			}
+		} else {
+			Log::e(TAG, U"Unhandled error");
 		}
 	}
 
