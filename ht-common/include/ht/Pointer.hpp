@@ -10,6 +10,11 @@
 
 namespace ht {
 
+enum class PointerEndianness {
+	Little = 0,
+	Big
+};
+
 struct Pointer {
 	uint32_t mId;
 	uint32_t mOffset;
@@ -31,12 +36,6 @@ struct Pointer {
 };
 
 class PointerTable {
-public:
-	enum class Endianness {
-		Little = 0,
-		Big
-	};
-
 private:
 	std::vector<Pointer> mPointers;
 
@@ -62,8 +61,8 @@ public:
 	HTAPI int updateSourceAddress(std::function<uint32_t(uint32_t)> cb);
 	HTAPI int updateOffset(std::function<uint32_t(uint32_t)> cb);
 
-	HTAPI int write(IOutput *out, size_t width, Endianness endianness);
-	HTAPI int read(IInput *input, off64_t pos, uint32_t count, size_t width, Endianness endianness);
+	HTAPI int write(IOutput *out, size_t width, PointerEndianness endianness);
+	HTAPI int read(IInput *input, off64_t pos, uint32_t count, size_t width, PointerEndianness endianness);
 };
 
 } // namespace ht

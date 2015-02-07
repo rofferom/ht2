@@ -3,9 +3,15 @@
 
 #include <ht/Pointer.hpp>
 #include <ht-lua/common/LuaUserType.hpp>
+#include <ht-lua/common/LuaUserEnum.hpp>
 #include <ht/Env.hpp>
 
 namespace htlua {
+
+template <>
+struct LuaType<ht::PointerEndianness> : LuaUserEnum<ht::PointerEndianness> {
+	constexpr static const char *name = "PointerEndianness";
+};
 
 template <>
 struct LuaType<ht::Pointer> : LuaUserType<ht::Pointer> {

@@ -112,7 +112,7 @@ void PointerTable::writeBigEndian(uint8_t *out, size_t len, uint32_t value)
 	}
 }
 
-int PointerTable::write(IOutput *out, size_t width, Endianness endianness)
+int PointerTable::write(IOutput *out, size_t width, PointerEndianness endianness)
 {
 	int res;
 
@@ -129,11 +129,11 @@ int PointerTable::write(IOutput *out, size_t width, Endianness endianness)
 		uint8_t tmp[MAX_WIDTH];
 
 		switch (endianness) {
-		case Endianness::Little:
+		case PointerEndianness::Little:
 			writeLittleEndian(tmp, width, p.mOffset);
 			break;
 
-		case Endianness::Big:
+		case PointerEndianness::Big:
 			writeBigEndian(tmp, width, p.mOffset);
 			break;
 
@@ -155,7 +155,7 @@ int PointerTable::read(
 	off64_t pos,
 	uint32_t count,
 	size_t width,
-	Endianness endianness)
+	PointerEndianness endianness)
 {
 	int res;
 
@@ -183,11 +183,11 @@ int PointerTable::read(
 		p.mSourceAddress = pos + i * width;
 
 		switch (endianness) {
-		case Endianness::Little:
+		case PointerEndianness::Little:
 			readLittleEndian(tmp, width, &p.mOffset);
 			break;
 
-		case Endianness::Big:
+		case PointerEndianness::Big:
 			readBigEndian(tmp, width, &p.mOffset);
 			break;
 
