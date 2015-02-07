@@ -12,6 +12,13 @@ struct CharsetConverterCb {
 	int (*output)(const void *buff, size_t size, void *userdata);
 	int (*invalid_sequence)(void *userdata);
 	void *userdata;
+
+	CharsetConverterCb()
+	{
+		output = NULL;
+		invalid_sequence = NULL;
+		userdata = NULL;
+	}
 };
 
 HTAPI struct CharsetConverter *charsetConverterCreate();
