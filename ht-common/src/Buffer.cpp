@@ -24,6 +24,7 @@ Buffer::Buffer(const uint8_t *data, size_t len)
 
 Buffer::~Buffer()
 {
+	free(mData);
 }
 
 void Buffer::clear()
