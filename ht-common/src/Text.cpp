@@ -5,185 +5,6 @@
 
 static const char32_t *TAG = U"Text";
 
-namespace {
-
-int encodeString(
-	const std::u32string &s,
-	const ht::Table &table,
-	ht::Buffer *buffer)
-{
-	size_t maxValueSize = table.getMaxValueSize();
-	const char32_t *sIt;
-	size_t sItSize;
-	size_t searchSize;
-	const ht::Table::Entry *entry;
-	int res;
-
-	res = 0;
-	sIt = s.c_str();
-	sItSize = s.size();
-	searchSize = std::min(maxValueSize, sItSize);
-
-	while (*sIt != U'\0') {
-		entry = table.findFromValue(std::u32string(sIt, searchSize));
-		if ((entry == NULL) && (searchSize == 1)) {
-			ht::Log::e(TAG, U"Invalid char found");
-			res = -EINVAL;
-			break;
-		} else if (entry == NULL) {
-			searchSize--;
-		} else {
-			ht::Log::d(TAG, U"Writing %d bytes", entry->mKey.mSize);
-			buffer->append(entry->mKey.mValue, entry->mKey.mSize);
-			res += entry->mKey.mSize;
-
-			sIt += searchSize;
-			sItSize -= searchSize;
-
-			searchSize = std::min(maxValueSize, sItSize);
-		}
-	}
-
-	return res;
-}
-
-int encodeBlock(
-	const ht::Text::Block *block,
-	const ht::Table &table,
-	ht::Buffer *buffer)
-{
-	size_t inSize = buffer->getSize();
-	int res = 0;
-
-	ht::Log::d(TAG, U"Encoding new Block");
-
-	for (auto elem : block->mElementList) {
-		switch (elem->mType) {
-		case ht::Text::BlockElement::Type::Text:
-			ht::Log::d(TAG, U"Encoding new BlockElement of type Text");
-
-			res = encodeString(
-				elem->mTextContent,
-				table,
-				buffer);
-			if (res > 0) {
-				ht::Log::d(TAG, U"%d bytes encoded", res);
-			}
-
-			break;
-
-		case ht::Text::BlockElement::Type::RawByte:
-			ht::Log::d(TAG, U"Encoding new BlockElement of type RawByte");
-			ht::Log::d(TAG, U"Writing 1 byte at %p");
-			buffer->append(&elem->mRawByte, 1);
-			break;
-
-		default:
-			ht::Log::e(TAG, U"Invalid BlockElement type %s", elem->mType);
-			res = -EINVAL;
-			break;
-		}
-
-		if (res < 0) {
-			break;
-		}
-	}
-
-	if (res < 0) {
-		return res;
-	} else {
-		return (buffer->getSize() - inSize);
-	}
-}
-
-int extractMatchingPointers(
-	uint32_t offset,
-	size_t start,
-	const ht::PointerTable &src,
-	std::vector<ht::Pointer> *dest)
-{
-	size_t srcSize = src.getCount();
-	int res = 0;
-
-	for (size_t i = start ; i < srcSize ; i++) {
-		const ht::Pointer *pointer = src.getPointer(i);
-
-		if (pointer->mOffset == offset) {
-			dest->push_back(*pointer);
-			res++;
-		} else {
-			break;
-		}
-	}
-
-	return res;
-}
-
-int decodeBuffer(
-	const uint8_t *rawText,
-	size_t rawTextSize,
-	const ht::Table &table,
-	ht::Text::Block *block)
-{
-	size_t maxKeySize = table.getMaxKeySize();
-	size_t searchSize;
-	ht::Text::BlockElement *currentElement = NULL;
-	const ht::Table::Entry *entry;
-	int res;
-
-	res = 0;
-	searchSize = std::min(maxKeySize, rawTextSize);
-
-	while (rawTextSize > 0) {
-		entry = table.findFromKey(rawText, searchSize);
-
-		if ((entry == NULL) && (searchSize == 1)) {
-			ht::Text::BlockElement *rawByteElement;
-
-			rawByteElement = new ht::Text::BlockElement {
-				ht::Text::BlockElement::Type::RawByte, U"", rawText[0] };
-			if (rawByteElement == NULL) {
-				res = -ENOMEM;
-				break;
-			}
-
-			ht::Log::d(TAG, U"Unknown byte %02X", rawByteElement->mRawByte);
-			currentElement = NULL;
-			block->mElementList.push_back(rawByteElement);
-
-			rawText++;
-			rawTextSize--;
-
-			searchSize = std::min(maxKeySize, rawTextSize);
-		} else if (entry == NULL) {
-			searchSize--;
-		} else {
-			if (currentElement == NULL) {
-				currentElement = new ht::Text::BlockElement {
-					ht::Text::BlockElement::Type::Text, U"", 0 };
-				if (currentElement == NULL) {
-					res = -ENOMEM;
-					break;
-				}
-
-				ht::Log::d(TAG, U"New BlockElement of type Text");
-				block->mElementList.push_back(currentElement);
-			}
-
-			currentElement->mTextContent.append(entry->mValue);
-
-			rawText += entry->mKey.mSize;
-			rawTextSize -= entry->mKey.mSize;
-
-			searchSize = std::min(maxKeySize, rawTextSize);
-		}
-	}
-
-	return res;
-}
-
-}
-
 namespace ht {
 
 Text::Text()
@@ -266,6 +87,29 @@ int Text::encode(
 	return res;
 }
 
+int Text::extractMatchingPointers(
+	uint32_t offset,
+	size_t start,
+	const ht::PointerTable &src,
+	std::vector<ht::Pointer> *dest)
+{
+	size_t srcSize = src.getCount();
+	int res = 0;
+
+	for (size_t i = start ; i < srcSize ; i++) {
+		const ht::Pointer *pointer = src.getPointer(i);
+
+		if (pointer->mOffset == offset) {
+			dest->push_back(*pointer);
+			res++;
+		} else {
+			break;
+		}
+	}
+
+	return res;
+}
+
 int Text::decode(
 	const Buffer &buffer,
 	const Table &table,
@@ -337,6 +181,158 @@ int Text::decode(
 
 		mBlockList.push_back(block);
 		i = nextPointerId;
+	}
+
+	return res;
+}
+
+int Text::encodeString(
+	const std::u32string &s,
+	const ht::Table &table,
+	ht::Buffer *buffer)
+{
+	size_t maxValueSize = table.getMaxValueSize();
+	const char32_t *sIt;
+	size_t sItSize;
+	size_t searchSize;
+	const ht::Table::Entry *entry;
+	int res;
+
+	res = 0;
+	sIt = s.c_str();
+	sItSize = s.size();
+	searchSize = std::min(maxValueSize, sItSize);
+
+	while (*sIt != U'\0') {
+		entry = table.findFromValue(std::u32string(sIt, searchSize));
+		if ((entry == NULL) && (searchSize == 1)) {
+			ht::Log::e(TAG, U"Invalid char found");
+			res = -EINVAL;
+			break;
+		} else if (entry == NULL) {
+			searchSize--;
+		} else {
+			ht::Log::d(TAG, U"Writing %d bytes", entry->mKey.mSize);
+			buffer->append(entry->mKey.mValue, entry->mKey.mSize);
+			res += entry->mKey.mSize;
+
+			sIt += searchSize;
+			sItSize -= searchSize;
+
+			searchSize = std::min(maxValueSize, sItSize);
+		}
+	}
+
+	return res;
+}
+
+int Text::encodeBlock(
+	const ht::Text::Block *block,
+	const ht::Table &table,
+	ht::Buffer *buffer)
+{
+	size_t inSize = buffer->getSize();
+	int res = 0;
+
+	ht::Log::d(TAG, U"Encoding new Block");
+
+	for (auto elem : block->mElementList) {
+		switch (elem->mType) {
+		case ht::Text::BlockElement::Type::Text:
+			ht::Log::d(TAG, U"Encoding new BlockElement of type Text");
+
+			res = encodeString(
+				elem->mTextContent,
+				table,
+				buffer);
+			if (res > 0) {
+				ht::Log::d(TAG, U"%d bytes encoded", res);
+			}
+
+			break;
+
+		case ht::Text::BlockElement::Type::RawByte:
+			ht::Log::d(TAG, U"Encoding new BlockElement of type RawByte");
+			ht::Log::d(TAG, U"Writing 1 byte at %p");
+			buffer->append(&elem->mRawByte, 1);
+			break;
+
+		default:
+			ht::Log::e(TAG, U"Invalid BlockElement type %s", elem->mType);
+			res = -EINVAL;
+			break;
+		}
+
+		if (res < 0) {
+			break;
+		}
+	}
+
+	if (res < 0) {
+		return res;
+	} else {
+		return (buffer->getSize() - inSize);
+	}
+}
+
+int Text::decodeBuffer(
+	const uint8_t *rawText,
+	size_t rawTextSize,
+	const ht::Table &table,
+	ht::Text::Block *block)
+{
+	size_t maxKeySize = table.getMaxKeySize();
+	size_t searchSize;
+	ht::Text::BlockElement *currentElement = NULL;
+	const ht::Table::Entry *entry;
+	int res;
+
+	res = 0;
+	searchSize = std::min(maxKeySize, rawTextSize);
+
+	while (rawTextSize > 0) {
+		entry = table.findFromKey(rawText, searchSize);
+
+		if ((entry == NULL) && (searchSize == 1)) {
+			ht::Text::BlockElement *rawByteElement;
+
+			rawByteElement = new ht::Text::BlockElement {
+				ht::Text::BlockElement::Type::RawByte, U"", rawText[0] };
+			if (rawByteElement == NULL) {
+				res = -ENOMEM;
+				break;
+			}
+
+			ht::Log::d(TAG, U"Unknown byte %02X", rawByteElement->mRawByte);
+			currentElement = NULL;
+			block->mElementList.push_back(rawByteElement);
+
+			rawText++;
+			rawTextSize--;
+
+			searchSize = std::min(maxKeySize, rawTextSize);
+		} else if (entry == NULL) {
+			searchSize--;
+		} else {
+			if (currentElement == NULL) {
+				currentElement = new ht::Text::BlockElement {
+					ht::Text::BlockElement::Type::Text, U"", 0 };
+				if (currentElement == NULL) {
+					res = -ENOMEM;
+					break;
+				}
+
+				ht::Log::d(TAG, U"New BlockElement of type Text");
+				block->mElementList.push_back(currentElement);
+			}
+
+			currentElement->mTextContent.append(entry->mValue);
+
+			rawText += entry->mKey.mSize;
+			rawTextSize -= entry->mKey.mSize;
+
+			searchSize = std::min(maxKeySize, rawTextSize);
+		}
 	}
 
 	return res;

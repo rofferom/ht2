@@ -3,10 +3,81 @@
 #include <ht/Utils.hpp>
 #include <ht-lua/common/LuaClass.hpp>
 #include <ht-lua/common/LuaObjectParam.hpp>
+#include <ht-lua/common/LuaFunction.hpp>
 #include <ht-lua/LuaBuffer.hpp>
 #include <ht-lua/LuaTable.hpp>
 #include <ht-lua/LuaPointer.hpp>
 #include <ht-lua/LuaText.hpp>
+
+namespace {
+
+struct LuaTextFunction : htlua::LuaFunction<LuaTextFunction> {
+	static void init()
+	{
+		static Function functions[] = {
+			{ "encodeString", FunctionGenerator<int(std::string, ht::Table, ht::Buffer)>::get(encodeStringHandler), },
+			{ "encodeBlock", FunctionGenerator<int(ht::Text::Block, ht::Table, ht::Buffer)>::get(encodeBlockHandler), },
+			{ "decodeBuffer", FunctionGenerator<int(ht::Buffer, ht::Table, ht::Text::Block)>::get(decodeBufferHandler), },
+			Function::empty(),
+		};
+
+		mFunctions = functions;
+		mPackage = "ht";
+	}
+
+	static int encodeStringHandler(lua_State *L)
+	{
+		std::u32string s;
+		ht::Table *table;
+		ht::Buffer *buffer;
+		int res;
+
+		htlua::LuaType<std::u32string>::getValue(L, 1, s);
+		htlua::LuaType<ht::Table>::getValue(L, 2, table, false);
+		htlua::LuaType<ht::Buffer>::getValue(L, 3, buffer, false);
+
+		res = ht::Text::encodeString(s, *table, buffer);
+		htlua::LuaType<int>::pushValue(L, res);
+
+		return 1;
+	}
+
+	static int encodeBlockHandler(lua_State *L)
+	{
+		ht::Text::Block *block;
+		ht::Table *table;
+		ht::Buffer *buffer;
+		int res;
+
+		htlua::LuaType<ht::Text::Block>::getValue(L, 1, block, false);
+		htlua::LuaType<ht::Table>::getValue(L, 2, table, false);
+		htlua::LuaType<ht::Buffer>::getValue(L, 3, buffer, false);
+
+		res = ht::Text::encodeBlock(block, *table, buffer);
+		htlua::LuaType<int>::pushValue(L, res);
+
+		return 1;
+	}
+
+	static int decodeBufferHandler(lua_State *L)
+	{
+		ht::Buffer *buffer;
+		ht::Table *table;
+		ht::Text::Block *block;
+		int res;
+
+		htlua::LuaType<ht::Buffer>::getValue(L, 1, buffer, false);
+		htlua::LuaType<ht::Table>::getValue(L, 2, table, false);
+		htlua::LuaType<ht::Text::Block>::getValue(L, 3, block, false);
+
+		res = ht::Text::decodeBuffer(buffer->getData(), buffer->getSize(), *table, block);
+		htlua::LuaType<int>::pushValue(L, res);
+
+		return 1;
+	}
+};
+
+} // anonymous namespace
 
 namespace htlua {
 
@@ -247,6 +318,9 @@ struct LuaTextClass : LuaClass<ht::Text> {
 int LuaText::registerClass(lua_State *L)
 {
 	int res = 0;
+
+	LuaTextFunction::init();
+	res |= LuaTextFunction::registerFunction(L);
 
 	LuaTextBlockElementClass::init();
 	res |= LuaTextBlockElementClass::registerClass(L);

@@ -46,6 +46,13 @@ public:
 private:
 	std::vector<Block *> mBlockList;
 
+private:
+	int extractMatchingPointers(
+		uint32_t offset,
+		size_t start,
+		const ht::PointerTable &src,
+		std::vector<ht::Pointer> *dest);
+
 public:
 	HTAPI Text();
 	HTAPI virtual ~Text();
@@ -65,6 +72,22 @@ public:
 		const Buffer &buffer,
 		const Table &table,
 		const PointerTable &pointerList);
+
+	HTAPI static int encodeString(
+		const std::u32string &s,
+		const ht::Table &table,
+		ht::Buffer *buffer);
+
+	HTAPI static int encodeBlock(
+		const ht::Text::Block *block,
+		const ht::Table &table,
+		ht::Buffer *buffer);
+
+	HTAPI static int decodeBuffer(
+		const uint8_t *rawText,
+		size_t rawTextSize,
+		const ht::Table &table,
+		ht::Text::Block *block);
 };
 
 } // ht
