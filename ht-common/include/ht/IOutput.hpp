@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <ht/Types.hpp>
 #include <ht/Buffer.hpp>
 
 namespace ht {

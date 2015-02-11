@@ -94,7 +94,7 @@ int charsetConverterInput(
 
 		iconvRes = iconv(
 			self->cd,
-#ifdef __GLIBC__
+#if defined(__GLIBC__) || defined(__APPLE__)
 			(char **) &rawContentPos,
 #else
 			&rawContentPos,

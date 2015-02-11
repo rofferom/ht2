@@ -9,6 +9,7 @@ extern "C" {
 #include <stdint.h>
 #include <string>
 #include <tuple>
+#include <ht/Types.hpp>
 #include <ht/Utils.hpp>
 
 namespace htlua {
