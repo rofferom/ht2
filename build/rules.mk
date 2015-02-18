@@ -131,6 +131,12 @@ LOCAL_C_INCLUDES := $(strip $(LOCAL_C_INCLUDES) $(imported_C_INCLUDES))
 LOCAL_LDLIBS     := $(strip $(LOCAL_LDLIBS) $(imported_LDLIBS))
 
 ###############################################################################
+## Version management.
+###############################################################################
+LOCAL_CFLAGS += -DREVISION=$(shell git describe --all --dirty --long)
+LOCAL_CFLAGS += -DBUILDDATE=$(shell date +"%s")
+
+###############################################################################
 ## Resource list management.
 ###############################################################################
 
