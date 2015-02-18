@@ -1,7 +1,5 @@
-#include <string.h>
 #include <gtest/gtest.h>
-#include <ht/Utils.hpp>
-#include <ht/TableParser.hpp>
+#include <ht.hpp>
 
 #define TABLE_FILE "test-table.txt"
 #define TABLE_FILE_EMPTYKEY "test-table-emptykey.txt"

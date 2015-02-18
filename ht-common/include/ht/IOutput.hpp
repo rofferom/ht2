@@ -1,11 +1,6 @@
 #ifndef __HT_OUTPUT_HPP__
 #define __HT_OUTPUT_HPP__
 
-#include <stdio.h>
-#include <stdint.h>
-#include <ht/Types.hpp>
-#include <ht/Buffer.hpp>
-
 namespace ht {
 
 class IOutput {

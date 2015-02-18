@@ -1,15 +1,6 @@
 #ifndef __HTLUA_LUAPARAM_HPP__
 #define __HTLUA_LUAPARAM_HPP__
 
-extern "C" {
-	#include <lua.h>
-}
-
-#include <string>
-#include <tuple>
-#include <ht-lua/common/LuaTypes.hpp>
-#include <ht-lua/common/Sequence.hpp>
-
 namespace htlua {
 
 template <typename T>

@@ -1,10 +1,6 @@
 #ifndef __HTLUA_LUABUFFER_HPP__
 #define __HTLUA_LUABUFFER_HPP__
 
-#include <ht/Buffer.hpp>
-#include <ht-lua/common/LuaUserType.hpp>
-#include <ht/Env.hpp>
-
 namespace htlua {
 
 template <>

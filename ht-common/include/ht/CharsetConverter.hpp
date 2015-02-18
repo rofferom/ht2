@@ -1,9 +1,6 @@
 #ifndef __HT_CHARSETCONVERTER_HPP__
 #define __HT_CHARSETCONVERTER_HPP__
 
-#include <stdlib.h>
-#include <ht/Env.hpp>
-
 namespace ht {
 
 struct CharsetConverter;

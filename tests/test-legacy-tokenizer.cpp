@@ -1,8 +1,5 @@
-#include <string.h>
 #include <gtest/gtest.h>
-#include <ht/Log.hpp>
-#include <ht-legacy/TextTokenizer.hpp>
-#include <ht/Utils.hpp>
+#include <ht-legacy.hpp>
 
 static const char32_t *TAG = U"test.legacytokenizer";
 

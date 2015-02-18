@@ -1,10 +1,6 @@
 #ifndef __HTLUA_LUATABLE_HPP__
 #define __HTLUA_LUATABLE_HPP__
 
-#include <ht/Table.hpp>
-#include <ht-lua/common/LuaUserType.hpp>
-#include <ht/Env.hpp>
-
 namespace htlua {
 
 template <>

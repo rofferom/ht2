@@ -1,8 +1,4 @@
-#include <errno.h>
-#include <functional>
-#include <ht/Utils.hpp>
-#include <ht/TableParser.hpp>
-#include <ht-lua/LuaTable.hpp>
+#include "ht-lua-private.hpp"
 
 namespace htlua {
 

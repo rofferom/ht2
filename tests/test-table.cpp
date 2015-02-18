@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <ht/Table.hpp>
+#include <ht.hpp>
 
 struct TestKey {
 	uint8_t mValue[10];

@@ -1,12 +1,6 @@
 #ifndef __HTLUA_LUAPACKAGE_HPP__
 #define __HTLUA_LUAPACKAGE_HPP__
 
-extern "C" {
-	#include <lua.h>
-}
-
-#include <ht/Env.hpp>
-
 namespace htlua {
 
 struct LuaPackage {

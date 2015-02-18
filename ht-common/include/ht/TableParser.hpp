@@ -1,13 +1,6 @@
 #ifndef __HT_TABLEPARSER_HPP__
 #define __HT_TABLEPARSER_HPP__
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <string>
-#include <ht/Utils.hpp>
-#include <ht/Table.hpp>
-#include <ht/Env.hpp>
-
 namespace ht {
 
 /**

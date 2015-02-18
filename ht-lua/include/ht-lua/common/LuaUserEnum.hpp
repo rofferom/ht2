@@ -1,8 +1,6 @@
 #ifndef __HTLUA_LUAUSERENUM_HPP__
 #define __HTLUA_LUAUSERENUM_HPP__
 
-#include <ht-lua/common/LuaEnum.hpp>
-
 namespace htlua {
 
 template <typename T>

@@ -1,9 +1,6 @@
 #ifndef __HT_LOG_HPP__
 #define __HT_LOG_HPP__
 
-#include <stdarg.h>
-#include <ht/Env.hpp>
-
 namespace ht {
 
 class Log {

@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ht-lua/common/LuaPackage.hpp>
+#include "ht-lua-private.hpp"
 
 namespace {
 

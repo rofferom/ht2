@@ -1,7 +1,4 @@
-#include <stdlib.h>
-#include <string.h>
-#include <ht/TableParser.hpp>
-#include <ht-legacy/TableLoader.hpp>
+#include "ht-legacy-private.hpp"
 
 struct TableLoader {
 	ht::Table *mTable;

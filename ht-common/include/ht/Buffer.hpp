@@ -1,9 +1,6 @@
 #ifndef __HT_BUFFER_HPP__
 #define __HT_BUFFER_HPP__
 
-#include <stdint.h>
-#include <ht/Env.hpp>
-
 namespace ht {
 
 class Buffer {

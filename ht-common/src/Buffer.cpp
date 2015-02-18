@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <ht/Buffer.hpp>
+#include "ht-private.hpp"
 
 namespace ht {
 

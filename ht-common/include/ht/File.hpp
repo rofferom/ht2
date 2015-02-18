@@ -1,11 +1,6 @@
 #ifndef __HT_FILE_HPP__
 #define __HT_FILE_HPP__
 
-#include <stdint.h>
-#include <ht/IOutput.hpp>
-#include <ht/IInput.hpp>
-#include <ht/Env.hpp>
-
 namespace ht {
 
 class File : public IOutput, public IInput {

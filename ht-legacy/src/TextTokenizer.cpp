@@ -1,7 +1,4 @@
-#include <assert.h>
-#include <errno.h>
-#include <ht/TextFile.hpp>
-#include <ht-legacy/TextTokenizer.hpp>
+#include "ht-legacy-private.hpp"
 
 #define POINTER_LEN 9
 #define RAWBYTE_LEN 4

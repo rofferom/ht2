@@ -1,13 +1,6 @@
 #ifndef __HTLUA_LUAOBJECTPARAM_HPP__
 #define __HTLUA_LUAOBJECTPARAM_HPP__
 
-extern "C" {
-	#include <lua.h>
-	#include <lauxlib.h>
-}
-
-#include <ht-lua/common/LuaClass.hpp>
-
 namespace htlua {
 
 template <typename T>

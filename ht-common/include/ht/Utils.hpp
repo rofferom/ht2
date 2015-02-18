@@ -1,12 +1,6 @@
 #ifndef __HT_UTILS_HPP__
 #define __HT_UTILS_HPP__
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <string>
-#include <functional>
-#include <ht/Env.hpp>
-
 #define HT_SIZEOF_ARRAY(a) (sizeof(a) / sizeof(a[0]))
 
 namespace ht {

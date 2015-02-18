@@ -1,8 +1,4 @@
-#include <errno.h>
-#include <string>
-#include <ht/Utils.hpp>
-#include <ht-lua/LuaBuffer.hpp>
-#include <ht-lua/LuaFile.hpp>
+#include "ht-lua-private.hpp"
 
 namespace htlua {
 

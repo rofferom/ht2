@@ -1,6 +1,6 @@
 #include <errno.h>
 #include <algorithm>
-#include <ht/Pointer.hpp>
+#include "ht-private.hpp"
 
 #define MAX_WIDTH 3
 

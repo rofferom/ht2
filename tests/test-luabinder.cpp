@@ -1,21 +1,8 @@
-#include <stdio.h>
-#include <ht-lua/common/LuaClass.hpp>
-#include <ht-lua/common/LuaObjectParam.hpp>
-#include <ht-lua/common/LuaFunction.hpp>
-#include <ht-lua/common/LuaCallback.hpp>
-#include <ht-lua/common/LuaEnum.hpp>
-#include <ht-lua/LuaBuffer.hpp>
-#include <ht-lua/LuaFile.hpp>
-#include <ht-lua/LuaPointer.hpp>
-#include <ht-lua/LuaTable.hpp>
-#include <ht-lua/LuaText.hpp>
-#include <ht-lua-legacy/LuaTable.hpp>
-#include <ht-lua-legacy/LuaText.hpp>
+#include <ht-lua.hpp>
+#include <ht-legacy-lua.hpp>
 
 extern "C" {
-	#include <lua.h>
 	#include <lualib.h>
-	#include <lauxlib.h>
 }
 
 class Test {

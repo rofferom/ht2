@@ -1,9 +1,6 @@
 #ifndef __HTLUA_LUAUSERTYPES_HPP__
 #define __HTLUA_LUAUSERTYPES_HPP__
 
-#include <ht-lua/common/LuaClass.hpp>
-#include <ht-lua/common/LuaObjectParam.hpp>
-
 namespace htlua {
 
 template <typename T>

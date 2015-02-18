@@ -1,9 +1,5 @@
-#include <string.h>
 #include <gtest/gtest.h>
-#include <ht/Log.hpp>
-#include <ht/Text.hpp>
-#include <ht-legacy/Text.hpp>
-#include <ht/Utils.hpp>
+#include <ht-legacy.hpp>
 
 TEST(TextLegacy, Save)
 {

@@ -1,6 +1,5 @@
-#include <string.h>
 #include <gtest/gtest.h>
-#include <ht-legacy/TableLoader.hpp>
+#include <ht-legacy.hpp>
 
 #define TABLE_FILE "test-legacy-table.txt"
 

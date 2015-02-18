@@ -1,14 +1,6 @@
 #ifndef __HT_TABLE_HPP__
 #define __HT_TABLE_HPP__
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <string>
-#include <list>
-#include <map>
-#include <ht/Env.hpp>
-
 namespace ht {
 
 class Table {

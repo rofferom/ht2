@@ -1,6 +1,7 @@
 #ifndef __VFPRINTF32_H__
 #define __VFPRINTF32_H__
 
+#include <stdlib.h>
 #include <stdarg.h>
 
 #ifdef __cplusplus

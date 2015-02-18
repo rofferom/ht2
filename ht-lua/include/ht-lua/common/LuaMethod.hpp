@@ -1,14 +1,6 @@
 #ifndef __HTLUA_LUAMETHOD_HPP__
 #define __HTLUA_LUAMETHOD_HPP__
 
-#include <functional>
-#include <tuple>
-#include <ht/Log.hpp>
-#include <functional>
-#include <ht-lua/common/Sequence.hpp>
-#include <ht-lua/common/LuaTypes.hpp>
-#include <ht-lua/common/LuaParam.hpp>
-
 namespace htlua {
 
 static const char32_t *LUAMETHOD_TAG = U"LuaMethod";

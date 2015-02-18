@@ -1,13 +1,6 @@
 #ifndef __HT_TEXT_HPP__
 #define __HT_TEXT_HPP__
 
-#include <string>
-#include <vector>
-#include <ht/Buffer.hpp>
-#include <ht/Pointer.hpp>
-#include <ht/Table.hpp>
-#include <ht/Env.hpp>
-
 namespace ht {
 
 class Text {

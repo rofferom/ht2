@@ -1,7 +1,6 @@
 #include <errno.h>
 #include <algorithm>
-#include <ht/Log.hpp>
-#include <ht/Text.hpp>
+#include "ht-private.hpp"
 
 static const char32_t *TAG = U"Text";
 

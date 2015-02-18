@@ -1,8 +1,6 @@
 #ifndef __HTLUA_LUAOBJECT_HPP__
 #define __HTLUA_LUAOBJECT_HPP__
 
-#include <ht-lua/common/LuaMethod.hpp>
-
 namespace htlua {
 
 struct LuaBaseObject {

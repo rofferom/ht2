@@ -1,6 +1,4 @@
-#include <ht-legacy/Text.hpp>
-#include <ht-lua/LuaText.hpp>
-#include <ht-lua-legacy/LuaText.hpp>
+#include "ht-legacy-lua-private.hpp"
 
 namespace {
 

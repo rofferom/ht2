@@ -1,14 +1,6 @@
 #ifndef __HTLUA_LUAENUM_HPP__
 #define __HTLUA_LUAENUM_HPP__
 
-extern "C" {
-	#include <lua.h>
-	#include <lauxlib.h>
-}
-
-#include <assert.h>
-#include <ht-lua/common/LuaPackage.hpp>
-
 namespace htlua {
 
 template <typename T>

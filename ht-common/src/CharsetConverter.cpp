@@ -1,8 +1,7 @@
 #include <string.h>
 #include <errno.h>
 #include <iconv.h>
-#include <ht/Log.hpp>
-#include <ht/CharsetConverter.hpp>
+#include "ht-private.hpp"
 
 static const char32_t *TAG = U"CharsetConverter";
 

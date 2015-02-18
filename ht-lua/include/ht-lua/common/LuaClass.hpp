@@ -1,21 +1,6 @@
 #ifndef __HTLUA_LUACLASS_HPP__
 #define __HTLUA_LUACLASS_HPP__
 
-extern "C" {
-	#include <lua.h>
-	#include <lauxlib.h>
-}
-
-#include <assert.h>
-#include <cstddef>
-#include <functional>
-#include <ht/Log.hpp>
-#include <ht/Utils.hpp>
-#include <ht-lua/common/LuaObject.hpp>
-#include <ht-lua/common/LuaTypes.hpp>
-#include <ht-lua/common/LuaParam.hpp>
-#include <ht-lua/common/LuaPackage.hpp>
-
 namespace htlua {
 
 template <typename T>

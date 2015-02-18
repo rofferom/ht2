@@ -1,9 +1,6 @@
 #ifndef __HT_TEXTFILE_HPP__
 #define __HT_TEXTFILE_HPP__
 
-#include <stdlib.h>
-#include <ht/Env.hpp>
-
 namespace ht {
 
 class TextFile {

@@ -2,10 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <ht/Log.hpp>
-#include <ht/CharsetConverter.hpp>
-#include <ht/Utils.hpp>
-#include <ht/TextFile.hpp>
+#include "ht-private.hpp"
 
 #define ALLOCATION_STEP 4096
 

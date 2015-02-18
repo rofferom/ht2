@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <vfprintf32.h>
-#include <ht/CharsetConverter.hpp>
-#include <ht/Log.hpp>
-#include <ht/Utils.hpp>
+#include "ht-private.hpp"
 
 namespace {
 

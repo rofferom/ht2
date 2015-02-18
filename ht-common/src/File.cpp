@@ -1,5 +1,5 @@
 #include <errno.h>
-#include <ht/File.hpp>
+#include "ht-private.hpp"
 
 namespace ht {
 

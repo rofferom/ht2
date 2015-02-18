@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <vfprintf32.h>
-#include <ht/Log.hpp>
-#include <ht/CharsetConverter.hpp>
-#include <ht-legacy/Text.hpp>
-#include <ht-legacy/TextTokenizer.hpp>
+#include "ht-legacy-private.hpp"
 
 static const char32_t *TAG = U"htl.Text";
 

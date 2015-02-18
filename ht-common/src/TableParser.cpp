@@ -1,10 +1,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <vfprintf32.h>
-#include <ht/Log.hpp>
-#include <ht/Table.hpp>
-#include <ht/TableParser.hpp>
-#include <ht/TextFile.hpp>
+#include "ht-private.hpp"
 
 static const char32_t *TAG = U"TableParser";
 

@@ -1,11 +1,6 @@
 #ifndef __HTLUA_LUAPOINTER_HPP__
 #define __HTLUA_LUAPOINTER_HPP__
 
-#include <ht/Pointer.hpp>
-#include <ht-lua/common/LuaUserType.hpp>
-#include <ht-lua/common/LuaUserEnum.hpp>
-#include <ht/Env.hpp>
-
 namespace htlua {
 
 template <>

@@ -1,13 +1,6 @@
 #ifndef __HT_POINTER_HPP__
 #define __HT_POINTER_HPP__
 
-#include <stdint.h>
-#include <vector>
-#include <functional>
-#include <ht/IInput.hpp>
-#include <ht/IOutput.hpp>
-#include <ht/Env.hpp>
-
 namespace ht {
 
 enum class PointerEndianness {

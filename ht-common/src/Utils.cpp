@@ -2,9 +2,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <ht/Log.hpp>
-#include <ht/CharsetConverter.hpp>
-#include <ht/Utils.hpp>
+#include "ht-private.hpp"
 
 static const char32_t *TAG = U"Utils";
 
@@ -200,8 +198,8 @@ std::string convertToEnvStr(const std::u32string &s)
 	cb.userdata = &out;
 
 	converter = charsetConverterCreate();
-	charsetConverterOpen(converter, "CP850", "UTF-32LE", &cb);
-	//charsetConverterOpen(converter, "UTF-8", "UTF-32LE", &cb);
+	//charsetConverterOpen(converter, "CP850", "UTF-32LE", &cb);
+	charsetConverterOpen(converter, "UTF-8", "UTF-32LE", &cb);
 	charsetConverterInput(converter, s.c_str(), s.size() * sizeof(char32_t));
 	charsetConverterClose(converter);
 	charsetConverterDestroy(converter);

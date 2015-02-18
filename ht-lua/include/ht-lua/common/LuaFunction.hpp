@@ -1,15 +1,6 @@
 #ifndef __HTLUA_LUAFUNCTION_HPP__
 #define __HTLUA_LUAFUNCTION_HPP__
 
-extern "C" {
-	#include <lua.h>
-	#include <lauxlib.h>
-}
-
-#include <assert.h>
-#include <ht-lua/common/LuaMethod.hpp>
-#include <ht-lua/common/LuaPackage.hpp>
-
 namespace htlua {
 
 template <typename T>

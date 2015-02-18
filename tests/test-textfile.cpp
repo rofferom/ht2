@@ -1,8 +1,5 @@
-#include <string.h>
 #include <gtest/gtest.h>
-#include <ht/Log.hpp>
-#include <ht/TextFile.hpp>
-#include <ht/Utils.hpp>
+#include <ht.hpp>
 
 #define UTF8_FILE "test-textfile-utf8.txt"
 #define UTF32_FILE "test-textfile-utf32.txt"

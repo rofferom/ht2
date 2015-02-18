@@ -1,6 +1,5 @@
-#include <string>
 #include <gtest/gtest.h>
-#include <ht/CharsetConverter.hpp>
+#include <ht.hpp>
 
 int output(const void *buff, size_t size, void *userdata)
 {

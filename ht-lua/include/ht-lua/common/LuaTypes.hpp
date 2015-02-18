@@ -1,17 +1,6 @@
 #ifndef __HTLUA_LUATYPES_HPP__
 #define __HTLUA_LUATYPES_HPP__
 
-extern "C" {
-	#include <lua.h>
-}
-
-#include <stdio.h>
-#include <stdint.h>
-#include <string>
-#include <tuple>
-#include <ht/Types.hpp>
-#include <ht/Utils.hpp>
-
 namespace htlua {
 
 struct LuaTypeEnd;

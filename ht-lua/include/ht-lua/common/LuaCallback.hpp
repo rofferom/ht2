@@ -1,15 +1,6 @@
 #ifndef __HTLUA_LUACALLBACK_HPP__
 #define __HTLUA_LUACALLBACK_HPP__
 
-extern "C" {
-	#include <lua.h>
-	#include <lauxlib.h>
-}
-
-#include <assert.h>
-#include <functional>
-#include <ht-lua/common/LuaTypes.hpp>
-
 namespace htlua {
 
 template <typename R, typename... Args>

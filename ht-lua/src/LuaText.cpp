@@ -1,13 +1,4 @@
-#include <errno.h>
-#include <functional>
-#include <ht/Utils.hpp>
-#include <ht-lua/common/LuaClass.hpp>
-#include <ht-lua/common/LuaObjectParam.hpp>
-#include <ht-lua/common/LuaFunction.hpp>
-#include <ht-lua/LuaBuffer.hpp>
-#include <ht-lua/LuaTable.hpp>
-#include <ht-lua/LuaPointer.hpp>
-#include <ht-lua/LuaText.hpp>
+#include "ht-lua-private.hpp"
 
 namespace {
 

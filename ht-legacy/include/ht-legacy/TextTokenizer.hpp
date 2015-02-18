@@ -1,9 +1,6 @@
 #ifndef __HTL_TEXT_TOKENIZER_HPP__
 #define __HTL_TEXT_TOKENIZER_HPP__
 
-#include <stdint.h>
-#include <ht/Env.hpp>
-
 namespace htl {
 
 struct TokenizerCb {

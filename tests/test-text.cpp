@@ -1,9 +1,5 @@
-#include <string.h>
 #include <gtest/gtest.h>
-#include <ht/Log.hpp>
-#include <ht/Table.hpp>
-#include <ht/Text.hpp>
-#include <ht/Utils.hpp>
+#include <ht.hpp>
 
 struct TestKey {
 	uint8_t mValue[10];

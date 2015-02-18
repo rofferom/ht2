@@ -1,6 +1,4 @@
-#include <ht-legacy/TableLoader.hpp>
-#include <ht-lua-legacy/LuaTable.hpp>
-#include <ht-lua/LuaTable.hpp>
+#include "ht-legacy-lua-private.hpp"
 
 namespace {
 

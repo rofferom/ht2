@@ -1,14 +1,6 @@
 #ifndef __HTLUA_LUATEXT_HPP__
 #define __HTLUA_LUATEXT_HPP__
 
-extern "C" {
-	#include <lua.h>
-}
-
-#include <ht/Text.hpp>
-#include <ht-lua/common/LuaUserType.hpp>
-#include <ht/Env.hpp>
-
 namespace htlua {
 
 template <>
