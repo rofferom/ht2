@@ -7,10 +7,10 @@
 namespace {
 
 static const char32_t *strLogPriority[] = {
-	U"D",
-	U"I",
-	U"W",
 	U"E",
+	U"W",
+	U"I",
+	U"D",
 };
 
 struct StdoutLogger {
@@ -39,11 +39,11 @@ StdoutLogger::StdoutLogger()
 	mStdoutCb.userdata = NULL;
 }
 
-int logStdout(ht::Log::Priority priority, const char32_t *tag, const char32_t *format, va_list ap)
+int logStdout(ht::Log::Level priority, const char32_t *tag, const char32_t *format, va_list ap)
 {
 	int res;
 
-	res = fprintf32(&stdoutLogger.mStdoutCb, U"[%s][%s] ", strLogPriority[priority], tag);
+	res = fprintf32(&stdoutLogger.mStdoutCb, U"[%s][%s] ", strLogPriority[(int) priority], tag);
 	res += vfprintf32(&stdoutLogger.mStdoutCb, format, ap);
 	res += fprintf32(&stdoutLogger.mStdoutCb, U"\n");
 
@@ -55,6 +55,7 @@ int logStdout(ht::Log::Priority priority, const char32_t *tag, const char32_t *f
 namespace ht {
 
 Log::LogCb Log::sCb = logStdout;
+Log::Level Log::sLogLevel = Log::Level::Info;
 
 int Log::setCallback(LogCb cb)
 {
@@ -70,13 +71,31 @@ int Log::setCallback(LogCb cb)
 	return res;
 }
 
+void Log::setLogLevel(Level level)
+{
+	sLogLevel = level;
+}
+
+int Log::log(Level level, const char32_t *tag, const char32_t *format, va_list args)
+{
+	int res;
+
+	if (level <= sLogLevel) {
+		res = sCb(level, tag, format, args);
+	} else {
+		res = 0;
+	}
+
+	return res;
+}
+
 int Log::d(const char32_t *tag, const char32_t *format, ...)
 {
 	va_list args;
 	int res;
 
 	va_start(args, format);
-	res = sCb(LOG_PRIORITY_DEBUG, tag, format, args);
+	res = log(Log::Level::Debug, tag, format, args);
 	va_end(args);
 
 	return res;
@@ -88,7 +107,7 @@ int Log::i(const char32_t *tag, const char32_t *format, ...)
 	int res;
 
 	va_start(args, format);
-	res = sCb(LOG_PRIORITY_INFO, tag, format, args);
+	res = log(Log::Level::Info, tag, format, args);
 	va_end(args);
 
 	return res;
@@ -100,7 +119,7 @@ int Log::w(const char32_t *tag, const char32_t *format, ...)
 	int res;
 
 	va_start(args, format);
-	res = sCb(LOG_PRIORITY_WARNING, tag, format, args);
+	res = log(Log::Level::Warning, tag, format, args);
 	va_end(args);
 
 	return res;
@@ -112,7 +131,7 @@ int Log::e(const char32_t *tag, const char32_t *format, ...)
 	int res;
 
 	va_start(args, format);
-	res = sCb(LOG_PRIORITY_ERROR, tag, format, args);
+	res = log(Log::Level::Error, tag, format, args);
 	va_end(args);
 
 	return res;

@@ -5,21 +5,24 @@ namespace ht {
 
 class Log {
 public:
-	enum Priority {
-		LOG_PRIORITY_DEBUG = 0,
-		LOG_PRIORITY_INFO,
-		LOG_PRIORITY_WARNING,
-		LOG_PRIORITY_ERROR,
-		LOG_PRIORITY_COUNT,
+	enum class Level {
+		Error = 0,
+		Warning,
+		Info,
+		Debug
 	};
 
-	typedef int (*LogCb)(Priority priority, const char32_t *tag, const char32_t *format, va_list ap);
+	typedef int (*LogCb)(Level priority, const char32_t *tag, const char32_t *format, va_list ap);
 
 private:
 	static LogCb sCb;
+	static Level sLogLevel;
+
+	static int log(Level level, const char32_t *tag, const char32_t *format, va_list args);
 
 public:
 	HTAPI static int setCallback(LogCb cb);
+	HTAPI static void setLogLevel(Level level);
 
 	HTAPI static int d(const char32_t *tag, const char32_t *format, ...);
 	HTAPI static int i(const char32_t *tag, const char32_t *format, ...);
