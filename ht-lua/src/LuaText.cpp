@@ -22,7 +22,7 @@ struct LuaTextFunction : htlua::LuaFunction<LuaTextFunction> {
 		};
 
 		mFunctions = functions;
-		mPackage = "ht";
+		mPackage = "ht.text";
 	}
 
 	static int encodeStringHandler(lua_State *L)
