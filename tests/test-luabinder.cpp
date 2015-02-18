@@ -314,26 +314,8 @@ int main(int argc, char *argv[])
 	L = luaL_newstate();
 	luaL_openlibs(L);
 
-	// Register File binding
-	htlua::LuaFile::registerClass(L);
-
-	// Register Buffer binding
-	htlua::LuaBuffer::registerClass(L);
-
-	// Register Table binding
-	htlua::LuaTable::registerClass(L);
-
-	// Register Pointer binding
-	htlua::LuaPointer::registerClass(L);
-
-	// Register Text binding
-	htlua::LuaText::registerClass(L);
-
-	// Register legacy Table binding
-	htlual::LuaTable::registerFunctions(L);
-
-	// Register legacy Text binding
-	htlual::LuaText::registerFunctions(L);
+	htlua::registerComponents(L);
+	htlual::registerComponents(L);
 
 	// Register Test binding
 	registerLuaTest(L);

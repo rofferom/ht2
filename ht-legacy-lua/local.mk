@@ -17,6 +17,7 @@ LOCAL_C_INCLUDES := \
 LOCAL_SRC_FILES := \
 	src/LuaTable.cpp \
 	src/LuaText.cpp \
+	src/ht-legacy-lua.cpp \
 
 LOCAL_SHARED_LIBRARIES := \
 	ht-legacy \

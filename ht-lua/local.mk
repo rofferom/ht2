@@ -21,6 +21,7 @@ LOCAL_SRC_FILES := \
 	src/LuaPointer.cpp \
 	src/LuaTable.cpp \
 	src/LuaText.cpp \
+	src/ht-lua.cpp \
 
 LOCAL_SHARED_LIBRARIES := \
 	ht-common \

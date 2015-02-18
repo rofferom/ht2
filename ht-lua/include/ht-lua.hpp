@@ -30,4 +30,10 @@ extern "C" {
 #include <ht-lua/LuaTable.hpp>
 #include <ht-lua/LuaText.hpp>
 
+namespace htlua {
+
+HTAPI int registerComponents(lua_State *L);
+
+} // namespace htlua
+
 #endif // !__HT_LUA_HPP__
