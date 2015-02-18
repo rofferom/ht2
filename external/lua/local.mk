@@ -4,6 +4,8 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := lua
 
+LOCAL_CFLAGS := -fvisibility=hidden
+
 LOCAL_EXPORT_C_INCLUDES := \
 	-I $(LOCAL_PATH)/src
 
