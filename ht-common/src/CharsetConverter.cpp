@@ -7,73 +7,100 @@ static const char32_t *TAG = U"CharsetConverter";
 
 namespace ht {
 
-struct CharsetConverter {
-	iconv_t cd;
-	struct CharsetConverterCb cb;
+class CharsetConverterImpl : public CharsetConverter {
+private:
+	iconv_t mCd;
+	Cb mCb;
+
+public:
+	CharsetConverterImpl();
+	virtual ~CharsetConverterImpl();
+
+	virtual int open(const char *tocode, const char *fromcode) override;
+	virtual int open(const char *tocode, const char *fromcode, const Cb &cb) override;
+	virtual int close() override;
+
+	virtual int input(const void *content, size_t contentSize) override;
+	virtual int input(const void *content, size_t contentSize, const Cb &cb) override;
 };
 
-struct CharsetConverter *charsetConverterCreate()
+CharsetConverterImpl::CharsetConverterImpl()
+	: CharsetConverter()
 {
-	struct CharsetConverter *self;
-
-	self = (struct CharsetConverter *) malloc(sizeof(struct CharsetConverter));
-	if (self != NULL) {
-		self->cd = NULL;
-		memset(&self->cb, 0, sizeof(self->cb));
-	}
-
-	return self;
+	mCd = NULL;
 }
 
-void charsetConverterDestroy(struct CharsetConverter *self)
+CharsetConverterImpl::~CharsetConverterImpl()
 {
-	free(self);
+	close();
 }
 
-int charsetConverterOpen(
-	struct CharsetConverter *self,
-	const char* tocode,
-	const char* fromcode,
-	const struct CharsetConverterCb *cb)
+int CharsetConverterImpl::open(const char *tocode, const char *fromcode)
 {
 	int res;
 
-	if (!self || !tocode || !fromcode || !cb) {
+	if (!tocode || !fromcode) {
 		return -EINVAL;
 	}
 
-	self->cd = iconv_open(tocode, fromcode);
-	if (self->cd == (iconv_t) -1) {
+	mCd = iconv_open(tocode, fromcode);
+	if (mCd == (iconv_t) -1) {
 		res = -errno;
 		goto error;
 	}
 
-	self->cb = *cb;
+	return 0;
+
+error:
+	mCd = NULL;
+
+	return res;
+}
+
+int CharsetConverterImpl::open(const char *tocode, const char *fromcode, const Cb &cb)
+{
+	int res;
+
+	if (!tocode || !fromcode || cb.isValid() == false) {
+		return -EINVAL;
+	}
+
+	mCd = iconv_open(tocode, fromcode);
+	if (mCd == (iconv_t) -1) {
+		res = -errno;
+		goto error;
+	}
+
+	mCb = cb;
 
 	return 0;
 
 error:
+	mCd = NULL;
+
 	return res;
 }
 
-int charsetConverterClose(struct CharsetConverter *self)
+int CharsetConverterImpl::close()
 {
-	if (!self) {
-		return -EINVAL;;
+	if (mCd != NULL) {
+		iconv_close(mCd);
+		mCd = NULL;
 	}
-
-	iconv_close(self->cd);
-	self->cd = NULL;
-
-	memset(&self->cb, 0, sizeof(self->cb));
 
 	return 0;
 }
 
-int charsetConverterInput(
-	struct CharsetConverter *self,
-	const void *rawContent,
-	size_t rawContentSize)
+int CharsetConverterImpl::input(const void *rawContent, size_t rawContentSize)
+{
+	if (mCb.isValid() == false) {
+		return -EINVAL;
+	}
+
+	return input(rawContent, rawContentSize, mCb);
+}
+
+int CharsetConverterImpl::input(const void *rawContent, size_t rawContentSize, const Cb &cb)
 {
 	const size_t BUFFSIZE = 1024;
 	char convertedContent[BUFFSIZE];
@@ -92,7 +119,7 @@ int charsetConverterInput(
 		convertedContentRemainingSize = BUFFSIZE;
 
 		iconvRes = iconv(
-			self->cd,
+			mCd,
 #if defined(__GLIBC__) || defined(__APPLE__)
 			(char **) &rawContentPos,
 #else
@@ -103,30 +130,27 @@ int charsetConverterInput(
 			&convertedContentRemainingSize);
 		if (iconvRes != (size_t) -1) {
 			// Conversion ok
-			self->cb.output(
+			cb.output(
 				convertedContent,
-				convertedContentPos - convertedContent,
-				self->cb.userdata);
+				convertedContentPos - convertedContent);
 		} else if (errno == E2BIG) {
 			// Convertion ok but not enough space to convert all the input
-			self->cb.output(
+			cb.output(
 				convertedContent,
-				convertedContentPos - convertedContent,
-				self->cb.userdata);
+				convertedContentPos - convertedContent);
 		} else if (errno == EILSEQ) {
 			// Partial conversion
 			if (convertedContentRemainingSize < BUFFSIZE) {
-				self->cb.output(
+				cb.output(
 					convertedContent,
-					convertedContentPos - convertedContent,
-					self->cb.userdata);
+					convertedContentPos - convertedContent);
 			}
 
 			rawContentPos++;
 			rawContentRemainingSize--;
 
-			if (self->cb.invalid_sequence != NULL) {
-				self->cb.invalid_sequence(self->cb.userdata);
+			if (cb.invalidSeq) {
+				cb.invalidSeq();
 			} else {
 				Log::e(TAG, U"Invalid sequence");
 			}
@@ -134,8 +158,8 @@ int charsetConverterInput(
 			rawContentPos++;
 			rawContentRemainingSize--;
 
-			if (self->cb.invalid_sequence != NULL) {
-				self->cb.invalid_sequence(self->cb.userdata);
+			if (cb.invalidSeq) {
+				cb.invalidSeq();
 			} else {
 				Log::e(TAG, U"Invalid sequence");
 			}
@@ -145,6 +169,16 @@ int charsetConverterInput(
 	}
 
 	return res;
+}
+
+CharsetConverter *CharsetConverter::create()
+{
+	return new CharsetConverterImpl();
+}
+
+void CharsetConverter::destroy(CharsetConverter *self)
+{
+	delete self;
 }
 
 } // ht

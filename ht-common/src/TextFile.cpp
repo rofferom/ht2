@@ -35,25 +35,23 @@ struct FileConverter {
 	size_t usedSize;
 };
 
-int inputConvertedData(const void *buff, size_t size, void *userdata)
+int inputConvertedData(FileConverter *self, const void *buff, size_t size)
 {
-	FileConverter *fileConverter = (FileConverter *) userdata;
-
-	if (fileConverter->size - fileConverter->usedSize < size) {
+	if (self->size - self->usedSize < size) {
 		if (ALLOCATION_STEP < size) {
-			fileConverter->size += size;
+			self->size += size;
 		} else {
-			fileConverter->size += ALLOCATION_STEP;
+			self->size += ALLOCATION_STEP;
 		}
 
-		fileConverter->buffer = (uint8_t *) realloc(fileConverter->buffer, fileConverter->size);
-		if (fileConverter->buffer == NULL) {
+		self->buffer = (uint8_t *) realloc(self->buffer, self->size);
+		if (self->buffer == NULL) {
 			return -ENOMEM;
 		}
 	}
 
-	memcpy(fileConverter->buffer + fileConverter->usedSize, buff, size);
-	fileConverter->usedSize += size;
+	memcpy(self->buffer + self->usedSize, buff, size);
+	self->usedSize += size;
 
 	return 0;
 }
@@ -65,8 +63,8 @@ int convertToUnicode(
 	char32_t **outContent,
 	size_t *outContentSize)
 {
-	struct ht::CharsetConverter *converter;
-	struct ht::CharsetConverterCb cb;
+	ht::CharsetConverter *converter;
+	ht::CharsetConverter::Cb cb;
 	FileConverter fileConverter;
 	int res;
 
@@ -74,20 +72,21 @@ int convertToUnicode(
 	fileConverter.size = 0;
 	fileConverter.usedSize = 0;
 
-	cb.output = inputConvertedData;
-	cb.userdata = &fileConverter;
+	cb.output = [&fileConverter] (const void *buff, size_t size) -> int {
+		return inputConvertedData(&fileConverter, buff, size);
+	};
 
-	converter = ht::charsetConverterCreate();
+	converter = ht::CharsetConverter::create();
 	if (converter == NULL) {
 		return -ENOMEM;
 	}
 
-	res = ht::charsetConverterOpen(converter, "UTF-32LE", encoding, &cb);
+	res = converter->open(ht::InternalCharset::name, encoding, cb);
 	if (res < 0) {
 		goto destroy;
 	}
 
-	res = ht::charsetConverterInput(converter, rawContent, rawContentSize);
+	res = converter->input(rawContent, rawContentSize);
 	if (res == 0) {
 		*outContent = (char32_t *) fileConverter.buffer;
 		*outContentSize = fileConverter.usedSize / sizeof(char32_t);
@@ -95,13 +94,13 @@ int convertToUnicode(
 		free(fileConverter.buffer);
 	}
 
-	ht::charsetConverterClose(converter);
-	ht::charsetConverterDestroy(converter);
+	converter->close();
+	ht::CharsetConverter::destroy(converter);
 
 	return 0;
 
 destroy:
-	ht::charsetConverterDestroy(converter);
+	ht::CharsetConverter::destroy(converter);
 
 	return res;
 }

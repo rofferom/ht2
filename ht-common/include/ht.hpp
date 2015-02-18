@@ -10,8 +10,9 @@
 #include <map>
 #include <vector>
 
-#include <ht/Env.hpp>
 #include <ht/Types.hpp>
+#include <ht/CharsetConverter.hpp>
+#include <ht/Env.hpp>
 #include <ht/Utils.hpp>
 #include <ht/Log.hpp>
 
@@ -21,7 +22,6 @@
 #include <ht/IInput.hpp>
 #include <ht/File.hpp>
 
-#include <ht/CharsetConverter.hpp>
 #include <ht/TextFile.hpp>
 
 #include <ht/Pointer.hpp>

@@ -207,7 +207,7 @@ struct LuaType<std::u32string> {
 	{
 		std::string value;
 
-		value = ht::convertToEnvStr(u32value);
+		value = ht::SysEnv::toSysEnv(u32value);
 		lua_pushstring(L, value.c_str());
 	}
 
@@ -215,7 +215,7 @@ struct LuaType<std::u32string> {
 	{
 		std::string value = lua_tostring(L, argIndex);
 
-		u32value = ht::convertFromEnvStr(value);
+		u32value = ht::SysEnv::toInternal(value);
 	}
 };
 

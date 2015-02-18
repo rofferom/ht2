@@ -17,6 +17,7 @@ LOCAL_C_INCLUDES := \
 LOCAL_SRC_FILES := \
 	src/Buffer.cpp \
 	src/CharsetConverter.cpp \
+	src/Env.cpp \
 	src/File.cpp \
 	src/Log.cpp \
 	src/Pointer.cpp \

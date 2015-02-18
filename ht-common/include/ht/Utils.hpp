@@ -41,10 +41,6 @@ HTAPI int loadFile(const char *path, char **outContent, size_t *outContentSize);
 HTAPI int dumpToFile(const char *path, const uint8_t *buffer, size_t size);
 HTAPI int compareFiles(const char *path1, const char *path2);
 
-HTAPI std::u32string convertFromEnvStr(const std::string &s);
-HTAPI std::string convertToEnvStr(const std::u32string &s);
-
 } // ht
-
 
 #endif // !__HT_UTILS_HPP__

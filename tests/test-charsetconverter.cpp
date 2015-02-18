@@ -1,42 +1,35 @@
 #include <gtest/gtest.h>
 #include <ht.hpp>
 
-int output(const void *buff, size_t size, void *userdata)
-{
-	std::u32string *out = (std::u32string *) userdata;
-
-	out->append((const char32_t *) buff, size / sizeof(char32_t));
-
-	return 0;
-}
-
 TEST(CharsetConverter, Test)
 {
 	const char *input = "ABCé^à€";
 	const char32_t *expectedOutput = U"ABCé^à€";
 	size_t inputSize = strlen(input);
 	struct ht::CharsetConverter *converter;
-	struct ht::CharsetConverterCb cb;
+	struct ht::CharsetConverter::Cb cb;
 	std::u32string out;
 	int res;
 
-	cb.output = output;
-	cb.userdata = &out;
+	cb.output = [&out] (const void *buff, size_t size) -> int {
+		out.append((const char32_t *) buff, size / sizeof(char32_t));
+		return 0;
+	};
 
-	converter = ht::charsetConverterCreate();
+	converter = ht::CharsetConverter::create();
 	ASSERT_TRUE(converter != NULL);
 
-	res = ht::charsetConverterOpen(converter, "UTF-32LE", "UTF-8", &cb);
+	res = converter->open("UTF-32LE", "UTF-8", cb);
 	ASSERT_EQ(res, 0);
 
-	res = ht::charsetConverterInput(converter, input, inputSize);
+	res = converter->input(input, inputSize);
 	ASSERT_EQ(res, 0);
 	ASSERT_EQ(out.size(), 7);
 	ASSERT_TRUE(out == expectedOutput);
 
-	res = ht::charsetConverterClose(converter);
+	res = converter->close();
 	ASSERT_EQ(res, 0);
 
-	ht::charsetConverterDestroy(converter);
+	ht::CharsetConverter::destroy(converter);
 	converter = NULL;
 }

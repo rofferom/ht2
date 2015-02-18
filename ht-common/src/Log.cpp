@@ -14,74 +14,38 @@ static const char32_t *strLogPriority[] = {
 };
 
 struct StdoutLogger {
-	struct ht::CharsetConverter *converter;
-	struct OutputStream out;
+	ht::CharsetConverter::Cb mOutputCb;
+	struct OutputStream mStdoutCb;
+
+	StdoutLogger();
 };
 
-StdoutLogger *stdoutLogger = NULL;
+StdoutLogger stdoutLogger;
 
 size_t writeStdout(const char32_t *s, size_t size, void *userdata)
 {
-	StdoutLogger *logger = (StdoutLogger *) userdata;
-
-	ht::charsetConverterInput(logger->converter, s, size * sizeof(char32_t));
+	ht::SysEnv::toSysEnv(s, size * sizeof(char32_t), stdoutLogger.mOutputCb);
 
 	return size;
 }
 
-int convertedBuffer(const void *buff, size_t size, void *userdata)
+StdoutLogger::StdoutLogger()
 {
-	return fwrite(buff, 1, size, stdout);
-}
+	mOutputCb.output = [] (const void *buff, size_t size) -> int {
+		return fwrite(buff, 1, size, stdout);
+	};
 
-void initStdout()
-{
-	struct ht::CharsetConverterCb converterCb;
-	int res;
-
-	stdoutLogger = new StdoutLogger();
-	if (stdoutLogger == NULL) {
-		goto error;
-	}
-
-	stdoutLogger->converter = ht::charsetConverterCreate();
-	if (stdoutLogger->converter == NULL) {
-		goto error;
-	}
-
-	converterCb.output = convertedBuffer;
-	converterCb.invalid_sequence = NULL;
-	converterCb.userdata = stdoutLogger;
-
-	res = ht::charsetConverterOpen(stdoutLogger->converter, "UTF-8", "UTF-32LE", &converterCb);
-	if (res < 0) {
-		goto error;
-	}
-
-	stdoutLogger->out.write = writeStdout;
-	stdoutLogger->out.userdata = stdoutLogger;
-
-	return;
-
-error:
-	if (stdoutLogger != NULL) {
-		ht::charsetConverterDestroy(stdoutLogger->converter);
-		delete stdoutLogger;
-		stdoutLogger = NULL;
-	}
+	mStdoutCb.write = writeStdout;
+	mStdoutCb.userdata = NULL;
 }
 
 int logStdout(ht::Log::Priority priority, const char32_t *tag, const char32_t *format, va_list ap)
 {
 	int res;
 
-	if (stdoutLogger == NULL) {
-		initStdout();
-	}
-
-	res = fprintf32(&stdoutLogger->out, U"[%s][%s] ", strLogPriority[priority], tag);
-	res += vfprintf32(&stdoutLogger->out, format, ap);
-	res += fprintf32(&stdoutLogger->out, U"\n");
+	res = fprintf32(&stdoutLogger.mStdoutCb, U"[%s][%s] ", strLogPriority[priority], tag);
+	res += vfprintf32(&stdoutLogger.mStdoutCb, format, ap);
+	res += fprintf32(&stdoutLogger.mStdoutCb, U"\n");
 
 	return res;
 }

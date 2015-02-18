@@ -23,19 +23,12 @@ struct Loader {
 	}
 };
 
-static int writeToFile(const void *buff, size_t size, void *userdata)
-{
-	FILE *out = (FILE *) userdata;
-
-	return fwrite(buff, 1, size, out);
-}
-
 static size_t printfCb(const char32_t *s, size_t size, void *userdata)
 {
-	struct ht::CharsetConverter *charsetConv;
-	charsetConv = (struct ht::CharsetConverter *) userdata;
+	ht::CharsetConverter *charsetConv;
+	charsetConv = (ht::CharsetConverter *) userdata;
 
-	return ht::charsetConverterInput(charsetConv, s, size * sizeof(char32_t));
+	return charsetConv->input(s, size * sizeof(char32_t));
 }
 
 void pointerFound(uint32_t id, void *userdata)
@@ -118,8 +111,8 @@ int loadText(const char *textPath, const char *encoding, ht::Text *text)
 
 int saveText(const ht::Text *text, const char *textPath, const char *encoding)
 {
-	struct ht::CharsetConverter *charsetConv = NULL;
-	struct ht::CharsetConverterCb convCb;
+	ht::CharsetConverter *charsetConv = NULL;
+	ht::CharsetConverter::Cb convCb;
 	struct OutputStream printfOut;
 	FILE *out = NULL;
 	size_t blockCount;
@@ -135,17 +128,17 @@ int saveText(const ht::Text *text, const char *textPath, const char *encoding)
 		goto out;
 	}
 
-	charsetConv = ht::charsetConverterCreate();
+	charsetConv = ht::CharsetConverter::create();
 	if (charsetConv == NULL) {
 		res = -ENOMEM;
 		goto out;
 	}
 
-	convCb.invalid_sequence = NULL;
-	convCb.output = writeToFile;
-	convCb.userdata = out;
+	convCb.output = [out] (const void *buff, size_t size) -> int {
+		return fwrite(buff, 1, size, out);
+	};
 
-	res = ht::charsetConverterOpen(charsetConv, encoding, "UTF-32LE", &convCb);
+	res = charsetConv->open(encoding, ht::InternalCharset::name, convCb);
 	if (res < 0) {
 		goto out;
 	}
@@ -177,8 +170,8 @@ int saveText(const ht::Text *text, const char *textPath, const char *encoding)
 		}
 	}
 
-	ht::charsetConverterClose(charsetConv);
-	ht::charsetConverterDestroy(charsetConv);
+	charsetConv->close();
+	ht::CharsetConverter::destroy(charsetConv);
 
 	fclose(out);
 
@@ -189,7 +182,7 @@ out:
 		fclose(out);
 	}
 
-	ht::charsetConverterDestroy(charsetConv);
+	ht::CharsetConverter::destroy(charsetConv);
 	return res;
 }
 
