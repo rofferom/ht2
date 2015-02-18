@@ -131,8 +131,17 @@ int charsetConverterInput(
 			} else {
 				Log::e(TAG, U"Invalid sequence");
 			}
+		} else if (errno == EINVAL) {
+			rawContentPos++;
+			rawContentRemainingSize--;
+
+			if (self->cb.invalid_sequence != NULL) {
+				self->cb.invalid_sequence(self->cb.userdata);
+			} else {
+				Log::e(TAG, U"Invalid sequence");
+			}
 		} else {
-			Log::e(TAG, U"Unhandled error");
+			Log::e(TAG, U"Unhandled error %d", errno);
 		}
 	}
 
