@@ -124,6 +124,11 @@ int saveText(const ht::Text *text, const char *textPath, const char *encoding)
 
 	out = fopen(textPath, "wb");
 	if (out == NULL) {
+		ht::Log::w(
+			TAG, U"Unable to open file '%s' : %s",
+			ht::SysEnv::toInternal(textPath).c_str(),
+			ht::SysEnv::toInternal(strerror(errno)).c_str());
+
 		res = -EINVAL;
 		goto out;
 	}

@@ -23,7 +23,10 @@ int loadFile(const char *path, char **outContent, size_t *outContentSize)
 	// Load file content
 	res = stat(path, &pathStat);
 	if (res == -1) {
-		Log::d(TAG, U"Unable to open file '%s' : %s", path, strerror(errno));
+		Log::w(
+			TAG, U"Unable to open file '%s' : %s",
+			SysEnv::toInternal(path).c_str(), SysEnv::toInternal(strerror(errno)).c_str());
+
 		res = -errno;
 		goto error;
 	}
@@ -37,14 +40,20 @@ int loadFile(const char *path, char **outContent, size_t *outContentSize)
 
 	f = fopen(path, "rb");
 	if (f == NULL) {
-		Log::d(TAG, U"Unable to open file '%s' : %s", path, strerror(errno));
+		Log::w(
+			TAG, U"Unable to open file '%s' : %s",
+			SysEnv::toInternal(path).c_str(), SysEnv::toInternal(strerror(errno)).c_str());
+
 		res = -errno;
 		goto error;
 	}
 
 	res = fread(content, 1, contentSize, f);
 	if ((size_t) res != contentSize) {
-		Log::d(TAG, U"Error while reading file '%s' : %s", path, strerror(errno));
+		Log::w(
+			TAG, U"Error while reading file '%s' : %s",
+			SysEnv::toInternal(strerror(errno)).c_str());
+
 		res = -errno;
 		goto error;
 	}
