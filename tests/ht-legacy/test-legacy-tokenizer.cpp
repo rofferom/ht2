@@ -97,7 +97,7 @@ TEST(TokenizerLegacy, Base)
 	cb.textFound = textFound;
 	cb.userdata = &context;
 
-	res = htl::tokenizeText("test-legacytext-save.txt", "UTF-8", cb);
+	res = htl::tokenizeText("test-res/ht-legacy/test-legacytext.txt", "UTF-8", cb);
 	ASSERT_EQ(res, 0);
 	ASSERT_EQ(context.mPointerCount, 4);
 	ASSERT_EQ(context.mRawByteCount, 5);

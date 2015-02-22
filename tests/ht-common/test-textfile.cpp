@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <ht.hpp>
 
-#define UTF8_FILE "test-textfile-utf8.txt"
-#define UTF32_FILE "test-textfile-utf32.txt"
+#define UTF8_FILE "test-res/ht-common/test-textfile-utf8.txt"
+#define UTF32_FILE "test-res/ht-common/test-textfile-utf32.txt"
 
 static const char32_t *TAG = U"TEST.textfile";
 

@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 #include <ht.hpp>
 
-#define TABLE_FILE "test-table.txt"
-#define TABLE_FILE_EMPTYKEY "test-table-emptykey.txt"
-#define TABLE_FILE_INVALIDKEYCHAR "test-table-invalidkeychar.txt"
-#define TABLE_FILE_EMPTYVALUE "test-table-emptyvalue.txt"
-#define TABLE_FILE_NOSEPARATOR "test-table-noseparator.txt"
+#define TABLE_FILE "test-res/ht-common/test-table.txt"
+#define TABLE_FILE_EMPTYKEY "test-res/ht-common/test-table-emptykey.txt"
+#define TABLE_FILE_INVALIDKEYCHAR "test-res/ht-common/test-table-invalidkeychar.txt"
+#define TABLE_FILE_EMPTYVALUE "test-res/ht-common/test-table-emptyvalue.txt"
+#define TABLE_FILE_NOSEPARATOR "test-res/ht-common/test-table-noseparator.txt"
 
 
 struct Entry {

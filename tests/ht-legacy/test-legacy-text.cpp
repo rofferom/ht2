@@ -28,10 +28,10 @@ TEST(TextLegacy, Save)
 	text.addBlock(block);
 
 	// Try to save text
-	res = htl::saveText(&text, "test-legacytext-save-generated.txt", "UTF-8");
+	res = htl::saveText(&text, "test-legacytext-generated.txt", "UTF-8");
 	ASSERT_EQ(res, 0);
 
-	res = ht::compareFiles("test-legacytext-save.txt", "test-legacytext-save-generated.txt");
+	res = ht::compareFiles("test-res/ht-legacy/test-legacytext.txt", "test-legacytext-generated.txt");
 	ASSERT_EQ(res, 0);
 }
 
@@ -40,7 +40,7 @@ TEST(TextLegacy, Load)
 	ht::Text text;
 	int res;
 
-	res = htl::loadText("test-legacytext-save.txt", "UTF-8", &text);
+	res = htl::loadText("test-res/ht-legacy/test-legacytext.txt", "UTF-8", &text);
 	ASSERT_EQ(res, 0);
 
 	// Test block 0

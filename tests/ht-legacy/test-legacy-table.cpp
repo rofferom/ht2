@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <ht-legacy.hpp>
 
-#define TABLE_FILE "test-legacy-table.txt"
+#define TABLE_FILE "test-res/ht-legacy/test-legacy-table.txt"
 
 struct TestKey {
 	uint8_t mValue[10];
