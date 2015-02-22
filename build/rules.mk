@@ -104,6 +104,8 @@ all_libraries := \
 	$(built_whole_static_libraries) \
 	$(built_external_libraries) \
 
+$(LOCAL_BUILT_MODULE): $(target_shared_libraries)
+
 ###############################################################################
 ## Import of dependencies.
 ###############################################################################
@@ -236,25 +238,47 @@ $(rc_objects): $(intermediates)/%.rc.o: $(TOP_DIR)/$(LOCAL_PATH)/%.rc
 	$(transform-rc-to-o)
 endif
 
-# copy files verbatim to target (flat copy in output directory)
-copy_files :=
-$(foreach f,$(LOCAL_COPY_FILES), \
-  $(eval _src := $(TOP_DIR)/$(LOCAL_PATH)/$(f)) \
-  $(eval _dst := $(TARGET_OUT_FINAL)/$(notdir $(f))) \
-  $(eval copy_files += $(_dst)) \
-  $(eval $(call copy-one-file,$(_src),$(_dst))) \
+###############################################################################
+## Files to copy.
+###############################################################################
+
+ifneq ("$(LOCAL_COPY_FILES)","")
+
+# List of all source/destination files
+all_copy_files_src :=
+all_copy_files_dst :=
+
+# Generate a rule to copy all files
+# Handle relative/absolute paths
+# Handle directory only for destination
+$(foreach __pair,$(LOCAL_COPY_FILES), \
+	$(eval __pair2 := $(subst :,$(space),$(__pair))) \
+	$(eval __w1 := $(word 1,$(__pair2))) \
+	$(eval __w2 := $(word 2,$(__pair2))) \
+	$(eval __src := $(call copy-get-src-path,$(__w1))) \
+	$(eval __dst := $(call copy-get-dst-path,$(__w2))) \
+	$(if $(call is-path-dir,$(__dst)), \
+		$(eval __dst := $(__dst)$(notdir $(__src))) \
+	) \
+	$(eval all_copy_files_src += $(__src)) \
+	$(eval all_copy_files_dst += $(__dst)) \
+	$(eval $(call copy-one-file,$(__src),$(__dst))) \
 )
-$(LOCAL_BUILT_MODULE): $(copy_files) $(target_shared_libraries)
+
+# Add files to be copied as an order-only dependency (does not force rebuild)
+$(LOCAL_BUILT_MODULE): | $(all_copy_files_dst)
+
+endif
 
 # clean- targets
 cleantarget := $(LOCAL_MODULE)-clean
 $(cleantarget) : PRIVATE_MODULE := $(LOCAL_MODULE)
-$(cleantarget) : PRIVATE_CLEAN_FILES := \
+$(cleantarget) : PRIVATE_CLEAN_FILES += \
 	$(LOCAL_BUILT_MODULE) \
 	$(LOCAL_FINAL_MODULE) \
-	$(copy_files) \
+	$(all_copy_files_dst) \
 	$(intermediates)
-$(cleantarget)::
+$(cleantarget):
 	@echo "Clean: $(PRIVATE_MODULE)"
 	$(Q)rm -rf $(PRIVATE_CLEAN_FILES)
 

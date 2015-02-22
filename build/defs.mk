@@ -27,6 +27,10 @@ first = $(firstword $1)
 # $1 : input list.
 rest = $(wordlist 2,$(words $1),$1)
 
+# Get a path relative to top directory.
+# $1 : full path to convert.
+path-from-top = $(patsubst $(TOP_DIR)/%,%,$1)
+
 # Compare 2 strings for equality.
 # $1 : first string.
 # $2 : second string.
@@ -42,6 +46,16 @@ strneq = $(call not,$(call streq,$1,$2))
 # $2 : minimum version.
 #check-version = $(streq,0,$$(shell expr $1 \>= $2))
 check-version = $(call strneq,0,$(shell expr $1 \>= $2))
+
+# Determine if a path is absolute.
+# It simply checks if the path starts with a '/'
+# $1 : path to check.
+is-path-absolute = $(strip $(call not,$(patsubst /%,,$1)))
+
+# Determine if a path is a directory. This check does not look in the
+# filesystem, it just checks if the path ends with a '/'.
+# $1 : path to check.
+is-path-dir = $(strip $(call not,$(patsubst %/,,$1)))
 
 ###############################################################################
 ## Modules database.
@@ -478,12 +492,30 @@ define copy-file-to-target
 $(Q)cp -fp $< $@
 endef
 
-# Define a rule to copy a file. For use via $(eval).
+# Define a rule to copy a file. For use via $(eval) so use $$@ and $$<.
 # $(1) : source file
 # $(2) : destination file
 define copy-one-file
 $(2): $(1)
-	@echo "Copy: $$@"
-	$$(copy-file-to-target)
+	@echo "Copy: $$(call path-from-top,$$<) => $$(call path-from-top,$$@)"
+	@mkdir -p $$(dir $$@)
+	$(Q)cp $$< $$@
 endef
 
+###############################################################################
+## Copy files helpers.
+###############################################################################
+
+# Get full source path for the copy.
+# $1 : path relative to LOCAL_PATH, or directly the full path.
+copy-get-src-path = $(strip \
+	$(if $(call is-path-absolute,$1), \
+		$1,$(addprefix $(LOCAL_PATH)/,$1) \
+	))
+
+# Get full destination path for the copy.
+# $1 : path relative to TARGET_OUT_STAGING, or directly the full path.
+copy-get-dst-path = $(strip \
+	$(if $(call is-path-absolute,$1), \
+		$1,$(addprefix $(TARGET_OUT_FINAL)/,$1) \
+	))
