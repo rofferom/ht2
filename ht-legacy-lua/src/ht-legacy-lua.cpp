@@ -12,5 +12,11 @@ int registerComponents(lua_State *L)
 	return res;
 }
 
+void printComponents()
+{
+	htlual::LuaTable::printFunctions();
+	htlual::LuaText::printFunctions();
+}
+
 } // namespace htlual
 

@@ -86,8 +86,7 @@ struct LuaTextBlockElementClass : LuaClass<ht::Text::BlockElement> {
 			Method::empty(),
 		};
 
-		mName = LuaType<ht::Text::BlockElement>::name;
-		mPackage = "ht";
+		LuaPackage::splitFullName(LuaType<ht::Text::BlockElement>::name, &mPackage, &mName);
 		mMethods = methods;
 	}
 
@@ -184,8 +183,7 @@ struct LuaTextBlockClass : LuaClass<ht::Text::Block> {
 			Method::empty(),
 		};
 
-		mName = LuaType<ht::Text::Block>::name;
-		mPackage = "ht";
+		LuaPackage::splitFullName(LuaType<ht::Text::Block>::name, &mPackage, &mName);
 		mMethods = methods;
 	}
 
@@ -266,8 +264,7 @@ struct LuaTextClass : LuaClass<ht::Text> {
 			Method::empty(),
 		};
 
-		mName = LuaType<ht::Text>::name;
-		mPackage = "ht";
+		LuaPackage::splitFullName(LuaType<ht::Text>::name, &mPackage, &mName);
 		mMethods = methods;
 	}
 
@@ -323,6 +320,14 @@ int LuaText::registerClass(lua_State *L)
 	res |= LuaTextClass::registerClass(L);
 
 	return res;
+}
+
+void LuaText::printClass()
+{
+	LuaTextFunction::printFunction();
+	LuaTextBlockElementClass::printClass();
+	LuaTextBlockClass::printClass();
+	LuaTextClass::printClass();
 }
 
 } // namespace htlua

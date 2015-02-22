@@ -44,4 +44,9 @@ int LuaTable::registerFunctions(lua_State *L)
 	return 0;
 }
 
+void LuaTable::printFunctions()
+{
+	LuaTableFunction::printFunction();
+}
+
 } // namespace htlual

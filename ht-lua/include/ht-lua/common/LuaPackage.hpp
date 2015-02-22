@@ -4,6 +4,11 @@
 namespace htlua {
 
 struct LuaPackage {
+	HTAPI static void splitFullName(
+		const char *fullName,
+		std::string *packageName,
+		std::string *variableName);
+
 	HTAPI static void get(lua_State *L, const char *packageName);
 	HTAPI static void set(lua_State *L, const char *packageName, const char *variableName);
 };

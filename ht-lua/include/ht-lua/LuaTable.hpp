@@ -5,16 +5,17 @@ namespace htlua {
 
 template <>
 struct LuaType<ht::Table::Entry> : LuaUserType<ht::Table::Entry> {
-	constexpr static const char *name = "TableEntry";
+	constexpr static const char *name = "ht.TableEntry";
 };
 
 template <>
 struct LuaType<ht::Table> : LuaUserType<ht::Table> {
-	constexpr static const char *name = "Table";
+	constexpr static const char *name = "ht.Table";
 };
 
 struct LuaTable {
 	HTAPI static int registerClass(lua_State *L);
+	HTAPI static void printClass();
 };
 
 } // namespace htlua

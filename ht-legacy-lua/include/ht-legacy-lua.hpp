@@ -9,6 +9,7 @@
 namespace htlual {
 
 HTAPI int registerComponents(lua_State *L);
+HTAPI void printComponents();
 
 } // namespace htlua
 

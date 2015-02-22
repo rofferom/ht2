@@ -64,4 +64,9 @@ int LuaText::registerFunctions(lua_State *L)
 	return 0;
 }
 
+void LuaText::printFunctions()
+{
+	LuaTextFunction::printFunction();
+}
+
 } // namespace htlual

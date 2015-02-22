@@ -6,13 +6,18 @@ namespace htlua {
 template <typename T>
 struct LuaFunction {
 	// Class description part
+	struct FunctionHandler {
+		LuaMethodHandler mCb;
+		LuaSigGetter mSig;
+	};
+
 	struct Function {
 		const char *mName;
-		LuaMethodHandler mHandler;
+		FunctionHandler mHandler;
 
 		static Function empty()
 		{
-			return { nullptr, nullptr };
+			return { nullptr, { nullptr, nullptr } };
 		}
 	};
 
@@ -25,24 +30,28 @@ struct LuaFunction {
 
 	template <typename R, typename... Args>
 	struct FunctionGenerator<R(Args...)> {
-		static LuaMethodHandler get(R (*function)(Args...))
+		static FunctionHandler get(R (*function)(Args...))
 		{
-			return [function] (lua_State *L) mutable -> int {
+			auto luaCb = [function] (lua_State *L) mutable -> int {
 				std::function<R(Args...)> cb = function;
 				LuaMethodBinder<R(Args...)> binder(cb, 0);
 				return binder(L);
 			};
+
+			return FunctionHandler { luaCb, LuaSig<R(Args...)>::get };
 		}
 
-		static LuaMethodHandler get(int (*cb)(lua_State *L))
+		static FunctionHandler get(int (*cb)(lua_State *L))
 		{
-			return [cb] (lua_State *L) mutable -> int {
+			auto luaCb = [cb] (lua_State *L) mutable -> int {
 				if (LuaMethodParamChecker<R(Args...)>::check(L, 0) == false) {
 					return 0;
 				}
 
 				return cb(L);
 			};
+
+			return FunctionHandler { luaCb, LuaSig<R(Args...)>::get };
 		}
 	};
 
@@ -52,7 +61,7 @@ struct LuaFunction {
 
 		functionId = (int) lua_tonumber(L, lua_upvalueindex(1));
 
-		return mFunctions[functionId].mHandler(L);
+		return mFunctions[functionId].mHandler.mCb(L);
 	}
 
 	static int registerFunction(lua_State *L)
@@ -71,6 +80,25 @@ struct LuaFunction {
 		}
 
 		return 0;
+	}
+
+	static void printFunction()
+	{
+		printf("Functions :\n");
+
+		for (const Function *i = mFunctions ; i->mName != nullptr ; i++) {
+			if (mPackage != nullptr) {
+				std::string name;
+
+				name = mPackage;
+				name.append(".");
+				name.append(i->mName);
+
+				printf("\t%s\n", i->mHandler.mSig(name.c_str()).c_str());
+			} else {
+				printf("\t%s\n", i->mHandler.mSig(i->mName).c_str());
+			}
+		}
 	}
 };
 

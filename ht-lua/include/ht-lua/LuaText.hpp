@@ -5,21 +5,22 @@ namespace htlua {
 
 template <>
 struct LuaType<ht::Text::BlockElement> : LuaUserType<ht::Text::BlockElement> {
-	constexpr static const char *name = "TextBlockElement";
+	constexpr static const char *name = "ht.TextBlockElement";
 };
 
 template <>
 struct LuaType<ht::Text::Block> : LuaUserType<ht::Text::Block> {
-	constexpr static const char *name = "TextBlock";
+	constexpr static const char *name = "ht.TextBlock";
 };
 
 template <>
 struct LuaType<ht::Text> : LuaUserType<ht::Text> {
-	constexpr static const char *name = "Text";
+	constexpr static const char *name = "ht.Text";
 };
 
 struct LuaText {
 	HTAPI static int registerClass(lua_State *L);
+	HTAPI static void printClass();
 };
 
 } // namespace htlua

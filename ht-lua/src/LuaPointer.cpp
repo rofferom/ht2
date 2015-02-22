@@ -11,8 +11,7 @@ struct LuaPointerTableEndiannessEnum : htlua::LuaEnum<ht::PointerEndianness> {
 			Enum::empty(),
 		};
 
-		mName = LuaType<ht::PointerEndianness>::name;
-		mPackage = "ht";
+		LuaPackage::splitFullName(LuaType<ht::PointerEndianness>::name, &mPackage, &mName);
 		mEnums = enums;
 	}
 };
@@ -30,8 +29,7 @@ struct LuaPointerClass : LuaClass<ht::Pointer> {
 			Method::empty(),
 		};
 
-		mName = LuaType<ht::Pointer>::name;
-		mPackage = "ht";
+		LuaPackage::splitFullName(LuaType<ht::Pointer>::name, &mPackage, &mName);
 		mMethods = methods;
 	}
 };
@@ -49,8 +47,7 @@ struct LuaPointerTableClass : LuaClass<ht::PointerTable> {
 			Method::empty(),
 		};
 
-		mName = LuaType<ht::PointerTable>::name;
-		mPackage = "ht";
+		LuaPackage::splitFullName(LuaType<ht::PointerTable>::name, &mPackage, &mName);
 		mMethods = methods;
 	}
 
@@ -141,6 +138,13 @@ int LuaPointer::registerClass(lua_State *L)
 	res |= LuaPointerTableClass::registerClass(L);
 
 	return res;
+}
+
+void LuaPointer::printClass()
+{
+	LuaPointerTableEndiannessEnum::printEnum();
+	LuaPointerClass::printClass();
+	LuaPointerTableClass::printClass();
 }
 
 } // namespace htlua

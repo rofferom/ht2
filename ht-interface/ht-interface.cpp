@@ -15,12 +15,14 @@ extern "C" {
 
 struct Params {
 	bool interactive = false;
+	bool dump = false;
 	bool verbose = false;
 	bool version = false;
 };
 
 static const struct option longOptions[] = {
 	{"interactive", no_argument, NULL, 'i'},
+	{"dump", no_argument, NULL, 'd'},
 	{"verbose", no_argument, NULL, 'v'},
 	{"version", no_argument, NULL, 'V'},
 	{"help", no_argument, NULL, 'h'},
@@ -39,6 +41,7 @@ static void printUsage(const char *prog)
 		"Usage : %s [OPTION]... [LUA FILE]...\n"
 		"Options :\n"
 		"\t-i, --interactive\tStart Lua prompt\n"
+		"\t-d, --dump\t\tDump Lua API\n"
 		"\t-v, --verbose\t\tIncrease log level\n"
 		"\t-V  --version\t\tShow version\n"
 		"\t-h, --help\t\tShow this help\n",
@@ -66,7 +69,7 @@ static int parseParams(Params *params, int argc, char *argv[])
 	int c;
 
 	res = 0;
-	while ((c = getopt_long(argc, argv, "ivhV", longOptions, &optionIndex)) != -1) {
+	while ((c = getopt_long(argc, argv, "ivhVd", longOptions, &optionIndex)) != -1) {
 		switch (c) {
 		case 'i':
 			params->interactive = true;
@@ -78,6 +81,10 @@ static int parseParams(Params *params, int argc, char *argv[])
 
 		case 'V':
 			params->version = true;
+			break;
+
+		case 'd':
+			params->dump = true;
 			break;
 
 		case 'h':
@@ -181,6 +188,18 @@ static void runPrompt(lua_State *L, Prompt *prompt)
 	}
 }
 
+static void registerBuiltinComponents(lua_State *L)
+{
+	htlua::registerComponents(L);
+	htlual::registerComponents(L);
+}
+
+static void printBuiltinComponents()
+{
+	htlua::printComponents();
+	htlual::printComponents();
+}
+
 int main(int argc, char *argv[])
 {
 	lua_State *L = NULL;
@@ -209,9 +228,14 @@ int main(int argc, char *argv[])
 	}
 
 	// Forbid non-interactive mode without Lua files to execute
-	if (nextArg == argc && params.interactive == false) {
+	if (nextArg == argc && params.interactive == false && params.dump == false) {
 		printUsage(argv[0]);
 		return 1;
+	}
+
+	// Enable verbose if required
+	if (params.verbose) {
+		ht::Log::setLogLevel(ht::Log::Level::Debug);
 	}
 
 	// Init Lua
@@ -222,13 +246,11 @@ int main(int argc, char *argv[])
 	}
 
 	luaL_openlibs(L);
+	registerBuiltinComponents(L);
 
-	htlua::registerComponents(L);
-	htlual::registerComponents(L);
-
-	// Enable verbose if required
-	if (params.verbose) {
-		ht::Log::setLogLevel(ht::Log::Level::Debug);
+	if (params.dump) {
+		printBuiltinComponents();
+		return 0;
 	}
 
 	// Execute lua files

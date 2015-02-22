@@ -15,8 +15,7 @@ struct LuaBufferClass : LuaClass<ht::Buffer> {
 			Method::empty(),
 		};
 
-		mName = LuaType<ht::Buffer>::name;
-		mPackage = "ht";
+		LuaPackage::splitFullName(LuaType<ht::Buffer>::name, &mPackage, &mName);
 		mMethods = methods;
 	}
 };
@@ -29,6 +28,11 @@ int LuaBuffer::registerClass(lua_State *L)
 	res |= LuaBufferClass::registerClass(L);
 
 	return res;
+}
+
+void LuaBuffer::printClass()
+{
+	LuaBufferClass::printClass();
 }
 
 } // namespace htlua

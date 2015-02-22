@@ -30,7 +30,7 @@ struct LuaType<void> {
 template <>
 struct LuaType<bool> {
 	enum { isValid = 1 };
-	constexpr static const char *name = "bol";
+	constexpr static const char *name = "bool";
 
 	static bool isParamValid(lua_State *L, int argIndex, bool typeConst)
 	{

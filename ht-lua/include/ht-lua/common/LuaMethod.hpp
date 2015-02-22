@@ -13,6 +13,7 @@ typedef std::function<int(lua_State *)> LuaMethodHandler;
 template <typename T>
 struct LuaMethodHandlerGen {
 	std::function<LuaMethodHandler(T *)> mCreate;
+	LuaSigGetter mSig;
 	bool mConst;
 };
 

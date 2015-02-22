@@ -12,15 +12,15 @@ struct LuaClass {
 
 		static Method empty()
 		{
-			return { nullptr, { nullptr, false } };
+			return { nullptr, { nullptr, nullptr, false } };
 		}
 	};
 
-	static const char *mName;
-	static const char *mPackage;
+	static std::string mName;
+	static std::string mPackage;
 	static Method *mMethods;
 	static size_t mMethodCount;
-	static const char32_t *TAG;
+	constexpr static const char32_t *TAG = U"LuaClass";
 
 	// MethodGenerator
 	template <typename U>
@@ -39,7 +39,7 @@ struct LuaClass {
 				};
 			};
 
-			return LuaMethodHandlerGen<T> { createCb, false };
+			return LuaMethodHandlerGen<T> { createCb, LuaSig<R(Args...)>::get, false };
 		}
 
 		static LuaMethodHandlerGen<T> get(R (T::*method)(Args...) const)
@@ -53,7 +53,7 @@ struct LuaClass {
 				};
 			};
 
-			return LuaMethodHandlerGen<T> { createCb, true };
+			return LuaMethodHandlerGen<T> { createCb, LuaSig<R(Args...)>::get, true };
 		}
 
 		static LuaMethodHandlerGen<T> get(int (*cb)(lua_State *L, T *t), bool isConst = false)
@@ -68,7 +68,7 @@ struct LuaClass {
 				};
 			};
 
-			return LuaMethodHandlerGen<T> { createCb, isConst };
+			return LuaMethodHandlerGen<T> { createCb, LuaSig<R(Args...)>::get, isConst };
 		}
 	};
 
@@ -90,7 +90,7 @@ struct LuaClass {
 				};
 			};
 
-			return LuaMethodHandlerGen<T> { createCb, true };
+			return LuaMethodHandlerGen<T> { createCb, LuaSig<U()>::get, true };
 		}
 
 		static LuaMethodHandlerGen<T> set(size_t offset)
@@ -110,7 +110,7 @@ struct LuaClass {
 				};
 			};
 
-			return LuaMethodHandlerGen<T> { createCb, false };
+			return LuaMethodHandlerGen<T> { createCb, LuaSig<void(U)>::get, false };
 		}
 	};
 
@@ -266,31 +266,41 @@ struct LuaClass {
 		lua_pushnumber(L, 0);
 		lua_pushcclosure(L, &constructorHandler, 1);
 
-		assert(mName != NULL);
-		if (mPackage != nullptr) {
-			LuaPackage::set(L, mPackage, mName);
+		assert(mName.empty() == false);
+		if (mPackage.empty() == false) {
+			LuaPackage::set(L, mPackage.c_str(), mName.c_str());
 		} else {
-			lua_setglobal(L, mName);
+			lua_setglobal(L, mName.c_str());
 		}
 
 		return 0;
 	}
+
+	static void printClass()
+	{
+		if (mPackage.empty() == false) {
+			printf("Class %s.%s :\n", mPackage.c_str(), mName.c_str());
+		} else {
+			printf("Class %s :\n", mName.c_str());
+		}
+
+		for (const Method *i = mMethods ; i->mName != nullptr ; i++) {
+			printf("\t%s\n", i->mHandlerGen.mSig(i->mName).c_str());
+		}
+	}
 };
 
 template <typename T>
-const char *LuaClass<T>::mName = NULL;
+std::string LuaClass<T>::mName;
 
 template <typename T>
-const char *LuaClass<T>::mPackage = NULL;
+std::string LuaClass<T>::mPackage;
 
 template <typename T>
 typename LuaClass<T>::Method *LuaClass<T>::mMethods = NULL;
 
 template <typename T>
 size_t LuaClass<T>::mMethodCount = 0;
-
-template <typename T>
-const char32_t *LuaClass<T>::TAG = U"LuaClass";
 
 } // namespace htlua
 

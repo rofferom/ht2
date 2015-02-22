@@ -5,6 +5,7 @@ namespace htlual {
 
 struct LuaText {
 	HTAPI static int registerFunctions(lua_State *L);
+	HTAPI static void printFunctions();
 };
 
 } // namespace htlual

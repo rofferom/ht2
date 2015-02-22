@@ -28,7 +28,7 @@ template <typename T, typename... Args>
 static void paramListToString(int id, std::string *out);
 
 // Public API
-template <typename ...Params>
+template <typename... Params>
 struct LuaParam {
 	static bool check(lua_State *L, int id)
 	{
@@ -128,6 +128,34 @@ void paramListToString<LuaTypeEnd>(int id, std::string *out)
 {
 	out->append(")");
 }
+
+typedef std::string (*LuaSigGetter)(const char *functionName);
+
+template <typename T>
+struct LuaSig;
+
+template <typename R, typename... Args>
+struct LuaSig<R(Args...)> {
+	static std::string get(const char *functionName)
+	{
+		std::string out;
+
+		using CleanedR = LuaParamClean<R>;
+		static_assert(LuaType<CleanedR>::isValid, "Invalid type");
+
+		out = LuaType<CleanedR>::name;
+		out.append(" ");
+		out.append(functionName);
+
+		if (sizeof...(Args) > 0) {
+			paramListToString<Args..., LuaTypeEnd>(0, &out);
+		} else {
+			out.append("()");
+		}
+
+		return out;
+	}
+};
 
 } // namespace htlua
 

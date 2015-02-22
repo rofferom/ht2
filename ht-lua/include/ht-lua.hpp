@@ -33,6 +33,7 @@ extern "C" {
 namespace htlua {
 
 HTAPI int registerComponents(lua_State *L);
+HTAPI void printComponents();
 
 } // namespace htlua
 

@@ -5,11 +5,12 @@ namespace htlua {
 
 template <>
 struct LuaType<ht::Buffer> : LuaUserType<ht::Buffer> {
-	constexpr static const char *name = "Buffer";
+	constexpr static const char *name = "ht.Buffer";
 };
 
 struct LuaBuffer {
 	HTAPI static int registerClass(lua_State *L);
+	HTAPI static void printClass();
 };
 
 } // namespace htlua

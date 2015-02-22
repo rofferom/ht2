@@ -79,6 +79,23 @@ void getSubPackage(lua_State *L, const char *packageName)
 
 namespace htlua {
 
+void LuaPackage::splitFullName(
+	const char *fullName,
+	std::string *packageName,
+	std::string *variableName)
+{
+	const char *separator;
+
+	separator = strrchr(fullName, '.');
+	if (separator != NULL) {
+		packageName->assign(fullName, separator - fullName);
+		variableName->assign(separator + 1);
+	} else {
+		packageName->clear();
+		variableName->assign(fullName);
+	}
+}
+
 void LuaPackage::get(lua_State *L, const char *packageName)
 {
 	char *localPackageName;

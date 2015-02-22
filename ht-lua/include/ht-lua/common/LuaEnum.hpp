@@ -15,13 +15,13 @@ struct LuaEnum {
 		}
 	};
 
-	static const char *mName;
-	static const char *mPackage;
+	static std::string mName;
+	static std::string mPackage;
 	static Enum *mEnums;
 
 	static int registerEnum(lua_State *L)
 	{
-		assert(mName != NULL);
+		assert(mName.empty() == false);
 		assert(mEnums != NULL);
 
 		// Create enum table
@@ -30,10 +30,10 @@ struct LuaEnum {
 		// Assign enum table to env.
 		// Make sure that after that, -1 index will still be the table
 		lua_pushvalue(L, -1);
-		if (mPackage != nullptr) {
-			LuaPackage::set(L, mPackage, mName);
+		if (mPackage.empty() == false) {
+			LuaPackage::set(L, mPackage.c_str(), mName.c_str());
 		} else {
-			lua_setglobal(L, mName);
+			lua_setglobal(L, mName.c_str());
 		}
 
 		for (int i = 0 ; mEnums[i].mName != nullptr ; i++) {
@@ -48,13 +48,26 @@ struct LuaEnum {
 
 		return 0;
 	}
+
+	static void printEnum()
+	{
+		if (mPackage.empty() == false) {
+			printf("Enum %s.%s :\n", mPackage.c_str(), mName.c_str());
+		} else {
+			printf("Enum %s :\n", mName.c_str());
+		}
+
+		for (const Enum *i = mEnums ; i->mName != nullptr ; i++) {
+			printf("\t%s\n", i->mName);
+		}
+	}
 };
 
 template <typename T>
-const char *LuaEnum<T>::mPackage = NULL;
+std::string LuaEnum<T>::mPackage;
 
 template <typename T>
-const char *LuaEnum<T>::mName = NULL;
+std::string LuaEnum<T>::mName;
 
 template <typename T>
 typename LuaEnum<T>::Enum *LuaEnum<T>::mEnums = NULL;

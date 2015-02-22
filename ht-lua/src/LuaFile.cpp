@@ -13,8 +13,7 @@ struct LuaFileClass : LuaClass<ht::File> {
 			Method::empty(),
 		};
 
-		mName = LuaType<ht::File>::name;
-		mPackage = "ht";
+		LuaPackage::splitFullName(LuaType<ht::File>::name, &mPackage, &mName);
 		mMethods = methods;
 	}
 
@@ -74,6 +73,11 @@ int LuaFile::registerClass(lua_State *L)
 	res |= LuaFileClass::registerClass(L);
 
 	return res;
+}
+
+void LuaFile::printClass()
+{
+	LuaFileClass::printClass();
 }
 
 } // namespace htlua

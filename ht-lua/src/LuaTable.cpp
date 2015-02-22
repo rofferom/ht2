@@ -11,8 +11,7 @@ struct LuaTableEntryClass : LuaClass<ht::Table::Entry> {
 			Method::empty(),
 		};
 
-		mName = LuaType<ht::Table::Entry>::name;
-		mPackage = "ht";
+		LuaPackage::splitFullName(LuaType<ht::Table::Entry>::name, &mPackage, &mName);
 		mMethods = methods;
 	}
 
@@ -43,8 +42,7 @@ struct LuaTableClass : LuaClass<ht::Table> {
 			Method::empty(),
 		};
 
-		mName = LuaType<ht::Table>::name;
-		mPackage = "ht";
+		LuaPackage::splitFullName(LuaType<ht::Table>::name, &mPackage, &mName);
 		mMethods = methods;
 	}
 
@@ -127,6 +125,12 @@ int LuaTable::registerClass(lua_State *L)
 	res |= LuaTableClass::registerClass(L);
 
 	return res;
+}
+
+void LuaTable::printClass()
+{
+	LuaTableEntryClass::printClass();
+	LuaTableClass::printClass();
 }
 
 } // namespace htlua

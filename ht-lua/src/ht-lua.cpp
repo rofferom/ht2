@@ -15,5 +15,14 @@ int registerComponents(lua_State *L)
 	return res;
 }
 
+void printComponents()
+{
+	htlua::LuaFile::printClass();
+	htlua::LuaBuffer::printClass();
+	htlua::LuaTable::printClass();
+	htlua::LuaPointer::printClass();
+	htlua::LuaText::printClass();
+}
+
 } // namespace htlua
 
