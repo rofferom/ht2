@@ -25,21 +25,23 @@ struct LuaFunction {
 
 	template <typename R, typename... Args>
 	struct FunctionGenerator<R(Args...)> {
-		static LuaMethodHandler get(R (*function)(Args...)) {
-				return [function] (lua_State *L) mutable -> int {
-					std::function<R(Args...)> cb = function;
-					LuaMethodBinder<R(Args...)> binder(cb, 0);
-					return binder(L);
+		static LuaMethodHandler get(R (*function)(Args...))
+		{
+			return [function] (lua_State *L) mutable -> int {
+				std::function<R(Args...)> cb = function;
+				LuaMethodBinder<R(Args...)> binder(cb, 0);
+				return binder(L);
 			};
 		}
 
-		static LuaMethodHandler get(int (*cb)(lua_State *L)) {
-				return [cb] (lua_State *L) mutable -> int {
-					if (LuaMethodParamChecker<R(Args...)>::check(L, 0) == false) {
-						return 0;
-					}
+		static LuaMethodHandler get(int (*cb)(lua_State *L))
+		{
+			return [cb] (lua_State *L) mutable -> int {
+				if (LuaMethodParamChecker<R(Args...)>::check(L, 0) == false) {
+					return 0;
+				}
 
-					return cb(L);
+				return cb(L);
 			};
 		}
 	};

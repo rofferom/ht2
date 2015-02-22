@@ -28,7 +28,8 @@ struct LuaClass {
 
 	template <typename R, typename... Args>
 	struct MethodGenerator<R(Args...)> {
-		static LuaMethodHandlerGen<T> get(R (T::*method)(Args...)) {
+		static LuaMethodHandlerGen<T> get(R (T::*method)(Args...))
+		{
 			auto createCb = [method] (T *t) -> LuaMethodHandler {
 				std::function<R(Args...)> cb = ht::Callback<R(Args...)>::get(t, method);
 
@@ -41,7 +42,8 @@ struct LuaClass {
 			return LuaMethodHandlerGen<T> { createCb, false };
 		}
 
-		static LuaMethodHandlerGen<T> get(R (T::*method)(Args...) const) {
+		static LuaMethodHandlerGen<T> get(R (T::*method)(Args...) const)
+		{
 			auto createCb = [method] (T *t) -> LuaMethodHandler {
 				std::function<R(Args...)> cb = ht::Callback<R(Args...)>::get(t, method);
 
@@ -54,7 +56,8 @@ struct LuaClass {
 			return LuaMethodHandlerGen<T> { createCb, true };
 		}
 
-		static LuaMethodHandlerGen<T> get(int (*cb)(lua_State *L, T *t), bool isConst = false) {
+		static LuaMethodHandlerGen<T> get(int (*cb)(lua_State *L, T *t), bool isConst = false)
+		{
 			auto createCb = [cb] (T *t) -> LuaMethodHandler {
 				return [cb, t] (lua_State *L) mutable -> int {
 					if (LuaMethodParamChecker<R(Args...)>::check(L, 1) == false) {
