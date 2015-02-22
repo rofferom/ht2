@@ -131,6 +131,9 @@ int LuaPointer::registerClass(lua_State *L)
 {
 	int res = 0;
 
+	LuaPointerTableEndiannessEnum::init();
+	res |= LuaPointerTableEndiannessEnum::registerEnum(L);
+
 	LuaPointerClass::init();
 	res |= LuaPointerClass::registerClass(L);
 
