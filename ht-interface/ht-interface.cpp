@@ -62,10 +62,10 @@ static void printVersion()
 {
 	char strBuildDate[128];
 	time_t buildDate = BUILDDATE;
-	struct tm tm;
+	struct tm *tm = NULL;
 
-	localtime_r(&buildDate, &tm);
-	strftime(strBuildDate, sizeof(strBuildDate), "%F %H:%M:%S", &tm);
+	tm = localtime(&buildDate);
+	strftime(strBuildDate, sizeof(strBuildDate), "%Y-%m-%d %H:%M:%S", tm);
 
 	printf("Version : %s\n", XSTR(REVISION));
 	printf("Buildtime : %s\n", strBuildDate);
