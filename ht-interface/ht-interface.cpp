@@ -2,9 +2,12 @@
 #include <time.h>
 #include <errno.h>
 #include <getopt.h>
-#include <histedit.h>
 #include <ht-lua.hpp>
 #include <ht-legacy-lua.hpp>
+
+#ifdef HT2_SUPPORT_HISTEDIT
+#include <histedit.h>
+#endif // HT2_SUPPORT_HISTEDIT
 
 extern "C" {
 	#include <lualib.h>
@@ -21,7 +24,9 @@ struct Params {
 };
 
 static const struct option longOptions[] = {
+#ifdef HT2_SUPPORT_HISTEDIT
 	{"interactive", no_argument, NULL, 'i'},
+#endif
 	{"dump", no_argument, NULL, 'd'},
 	{"verbose", no_argument, NULL, 'v'},
 	{"version", no_argument, NULL, 'V'},
@@ -30,9 +35,11 @@ static const struct option longOptions[] = {
 };
 
 struct Prompt {
+#ifdef HT2_SUPPORT_HISTEDIT
 	EditLine *el = NULL;
 	History *history = NULL;
 	HistEvent histEvt;
+#endif
 };
 
 static void printUsage(const char *prog)
@@ -40,7 +47,9 @@ static void printUsage(const char *prog)
 	printf(
 		"Usage : %s [OPTION]... [LUA FILE]...\n"
 		"Options :\n"
+#ifdef HT2_SUPPORT_HISTEDIT
 		"\t-i, --interactive\tStart Lua prompt\n"
+#endif
 		"\t-d, --dump\t\tDump Lua API\n"
 		"\t-v, --verbose\t\tIncrease log level\n"
 		"\t-V  --version\t\tShow version\n"
@@ -71,9 +80,11 @@ static int parseParams(Params *params, int argc, char *argv[])
 	res = 0;
 	while ((c = getopt_long(argc, argv, "ivhVd", longOptions, &optionIndex)) != -1) {
 		switch (c) {
+#ifdef HT2_SUPPORT_HISTEDIT
 		case 'i':
 			params->interactive = true;
 			break;
+#endif
 
 		case 'v':
 			params->verbose = true;
@@ -105,6 +116,7 @@ static int parseParams(Params *params, int argc, char *argv[])
 	return res;
 }
 
+#ifdef HT2_SUPPORT_HISTEDIT
 static const char *promptCb(EditLine *e)
 {
 	return "> ";
@@ -187,6 +199,23 @@ static void runPrompt(lua_State *L, Prompt *prompt)
 		}
 	}
 }
+#else
+static int initPrompt(Prompt *prompt, const char *prog)
+{
+	return 0;
+}
+
+static void clearPrompt(Prompt *prompt)
+{
+
+}
+
+static void runPrompt(lua_State *L, Prompt *prompt)
+{
+
+}
+
+#endif
 
 static void registerBuiltinComponents(lua_State *L)
 {

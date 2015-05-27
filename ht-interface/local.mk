@@ -9,8 +9,10 @@ LOCAL_CFLAGS := -std=c++11
 LOCAL_SRC_FILES := \
 	ht-interface.cpp \
 
-LOCAL_LDFLAGS := \
+ifdef HT2_SUPPORT_HISTEDIT
+LOCAL_LDFLAGS += \
 	-ledit -ltermcap
+endif
 
 LOCAL_SHARED_LIBRARIES := \
 	ht-common \
