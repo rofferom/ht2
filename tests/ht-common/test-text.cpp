@@ -88,6 +88,75 @@ TEST(Text, Encode)
 	}
 }
 
+TEST(Text, DecodeEmptyPointerTable)
+{
+	ht::Table table;
+	ht::Text text;
+	ht::Buffer buffer(encodedValue, HT_SIZEOF_ARRAY(encodedValue));
+	ht::PointerTable pointerTable;
+	int res;
+
+	// Fill table
+	res = table.addEntry(key1.mValue, key1.mSize, U"A");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key2.mValue, key2.mSize, U"B");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key3.mValue, key3.mSize, U"C");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key4.mValue, key4.mSize, U"D");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key5.mValue, key5.mSize, U"É");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key6.mValue, key6.mSize, U"[TestBlock1]");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key7.mValue, key7.mSize, U"[TestBlock2]");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key8.mValue, key8.mSize, U"[TestBlock3]");
+	ASSERT_EQ(res, 0);
+
+	// Try to decode text
+	res = text.decode(buffer, table, pointerTable);
+	ASSERT_EQ(res, -EINVAL);
+}
+
+TEST(Text, DecodeOutOfRangePointers)
+{
+	ht::Table table;
+	ht::Text text;
+	ht::Buffer buffer(encodedValue, HT_SIZEOF_ARRAY(encodedValue));
+	ht::PointerTable pointerTable;
+	int res;
+
+	// Fill table
+	res = table.addEntry(key1.mValue, key1.mSize, U"A");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key2.mValue, key2.mSize, U"B");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key3.mValue, key3.mSize, U"C");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key4.mValue, key4.mSize, U"D");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key5.mValue, key5.mSize, U"É");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key6.mValue, key6.mSize, U"[TestBlock1]");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key7.mValue, key7.mSize, U"[TestBlock2]");
+	ASSERT_EQ(res, 0);
+	res = table.addEntry(key8.mValue, key8.mSize, U"[TestBlock3]");
+	ASSERT_EQ(res, 0);
+
+	// Fill pointer table
+	pointerTable.add(ht::Pointer{1, 1000, 0});
+	pointerTable.add(ht::Pointer{2, 1012, 0});
+	pointerTable.add(ht::Pointer{3, 1012, 0});
+	pointerTable.add(ht::Pointer{4, 1012, 0});
+
+	// Try to decode text
+	res = text.decode(buffer, table, pointerTable);
+	ASSERT_EQ(res, -EINVAL);
+}
+
+
 TEST(Text, Decode)
 {
 	ht::Table table;

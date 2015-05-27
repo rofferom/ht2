@@ -114,6 +114,7 @@ int Text::decode(
 	const Table &table,
 	const PointerTable &inPointerTable)
 {
+	Pointer *pointer;
 	PointerTable pointerTable;
 	size_t pointerCount;
 	size_t nextPointerId;
@@ -124,6 +125,12 @@ int Text::decode(
 	size_t rawTextSize;
 	int res;
 
+	pointerCount = inPointerTable.getCount();
+	if (pointerCount == 0) {
+		ht::Log::e(TAG, U"Pointer table is empty");
+		return -EINVAL;
+	}
+
 	rawText = buffer.getData();
 	rawTextSize = buffer.getSize();
 
@@ -133,11 +140,20 @@ int Text::decode(
 			return (x.mOffset < y.mOffset); }
 	);
 
-	res = 0;
-	pointerCount = pointerTable.getCount();
-	for (size_t i = 0 ; i < pointerCount ;) {
-		Pointer *pointer;
+	pointer = pointerTable.getPointer(0);
+	if (pointer == nullptr) {
+		ht::Log::e(TAG, U"Unable to fetch first pointer");
+		return -EINVAL;
+	} else if (pointer->mOffset > rawTextSize) {
+		ht::Log::e(TAG,
+			U"First pointer offset is out of range "
+			U"(Pointer offset : %X - Text size : %X)",
+			pointer->mOffset, rawTextSize);
+		return -EINVAL;
+	}
 
+	res = 0;
+	for (size_t i = 0 ; i < pointerCount ;) {
 		Block *block = new Block();
 		if (block == NULL) {
 			res = -ENOMEM;
