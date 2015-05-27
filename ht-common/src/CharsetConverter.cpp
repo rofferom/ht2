@@ -120,14 +120,11 @@ int CharsetConverterImpl::input(const void *rawContent, size_t rawContentSize, c
 
 		iconvRes = iconv(
 			mCd,
-#if defined(__GLIBC__) || defined(__APPLE__)
 			(char **) &rawContentPos,
-#else
-			&rawContentPos,
-#endif // __GLIBC__
 			&rawContentRemainingSize,
 			&convertedContentPos,
 			&convertedContentRemainingSize);
+
 		if (iconvRes != (size_t) -1) {
 			// Conversion ok
 			cb.output(
