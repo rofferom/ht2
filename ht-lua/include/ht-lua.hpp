@@ -23,6 +23,7 @@ extern "C" {
 #include <ht-lua/common/LuaObjectParam.hpp>
 #include <ht-lua/common/LuaUserType.hpp>
 #include <ht-lua/common/LuaUserEnum.hpp>
+#include <ht-lua/common/LuaVector.hpp>
 
 #include <ht-lua/LuaBuffer.hpp>
 #include <ht-lua/LuaFile.hpp>
