@@ -36,15 +36,51 @@ public:
 		std::vector<BlockElement *> mElementList;
 	};
 
+	struct RawBlock {
+		std::vector<Pointer> mPointerList;
+		Buffer mBuffer;
+	};
+
+private:
+	struct SplitCb {
+		std::function<int(std::vector<Pointer> **)> mNewBlock;
+		std::function<int(const uint8_t *, size_t)> mBlockData;
+	};
+
+	struct Decoder {
+		const Table *mTable;
+		std::vector<Block *> *mBlockList;
+		Block* mCurrentBlock;
+
+		Decoder(const Table *table, std::vector<Block *> *blockList);
+
+		int newBlock(std::vector<Pointer> **pointerList);
+		int blockData(const uint8_t *rawText, size_t rawTextSize);
+	};
+
+	struct DecoderRaw {
+		std::vector<RawBlock *> *mBlockList;
+		RawBlock* mCurrentBlock;
+
+		DecoderRaw(std::vector<RawBlock *> *blockList);
+		int newBlock(std::vector<Pointer> **pointerList);
+		int blockData(const uint8_t *rawText, size_t rawTextSize);
+	};
+
 private:
 	std::vector<Block *> mBlockList;
 
 private:
-	int extractMatchingPointers(
+	static int extractMatchingPointers(
 		uint32_t offset,
 		size_t start,
 		const ht::PointerTable &src,
 		std::vector<ht::Pointer> *dest);
+
+	static int splitText(
+		const Buffer &buffer,
+		const PointerTable &pointerList,
+		SplitCb &cb);
 
 public:
 	HTAPI Text();
@@ -81,6 +117,11 @@ public:
 		size_t rawTextSize,
 		const ht::Table &table,
 		ht::Text::Block *block);
+
+	HTAPI static int splitText(
+		const Buffer &buffer,
+		const PointerTable &pointerList,
+		std::vector<RawBlock *> *blockList);
 };
 
 } // ht

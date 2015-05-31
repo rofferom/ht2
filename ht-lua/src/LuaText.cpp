@@ -9,6 +9,7 @@ struct LuaTextFunction : htlua::LuaFunction<LuaTextFunction> {
 			{ "encodeString", FunctionGenerator<int(std::string, ht::Table, ht::Buffer)>::get(encodeStringHandler), },
 			{ "encodeBlock", FunctionGenerator<int(ht::Text::Block, ht::Table, ht::Buffer)>::get(encodeBlockHandler), },
 			{ "decodeBuffer", FunctionGenerator<int(ht::Buffer, ht::Table, ht::Text::Block)>::get(decodeBufferHandler), },
+			{ "splitText", FunctionGenerator<int(ht::Buffer, ht::PointerTable, htlua::LuaVector<ht::Text::RawBlock *>)>::get(splitTextHandler), },
 			Function::empty(),
 		};
 
@@ -62,6 +63,23 @@ struct LuaTextFunction : htlua::LuaFunction<LuaTextFunction> {
 		htlua::LuaType<ht::Text::Block>::getValue(L, 3, block, false);
 
 		res = ht::Text::decodeBuffer(buffer->getData(), buffer->getSize(), *table, block);
+		htlua::LuaType<int>::pushValue(L, res);
+
+		return 1;
+	}
+
+	static int splitTextHandler(lua_State *L)
+	{
+		ht::Buffer *buffer;
+		ht::PointerTable *pointerList;
+		std::vector<ht::Text::RawBlock *> *blockList;
+		int res;
+
+		htlua::LuaType<ht::Buffer>::getValue(L, 1, buffer, false);
+		htlua::LuaType<ht::PointerTable>::getValue(L, 2, pointerList, false);
+		htlua::LuaType<htlua::LuaVector<ht::Text::RawBlock *>>::getValue(L, 3, blockList, false);
+
+		res = ht::Text::splitText(*buffer, *pointerList, blockList);
 		htlua::LuaType<int>::pushValue(L, res);
 
 		return 1;
@@ -177,6 +195,7 @@ struct LuaTextBlockClass : LuaClass<ht::Text::Block> {
 			{ "getPointerCount", MethodGenerator<size_t(void)>::get(getPointerCount) },
 			{ "getPointer", MethodGenerator<ht::Pointer *(size_t)>::get(getPointer) },
 			{ "addPointer", MethodGenerator<void(ht::Pointer *)>::get(addPointer) },
+			{ "addRawBlockPointers", MethodGenerator<void(ht::Text::RawBlock *)>::get(addRawBlockPointers) },
 			{ "getElementCount", MethodGenerator<size_t(void)>::get(getElementCount) },
 			{ "getElement", MethodGenerator<ht::Text::BlockElement *(size_t)>::get(getElement) },
 			{ "addElement", MethodGenerator<void(ht::Text::BlockElement *)>::get(addElement) },
@@ -220,6 +239,17 @@ struct LuaTextBlockClass : LuaClass<ht::Text::Block> {
 		return 0;
 	}
 
+	static int addRawBlockPointers(lua_State *L, ht::Text::Block *block)
+	{
+		ht::Text::RawBlock *rawBlock;
+
+		LuaType<ht::Text::RawBlock>::getValue(L, 2, rawBlock, false);
+
+		block->mPointerList = rawBlock->mPointerList;
+
+		return 0;
+	}
+
 	static int getElementCount(lua_State *L, ht::Text::Block *block)
 	{
 		LuaType<size_t>::pushValue(L, block->mElementList.size());
@@ -254,11 +284,79 @@ struct LuaTextBlockClass : LuaClass<ht::Text::Block> {
 	}
 };
 
+struct LuaTextRawBlockClass : LuaClass<ht::Text::RawBlock> {
+	static void init()
+	{
+		static Method methods[] = {
+			{ "getPointerCount", MethodGenerator<size_t(void)>::get(getPointerCount) },
+			{ "getPointer", MethodGenerator<ht::Pointer *(size_t)>::get(getPointer) },
+			{ "addPointer", MethodGenerator<void(ht::Pointer *)>::get(addPointer) },
+			{ "getBuffer", MethodGenerator<ht::Buffer *(void)>::get(getBuffer) },
+			Method::empty(),
+		};
+
+		LuaPackage::splitFullName(LuaType<ht::Text::RawBlock>::name, &mPackage, &mName);
+		mMethods = methods;
+	}
+
+	static int getPointerCount(lua_State *L, ht::Text::RawBlock *block)
+	{
+		LuaType<size_t>::pushValue(L, block->mPointerList.size());
+
+		return 1;
+	}
+
+	static int getPointer(lua_State *L, ht::Text::RawBlock *block)
+	{
+		size_t index;
+
+		LuaType<size_t>::getValue(L, 2, index);
+
+		if (index < block->mPointerList.size()) {
+			LuaType<ht::Pointer>::pushValue(L, &block->mPointerList[index]);
+		} else {
+			lua_pushnil(L);
+		}
+
+		return 1;
+	}
+
+	static int addPointer(lua_State *L, ht::Text::RawBlock *block)
+	{
+		ht::Pointer *pointer;
+
+		LuaType<ht::Pointer>::getValue(L, 2, pointer, true);
+
+		block->mPointerList.push_back(*pointer);
+
+		return 0;
+	}
+
+	static int getBuffer(lua_State *L, ht::Text::RawBlock *block)
+	{
+		LuaType<ht::Buffer>::pushValue(L, &block->mBuffer);
+
+		return 1;
+	}
+};
+
+template <>
+void luaObjectPredestroy(LuaObject<std::vector<ht::Text::RawBlock *>> *object)
+{
+	for (auto item : *(object->mInstance)) {
+		delete item;
+	}
+}
+
+struct LuaTextRawBlockVectorClass : LuaVector<ht::Text::RawBlock *> {
+};
+
 struct LuaTextClass : LuaClass<ht::Text> {
 	static void init()
 	{
 		static Method methods[] = {
 			{ "getBlockCount", MethodGenerator<size_t(void)>::get(&ht::Text::getBlockCount) },
+			{ "addBlock", MethodGenerator<int(ht::Text::Block)>::get(addBlockHandler) },
 			{ "encode", MethodGenerator<int(ht::Table, ht::Buffer, ht::PointerTable)>::get(encodeHandler, true) },
 			{ "decode", MethodGenerator<int(ht::Buffer, ht::Table, ht::PointerTable)>::get(decodeHandler, true) },
 			Method::empty(),
@@ -266,6 +364,19 @@ struct LuaTextClass : LuaClass<ht::Text> {
 
 		LuaPackage::splitFullName(LuaType<ht::Text>::name, &mPackage, &mName);
 		mMethods = methods;
+	}
+
+	static int addBlockHandler(lua_State *L, ht::Text *text)
+	{
+		ht::Text::Block *block;
+		int res;
+
+		LuaType<ht::Text::Block>::getValue(L, 2, block, true);
+
+		res = text->addBlock(block);
+		LuaType<int>::pushValue(L, res);
+
+		return 1;
 	}
 
 	static int encodeHandler(lua_State *L, ht::Text *text)
@@ -316,6 +427,12 @@ int LuaText::registerClass(lua_State *L)
 	LuaTextBlockClass::init();
 	res |= LuaTextBlockClass::registerClass(L);
 
+	LuaTextRawBlockClass::init();
+	res |= LuaTextRawBlockClass::registerClass(L);
+
+	LuaTextRawBlockVectorClass::init();
+	res |= LuaTextRawBlockVectorClass::registerClass(L);
+
 	LuaTextClass::init();
 	res |= LuaTextClass::registerClass(L);
 
@@ -327,6 +444,8 @@ void LuaText::printClass()
 	LuaTextFunction::printFunction();
 	LuaTextBlockElementClass::printClass();
 	LuaTextBlockClass::printClass();
+	LuaTextRawBlockClass::printClass();
+	LuaTextRawBlockVectorClass::printClass();
 	LuaTextClass::printClass();
 }
 

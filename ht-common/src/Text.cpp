@@ -6,6 +6,73 @@ static const char32_t *TAG = U"Text";
 
 namespace ht {
 
+Text::Decoder::Decoder(const Table *table, std::vector<Block *> *blockList)
+{
+	mTable = table;
+	mBlockList = blockList;
+	mCurrentBlock = nullptr;
+}
+
+int Text::Decoder::newBlock(std::vector<Pointer> **pointerList)
+{
+	mCurrentBlock = new Block();
+	if (mCurrentBlock == nullptr) {
+		return -ENOMEM;
+	}
+
+	*pointerList = &mCurrentBlock->mPointerList;
+
+	return 0;
+}
+
+int Text::Decoder::blockData(const uint8_t *rawText, size_t rawTextSize)
+{
+	int res;
+
+	res = decodeBuffer(rawText, rawTextSize, *mTable, mCurrentBlock);
+	if (res < 0) {
+		return res;
+	}
+
+	mBlockList->push_back(mCurrentBlock);
+	mCurrentBlock = nullptr;
+
+	return 0;
+}
+
+Text::DecoderRaw::DecoderRaw(std::vector<RawBlock *> *blockList)
+{
+	mBlockList = blockList;
+	mCurrentBlock = nullptr;
+}
+
+int Text::DecoderRaw::newBlock(std::vector<Pointer> **pointerList)
+{
+	mCurrentBlock = new RawBlock();
+	if (mCurrentBlock == nullptr) {
+		return -ENOMEM;
+	}
+
+	*pointerList = &mCurrentBlock->mPointerList;
+
+	return 0;
+}
+
+int Text::DecoderRaw::blockData(const uint8_t *rawText, size_t rawTextSize)
+{
+	int res;
+
+	res = mCurrentBlock->mBuffer.append(rawText, rawTextSize);
+	if (res < 0) {
+		return res;
+	}
+
+	mBlockList->push_back(mCurrentBlock);
+	mCurrentBlock = nullptr;
+
+	return 0;
+}
+
 Text::Text()
 {
 }
@@ -114,91 +181,16 @@ int Text::decode(
 	const Table &table,
 	const PointerTable &inPointerTable)
 {
-	Pointer *pointer;
-	PointerTable pointerTable;
-	size_t pointerCount;
-	size_t nextPointerId;
-	uint32_t textToExtractStart;
-	size_t textToExtractSize;
-	int foundPointerCount;
-	const uint8_t *rawText;
-	size_t rawTextSize;
-	int res;
+	using std::placeholders::_1;
+	using std::placeholders::_2;
 
-	pointerCount = inPointerTable.getCount();
-	if (pointerCount == 0) {
-		ht::Log::e(TAG, U"Pointer table is empty");
-		return -EINVAL;
-	}
+	Decoder decoder(&table, &mBlockList);
+	SplitCb cb;
 
-	rawText = buffer.getData();
-	rawTextSize = buffer.getSize();
+	cb.mNewBlock = std::bind(&Decoder::newBlock, &decoder, _1);
+	cb.mBlockData = std::bind(&Decoder::blockData, &decoder, _1, _2);
 
-	pointerTable = inPointerTable;
-	pointerTable.sort(
-		[](const Pointer &x, const Pointer &y) {
-			return (x.mOffset < y.mOffset); }
-	);
-
-	pointer = pointerTable.getPointer(0);
-	if (pointer == nullptr) {
-		ht::Log::e(TAG, U"Unable to fetch first pointer");
-		return -EINVAL;
-	} else if (pointer->mOffset > rawTextSize) {
-		ht::Log::e(TAG,
-			U"First pointer offset is out of range "
-			U"(Pointer offset : %X - Text size : %X)",
-			pointer->mOffset, rawTextSize);
-		return -EINVAL;
-	}
-
-	res = 0;
-	for (size_t i = 0 ; i < pointerCount ;) {
-		Block *block = new Block();
-		if (block == NULL) {
-			res = -ENOMEM;
-			break;
-		}
-
-		pointer = pointerTable.getPointer(i);
-		textToExtractStart = pointer->mOffset;
-
-		// Find matching pointers
-		foundPointerCount = extractMatchingPointers(
-			textToExtractStart,
-			i,
-			pointerTable,
-			&block->mPointerList);
-
-		// Find size of rawText to extract for this block
-		nextPointerId = i + foundPointerCount;
-		if (nextPointerId == pointerCount) {
-			// End of text
-			textToExtractSize = rawTextSize - textToExtractStart;
-		} else {
-			Pointer *nextPointer;
-			// Text followed by another block
-			nextPointer = pointerTable.getPointer(nextPointerId);
-			textToExtractSize = nextPointer->mOffset - textToExtractStart;
-		}
-
-		ht::Log::d(TAG,
-			U"Found %d pointers for a block of size %d start at offset %d",
-			foundPointerCount,
-			textToExtractSize,
-			textToExtractStart);
-
-		// Decode buffer
-		res = decodeBuffer(rawText + textToExtractStart, textToExtractSize, table, block);
-		if (res < 0) {
-			break;
-		}
-
-		mBlockList.push_back(block);
-		i = nextPointerId;
-	}
-
-	return res;
+	return splitText(buffer, inPointerTable, cb);
 }
 
 int Text::encodeString(
@@ -290,6 +282,98 @@ int Text::encodeBlock(
 	}
 }
 
+int Text::splitText(
+	const Buffer &buffer,
+	const PointerTable &inPointerTable,
+	SplitCb &cb)
+{
+	Pointer *pointer;
+	PointerTable pointerTable;
+	size_t pointerCount;
+	size_t nextPointerId;
+	uint32_t textToExtractStart;
+	size_t textToExtractSize;
+	int foundPointerCount;
+	const uint8_t *rawText;
+	size_t rawTextSize;
+	int res;
+
+	pointerCount = inPointerTable.getCount();
+	if (pointerCount == 0) {
+		ht::Log::e(TAG, U"Pointer table is empty");
+		return -EINVAL;
+	}
+
+	rawText = buffer.getData();
+	rawTextSize = buffer.getSize();
+
+	pointerTable = inPointerTable;
+	pointerTable.sort(
+		[](const Pointer &x, const Pointer &y) {
+			return (x.mOffset < y.mOffset); }
+	);
+
+	pointer = pointerTable.getPointer(0);
+	if (pointer == nullptr) {
+		ht::Log::e(TAG, U"Unable to fetch first pointer");
+		return -EINVAL;
+	} else if (pointer->mOffset > rawTextSize) {
+		ht::Log::e(TAG,
+			U"First pointer offset is out of range "
+			U"(Pointer offset : %X - Text size : %X)",
+			pointer->mOffset, rawTextSize);
+		return -EINVAL;
+	}
+
+	res = 0;
+	for (size_t i = 0 ; i < pointerCount ;) {
+		std::vector<Pointer> *blockPointers;
+
+		res = cb.mNewBlock(&blockPointers);
+		if (res < 0) {
+			break;
+		}
+
+		pointer = pointerTable.getPointer(i);
+		textToExtractStart = pointer->mOffset;
+
+		// Find matching pointers
+		foundPointerCount = extractMatchingPointers(
+			textToExtractStart,
+			i,
+			pointerTable,
+			blockPointers);
+
+		// Find size of rawText to extract for this block
+		nextPointerId = i + foundPointerCount;
+		if (nextPointerId == pointerCount) {
+			// End of text
+			textToExtractSize = rawTextSize - textToExtractStart;
+		} else {
+			Pointer *nextPointer;
+			// Text followed by another block
+			nextPointer = pointerTable.getPointer(nextPointerId);
+			textToExtractSize = nextPointer->mOffset - textToExtractStart;
+		}
+
+		ht::Log::d(TAG,
+			U"Found %d pointers for a block of size %d start at offset %d",
+			foundPointerCount,
+			textToExtractSize,
+			textToExtractStart);
+
+		// Decode buffer
+		res = cb.mBlockData(rawText + textToExtractStart, textToExtractSize);
+		if (res < 0) {
+			break;
+		}
+
+		i = nextPointerId;
+	}
+
+	return res;
+}
+
 int Text::decodeBuffer(
 	const uint8_t *rawText,
 	size_t rawTextSize,
@@ -351,6 +435,27 @@ int Text::decodeBuffer(
 	}
 
 	return res;
+}
+
+int Text::splitText(
+	const Buffer &buffer,
+	const PointerTable &pointerList,
+	std::vector<RawBlock *> *blockList)
+{
+	using std::placeholders::_1;
+	using std::placeholders::_2;
+
+	DecoderRaw decoder(blockList);
+	SplitCb cb;
+
+	if (blockList == NULL) {
+		return -EINVAL;
+	}
+
+	cb.mNewBlock = std::bind(&DecoderRaw::newBlock, &decoder, _1);
+	cb.mBlockData = std::bind(&DecoderRaw::blockData, &decoder, _1, _2);
+
+	return splitText(buffer, pointerList, cb);
 }
 
 } // namespace ht

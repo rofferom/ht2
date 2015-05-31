@@ -14,6 +14,16 @@ struct LuaType<ht::Text::Block> : LuaUserType<ht::Text::Block> {
 };
 
 template <>
+struct LuaType<ht::Text::RawBlock> : LuaUserType<ht::Text::RawBlock> {
+	constexpr static const char *name = "ht.TextRawBlock";
+};
+
+template <>
+struct LuaType<LuaVector<ht::Text::RawBlock *>> : LuaUserType<LuaVector<ht::Text::RawBlock *>> {
+	constexpr static const char *name = "ht.TextRawBlockVector";
+};
+
+template <>
 struct LuaType<ht::Text> : LuaUserType<ht::Text> {
 	constexpr static const char *name = "ht.Text";
 };
