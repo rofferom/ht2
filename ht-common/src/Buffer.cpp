@@ -11,6 +11,7 @@ Buffer::Buffer()
 	mData = NULL;
 	mCapacity = 0;
 	mSize = 0;
+	mPos = 0;
 }
 
 Buffer::Buffer(const uint8_t *data, size_t len)
@@ -20,6 +21,7 @@ Buffer::Buffer(const uint8_t *data, size_t len)
 
 	mCapacity = len;
 	mSize = len;
+	mPos = 0;
 }
 
 Buffer::~Buffer()
@@ -30,8 +32,19 @@ Buffer::~Buffer()
 void Buffer::clear()
 {
 	free(mData);
+	mData = NULL;
 	mCapacity = 0;
 	mSize = 0;
+	mPos = 0;
+}
+
+int Buffer::seek(size_t pos)
+{
+	if (pos >= mSize)
+		return -EINVAL;
+
+	mPos = pos;
+	return 0;
 }
 
 size_t Buffer::getCapacity() const
@@ -47,38 +60,41 @@ int Buffer::setCapacity(size_t capacity)
 	}
 
 	mCapacity = capacity;
-
 	return 0;
 }
 
 size_t Buffer::getSize() const
 {
-	return mSize;
+	return mSize - mPos;
 }
 
-void Buffer::setSize(size_t size)
+int Buffer::setSize(size_t size)
 {
+	if (size > mCapacity)
+		return -EINVAL;
+
 	mSize = size;
+	return 0;
 }
 
 const uint8_t *Buffer::getData() const
 {
-	return mData;
+	return mData + mPos;
 }
 
 uint8_t *Buffer::getData()
 {
-	return mData;
+	return mData + mPos;
 }
 
 uint8_t Buffer::getByte(size_t pos) const
 {
-	return mData[pos];
+	return mData[pos + mPos];
 }
 
 void Buffer::setByte(size_t pos, uint8_t value)
 {
-	mData[pos] = value;
+	mData[pos + mPos] = value;
 }
 
 int Buffer::append(const uint8_t *data, size_t len)

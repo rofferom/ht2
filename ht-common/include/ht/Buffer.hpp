@@ -8,6 +8,7 @@ private:
 	uint8_t *mData;
 	size_t mCapacity;
 	size_t mSize;
+	size_t mPos;
 
 public:
 	HTAPI Buffer();
@@ -16,11 +17,13 @@ public:
 
 	HTAPI void clear();
 
+	HTAPI int seek(size_t pos);
+
 	HTAPI size_t getCapacity() const;
 	HTAPI int setCapacity(size_t capacity);
 
 	HTAPI size_t getSize() const;
-	HTAPI void setSize(size_t size);
+	HTAPI int setSize(size_t size);
 
 	HTAPI const uint8_t *getData() const;
 	HTAPI uint8_t *getData();

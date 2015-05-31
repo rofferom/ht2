@@ -7,6 +7,7 @@ struct LuaBufferClass : LuaClass<ht::Buffer> {
 	{
 		static Method methods[] = {
 			{ "clear", MethodGenerator<void(void)>::get(&ht::Buffer::clear) },
+			{ "seek", MethodGenerator<int(size_t)>::get(&ht::Buffer::seek) },
 			{ "getCapacity", MethodGenerator<size_t(void)>::get(&ht::Buffer::getCapacity) },
 			{ "setCapacity", MethodGenerator<int(size_t)>::get(&ht::Buffer::setCapacity) },
 			{ "getSize", MethodGenerator<size_t(void)>::get(&ht::Buffer::getSize) },

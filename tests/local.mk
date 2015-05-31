@@ -38,6 +38,7 @@ LOCAL_MODULE := ht-test
 LOCAL_CFLAGS := -std=c++11
 
 LOCAL_SRC_FILES := \
+	ht-common/test-buffer.cpp \
 	ht-common/test-charsetconverter.cpp \
 	ht-common/test-table.cpp \
 	ht-common/test-tableparser.cpp \
