@@ -237,6 +237,8 @@ struct LuaClass {
 	{
 		LuaObject<T> *instance = (LuaObject<T> *) lua_touserdata(L, 1);
 
+		luaObjectPredestroy(instance);
+
 		if (instance->mType == LuaObject<T>::Type::Managed) {
 			delete instance->mInstance;
 		}

@@ -22,6 +22,11 @@ struct LuaObject : LuaBaseObject {
 	Type mType;
 };
 
+template <typename T>
+void luaObjectPredestroy(LuaObject<T> *object)
+{
+}
+
 } // namespace htlua
 
 #endif // !__HTLUA_LUAOBJECT_HPP__
