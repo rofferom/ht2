@@ -4,6 +4,8 @@
 namespace htlua {
 
 struct LuaBaseObject {
+	const char *mTypeName;
+
 	virtual ~LuaBaseObject() {}
 };
 

@@ -18,6 +18,7 @@ struct LuaClass {
 
 	static std::string mName;
 	static std::string mPackage;
+	static std::string mFullName;
 	static Method *mMethods;
 	static size_t mMethodCount;
 	constexpr static const char32_t *TAG = U"LuaClass";
@@ -117,11 +118,29 @@ struct LuaClass {
 	// Class registration part
 	static int methodHandler(lua_State *L)
 	{
+		LuaBaseObject *base;
 		LuaObject<T> *self;
-		int methodId;
+		int methodId = (int) lua_tonumber(L, lua_upvalueindex(1));
 
-		self = (LuaObject<T> *) lua_touserdata(L, 1);
-		methodId = (int) lua_tonumber(L, lua_upvalueindex(1));
+		base = (LuaObject<T> *) lua_touserdata(L, 1);
+		if (base == NULL) {
+			const char *type = lua_typename(L, lua_type(L, 1));
+
+			luaL_error(
+				L,
+				"Trying to call method '%s' on a non '%s' object (got type '%s')",
+				mMethods[methodId].mName, mName.c_str(), type);
+			return 0;
+		}
+
+		self = dynamic_cast<LuaObject<T> *>(base);
+		if (self == NULL) {
+			luaL_error(
+				L,
+				"Trying to call method '%s' on a non '%s' object (got type '%s')",
+				mMethods[methodId].mName, mName.c_str(), base->mTypeName);
+			return 0;
+		}
 
 		ht::Log::d(TAG, U"Calling method %d on object %p", methodId, self);
 		return self->mMethods[methodId](L);
@@ -134,6 +153,9 @@ struct LuaClass {
 		// Create userdata
 		instance = (LuaObject<T> *) lua_newuserdata(L, sizeof(LuaObject<T>));
 		new(instance) LuaObject<T>();
+
+		// Save instance name for error logs
+		instance->mTypeName = mFullName.c_str();
 
 		// Force initialization the object allocated by Lua
 		instance->mInstance = new T();
@@ -258,6 +280,12 @@ struct LuaClass {
 
 	static int registerClass(lua_State *L)
 	{
+		if (mPackage.empty() == false) {
+			mFullName = mPackage + "." + mName;
+		} else {
+			mFullName = mName;
+		}
+
 		for (const Method *i = mMethods ; i->mName != nullptr ; i++) {
 			mMethodCount++;
 		}
@@ -278,11 +306,7 @@ struct LuaClass {
 
 	static void printClass()
 	{
-		if (mPackage.empty() == false) {
-			printf("Class %s.%s :\n", mPackage.c_str(), mName.c_str());
-		} else {
-			printf("Class %s :\n", mName.c_str());
-		}
+		printf("Class %s :\n", mFullName.c_str());
 
 		for (const Method *i = mMethods ; i->mName != nullptr ; i++) {
 			printf("\t%s\n", i->mHandlerGen.mSig(i->mName).c_str());
@@ -295,6 +319,9 @@ std::string LuaClass<T>::mName;
 
 template <typename T>
 std::string LuaClass<T>::mPackage;
+
+template <typename T>
+std::string LuaClass<T>::mFullName;
 
 template <typename T>
 typename LuaClass<T>::Method *LuaClass<T>::mMethods = NULL;
