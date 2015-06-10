@@ -2,6 +2,17 @@
 
 namespace htlua {
 
+template <>
+void luaObjectPredestroy(LuaObject<std::vector<ht::Buffer *>> *object)
+{
+	for (auto item : *(object->mInstance)) {
+		delete item;
+	}
+}
+
+struct LuaBufferVectorClass : LuaVector<ht::Buffer *> {
+};
+
 struct LuaBufferClass : LuaClass<ht::Buffer> {
 	static void init()
 	{
@@ -28,12 +39,16 @@ int LuaBuffer::registerClass(lua_State *L)
 	LuaBufferClass::init();
 	res |= LuaBufferClass::registerClass(L);
 
+	LuaBufferVectorClass::init();
+	res |= LuaBufferVectorClass::registerClass(L);
+
 	return res;
 }
 
 void LuaBuffer::printClass()
 {
 	LuaBufferClass::printClass();
+	LuaBufferVectorClass::printClass();
 }
 
 } // namespace htlua

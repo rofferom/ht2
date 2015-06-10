@@ -440,15 +440,15 @@ int Text::decodeBuffer(
 int Text::splitText(
 	const Buffer &buffer,
 	const PointerTable &pointerList,
-	std::vector<RawBlock *> *blockList)
+	std::vector<RawBlock *> *splittedBuffer)
 {
 	using std::placeholders::_1;
 	using std::placeholders::_2;
 
-	DecoderRaw decoder(blockList);
+	DecoderRaw decoder(splittedBuffer);
 	SplitCb cb;
 
-	if (blockList == NULL) {
+	if (splittedBuffer == NULL) {
 		return -EINVAL;
 	}
 
@@ -456,6 +456,49 @@ int Text::splitText(
 	cb.mBlockData = std::bind(&DecoderRaw::blockData, &decoder, _1, _2);
 
 	return splitText(buffer, pointerList, cb);
+}
+
+int Text::splitRawText(
+		const Buffer &buffer,
+		uint8_t separator,
+		std::vector<Buffer *> *bufferList)
+{
+	Buffer *newBuffer;
+	const uint8_t *blockStart;
+	const uint8_t *data;
+	size_t size;
+	size_t i;
+
+	if (bufferList == NULL) {
+		return -EINVAL;
+	}
+
+	data = buffer.getData();
+	size = buffer.getSize();
+
+	blockStart = data;
+	for (i = 0; i < size; i++) {
+		if (data[i] == separator) {
+			newBuffer = new Buffer(blockStart, i - (blockStart - data) + 1);
+			if (newBuffer == NULL) {
+				return -ENOMEM;
+			}
+
+			bufferList->push_back(newBuffer);
+			blockStart = data + i + 1;
+		}
+	}
+
+	if ((size_t) (blockStart - data) <= size) {
+		newBuffer = new Buffer(blockStart, size - (blockStart - data));
+		if (newBuffer == NULL) {
+			return -ENOMEM;
+		}
+	}
+
+	bufferList->push_back(newBuffer);
+
+	return 0;
 }
 
 } // namespace ht

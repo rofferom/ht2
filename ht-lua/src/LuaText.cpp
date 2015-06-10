@@ -10,6 +10,7 @@ struct LuaTextFunction : htlua::LuaFunction<LuaTextFunction> {
 			{ "encodeBlock", FunctionGenerator<int(ht::Text::Block, ht::Table, ht::Buffer)>::get(encodeBlockHandler), },
 			{ "decodeBuffer", FunctionGenerator<int(ht::Buffer, ht::Table, ht::Text::Block)>::get(decodeBufferHandler), },
 			{ "splitText", FunctionGenerator<int(ht::Buffer, ht::PointerTable, htlua::LuaVector<ht::Text::RawBlock *>)>::get(splitTextHandler), },
+			{ "splitRawText", FunctionGenerator<int(ht::Buffer, uint8_t, htlua::LuaVector<ht::Buffer *>)>::get(splitRawTextHandler), },
 			Function::empty(),
 		};
 
@@ -80,6 +81,23 @@ struct LuaTextFunction : htlua::LuaFunction<LuaTextFunction> {
 		htlua::LuaType<htlua::LuaVector<ht::Text::RawBlock *>>::getValue(L, 3, blockList, false);
 
 		res = ht::Text::splitText(*buffer, *pointerList, blockList);
+		htlua::LuaType<int>::pushValue(L, res);
+
+		return 1;
+	}
+
+	static int splitRawTextHandler(lua_State *L)
+	{
+		ht::Buffer *buffer;
+		uint8_t separator;
+		std::vector<ht::Buffer *> *splittedBuffer;;
+		int res;
+
+		htlua::LuaType<ht::Buffer>::getValue(L, 1, buffer, false);
+		htlua::LuaType<uint8_t>::getValue(L, 2, separator);
+		htlua::LuaType<htlua::LuaVector<ht::Buffer *>>::getValue(L, 3, splittedBuffer, false);
+
+		res = ht::Text::splitRawText(*buffer, separator, splittedBuffer);
 		htlua::LuaType<int>::pushValue(L, res);
 
 		return 1;

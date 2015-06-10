@@ -122,6 +122,11 @@ public:
 		const Buffer &buffer,
 		const PointerTable &pointerList,
 		std::vector<RawBlock *> *blockList);
+
+	HTAPI static int splitRawText(
+		const Buffer &buffer,
+		uint8_t separator,
+		std::vector<Buffer *> *splittedBuffer);
 };
 
 } // ht
