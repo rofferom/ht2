@@ -122,7 +122,7 @@ struct LuaType<uint32_t> {
 	}
 };
 
-#ifdef __LP64__
+#if defined(__LP64__) || defined(_WIN64)
 template <>
 struct LuaType<size_t> {
 	enum { isValid = 1 };
