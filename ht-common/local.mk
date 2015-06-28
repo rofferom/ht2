@@ -30,4 +30,8 @@ LOCAL_SRC_FILES := \
 LOCAL_SHARED_LIBRARIES := \
 	libstr32 \
 
+ifeq ("$(TARGET_OS)","MINGW32")
+	LOCAL_LDLIBS := -liconv.dll
+endif
+
 include $(BUILD_SHARED_LIBRARY)
