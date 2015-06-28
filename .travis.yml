@@ -14,18 +14,35 @@ install:
   - if [ "$CC" == "gcc" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50; fi
   - if [ "$CC" == "gcc" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50; fi
 
+  - if [ "$TARGET_OS" == "MINGW32" ]; wget http://hiko.rtwo.fr/toolchains/i686-w64-mingw32.tar.bz2; fi
+  - if [ "$TARGET_OS" == "MINGW32" ]; sudo tar xvjz i686-w64-mingw32.tar.bz2 -C /; fi
+
 script:
-  - if [ "$CC" == "gcc" ]; then make ht-interface; fi
+  - if [ "$CC" == "gcc" && "$TARGET_OS" == "LINUX" ]; then make ht-interface; fi
+  - if [ "$CC" == "gcc" && "$TARGET_OS" == "MINGW32" ]; then ./build_win.sh ht-interface; fi
   - if [ "$CC" == "clang" ]; then make ht-interface USE_CLANG=1; fi
 
 env:
   - TARGET_ARCH=X86
   - TARGET_ARCH=X64
+  - TARGET_OS=LINUX
+  - TARGET_OS=MINGW32
 
 matrix:
   exclude:
     - compiler: clang
-      env: TARGET_ARCH=X86
+      env: TARGET_ARCH=X86 TARGET_OS=LINUX
+    - compiler: clang
+      env: TARGET_ARCH=X86 TARGET_OS=MINGW32
+    - compiler: clang
+      env: TARGET_ARCH=X64 TARGET_OS=MINGW32
+
+    - compiler: gcc
+      env: TARGET_ARCH=X86 TARGET_OS=LINUX
+    - compiler: gcc
+      env: TARGET_ARCH=X64 TARGET_OS=LINUX
+    - compiler: gcc
+      env: TARGET_ARCH=X64 TARGET_OS=MINGW32
 
 notifications:
   email: false
