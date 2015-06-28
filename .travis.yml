@@ -1,0 +1,32 @@
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+before_install:
+  - if [ "$CC" == "gcc" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
+  - sudo apt-get -qq update
+
+install:
+  - if [ "$TARGET_ARCH" == "X86" ]; then sudo apt-get install -qq libc6-dev-i386 ;fi
+  - if [ "$CC" == "gcc" ]; then sudo apt-get -qq install gcc-4.9 g++-4.9 gcc-4.9-multilib g++-4.9-multilib; fi
+  - if [ "$CC" == "gcc" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50; fi
+  - if [ "$CC" == "gcc" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50; fi
+
+script:
+  - if [ "$CC" == "gcc" ]; then make ht-interface; fi
+  - if [ "$CC" == "clang" ]; then make ht-interface USE_CLANG=1; fi
+
+env:
+  - TARGET_ARCH=X86
+  - TARGET_ARCH=X64
+
+matrix:
+  exclude:
+    - compiler: clang
+      env: TARGET_ARCH=X86
+
+notifications:
+  email: false
+
