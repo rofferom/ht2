@@ -10,6 +10,8 @@ LOCAL_SRC_FILES := \
 	ht-interface.cpp \
 
 ifdef HT2_SUPPORT_HISTEDIT
+LOCAL_CFLAGS += -DHT2_SUPPORT_HISTEDIT
+
 LOCAL_LDFLAGS += \
 	-ledit -ltermcap
 endif
