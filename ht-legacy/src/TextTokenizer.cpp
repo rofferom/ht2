@@ -117,6 +117,20 @@ const char32_t *findNextBlock(const char32_t *s, size_t size, BlockType *outType
 	return NULL;
 }
 
+void updateLocation(const char32_t *content,
+			size_t start, size_t dest,
+			ht::Text::TxtLocation *loc)
+{
+	for (size_t i = start; i < dest; i++) {
+		if (content[i] == U'\n') {
+			loc->mLine++;
+			loc->mColumn = 1;
+		} else {
+			loc->mColumn++;
+		}
+	}
+}
+
 } // anonymous namespace
 
 namespace htl {
@@ -126,6 +140,10 @@ int tokenizeText(const char *textPath, const char *encoding, const TokenizerCb &
 	char32_t *content;
 	size_t contentSize;
 	int res;
+
+	/* Remember the last block location used */
+	ht::Text::TxtLocation elemLoc(1, 1);
+	size_t prevElemLocIdx = 0;
 
 	if (!textPath || !encoding) {
 		return -EINVAL;
@@ -142,13 +160,18 @@ int tokenizeText(const char *textPath, const char *encoding, const TokenizerCb &
 
 		nextBlock = findNextBlock(content + i, contentSize - i, &blockType);
 		if (nextBlock == NULL) {
-			cb.textFound(content + i, contentSize - i, cb.userdata);
+			updateLocation(content, prevElemLocIdx, i, &elemLoc);
+			cb.textFound(content + i, contentSize - i, elemLoc, cb.userdata);
 			break;
 		} else {
 			size_t textSize = nextBlock - (content + i);
 
 			if (textSize > 0) {
-				cb.textFound(content + i, textSize, cb.userdata);
+				/* Update location */
+				updateLocation(content, prevElemLocIdx, i, &elemLoc);
+				prevElemLocIdx = i;
+
+				cb.textFound(content + i, textSize, elemLoc, cb.userdata);
 			}
 
 			if (blockType == BlockType::Pointer) {

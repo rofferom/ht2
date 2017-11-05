@@ -71,7 +71,8 @@ void rawByteFound(uint8_t byte, void *userdata)
 	loader->currentBlock->mElementList.push_back(elem);
 }
 
-void textFound(const char32_t *s, size_t size, void *userdata)
+void textFound(const char32_t *s, size_t size,
+		const ht::Text::TxtLocation &loc, void *userdata)
 {
 	Loader *loader = (Loader *) userdata;
 	ht::Text::BlockElement *elem;
@@ -85,6 +86,7 @@ void textFound(const char32_t *s, size_t size, void *userdata)
 
 	elem = new ht::Text::BlockElement();
 	elem->mType = ht::Text::BlockElement::Type::Text;
+	elem->mTextLoc = loc;
 	elem->mTextContent.assign(s, size);
 
 	loader->currentBlock->mElementList.push_back(elem);

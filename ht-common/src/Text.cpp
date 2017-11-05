@@ -196,7 +196,8 @@ int Text::decode(
 int Text::encodeString(
 	const std::u32string &s,
 	const ht::Table &table,
-	ht::Buffer *buffer)
+	ht::Buffer *buffer,
+	const TxtLocation *sLoc)
 {
 	size_t maxValueSize = table.getMaxValueSize();
 	const char32_t *sIt;
@@ -213,7 +214,16 @@ int Text::encodeString(
 	while (*sIt != U'\0') {
 		entry = table.findFromValue(std::u32string(sIt, searchSize));
 		if ((entry == NULL) && (searchSize == 1)) {
-			ht::Log::e(TAG, U"Invalid char found");
+			if (sLoc) {
+				TxtLocation charLoc;
+
+				findLocFromString(s.c_str(), sLoc, sIt, &charLoc);
+
+				ht::Log::e(TAG, U"Invalid char found: %c (%d:%d)",
+						*sIt, charLoc.mLine, charLoc.mColumn);
+			} else {
+				ht::Log::e(TAG, U"Invalid char found: %c", *sIt);
+			}
 			res = -EINVAL;
 			break;
 		} else if (entry == NULL) {
@@ -251,7 +261,8 @@ int Text::encodeBlock(
 			res = encodeString(
 				elem->mTextContent,
 				table,
-				buffer);
+				buffer,
+				&elem->mTextLoc);
 			if (res > 0) {
 				ht::Log::d(TAG, U"%d bytes encoded", res);
 			}
@@ -372,6 +383,24 @@ int Text::splitText(
 	}
 
 	return res;
+}
+
+int Text::findLocFromString(const char32_t *s, const TxtLocation *baseLoc,
+			const char32_t *cPtr, TxtLocation *charLoc)
+{
+	size_t targetIdx = cPtr - s;
+
+	*charLoc = *baseLoc;
+	for (size_t i = 0; i < targetIdx; i++) {
+		if (s[i] == U'\n') {
+			charLoc->mColumn = 1;
+			charLoc->mLine++;
+		} else {
+			charLoc->mColumn++;
+		}
+	}
+
+	return 0;
 }
 
 int Text::decodeBuffer(

@@ -5,6 +5,23 @@ namespace ht {
 
 class Text {
 public:
+	struct TxtLocation {
+		int mLine;
+		int mColumn;
+
+		TxtLocation()
+		{
+			mLine = -1;
+			mColumn = -1;
+		}
+
+		TxtLocation(int line, int column)
+		{
+			mLine = line;
+			mColumn = column;
+		}
+	};
+
 	struct BlockElement {
 		enum class Type {
 			None,
@@ -15,6 +32,7 @@ public:
 		Type mType;
 
 		std::u32string mTextContent;
+		TxtLocation mTextLoc;
 		uint8_t mRawByte;
 
 		BlockElement()
@@ -82,6 +100,9 @@ private:
 		const PointerTable &pointerList,
 		SplitCb &cb);
 
+	static int findLocFromString(const char32_t *s, const TxtLocation *baseLoc,
+			const char32_t *cPtr, TxtLocation *charLoc);
+
 public:
 	HTAPI Text();
 	HTAPI virtual ~Text();
@@ -105,7 +126,8 @@ public:
 	HTAPI static int encodeString(
 		const std::u32string &s,
 		const ht::Table &table,
-		ht::Buffer *buffer);
+		ht::Buffer *buffer,
+		const TxtLocation *sLoc = nullptr);
 
 	HTAPI static int encodeBlock(
 		const ht::Text::Block *block,

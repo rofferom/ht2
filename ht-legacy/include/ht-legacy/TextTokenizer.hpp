@@ -5,8 +5,12 @@ namespace htl {
 
 struct TokenizerCb {
 	void (*pointerFound)(uint32_t id, void *userdata);
+
 	void (*rawByteFound)(uint8_t byte, void *userdata);
-	void (*textFound)(const char32_t *s, size_t size, void *userdata);
+
+	void (*textFound)(const char32_t *s, size_t size,
+			const ht::Text::TxtLocation &loc, void *userdata);
+
 	void *userdata;
 };
 

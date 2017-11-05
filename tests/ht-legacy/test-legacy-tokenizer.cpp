@@ -12,22 +12,23 @@ enum class BlockType {
 struct BlockDescr {
 	BlockType mType;
 	int mValue;
+	ht::Text::TxtLocation mLoc;
 };
 
 static const BlockDescr blocks[] = {
 	{BlockType::Pointer, 1},
-	{BlockType::Text, 5},
+	{BlockType::Text, 5, {2, 1}},
 	{BlockType::RawByte, 0x43},
-	{BlockType::Text, 14},
+	{BlockType::Text, 14, {2, 10}},
 	{BlockType::RawByte, 0x44},
 	{BlockType::Pointer, 2},
 	{BlockType::Pointer, 3},
 	{BlockType::Pointer, 4},
-	{BlockType::Text, 16},
+	{BlockType::Text, 16, {6, 1}},
 	{BlockType::RawByte, 0x43},
 	{BlockType::RawByte, 0x44},
 	{BlockType::RawByte, 0x4D},
-	{BlockType::Text, 16},
+	{BlockType::Text, 16, {6, 29}},
 };
 
 size_t blocksCount = HT_SIZEOF_ARRAY(blocks);
@@ -73,7 +74,8 @@ static void rawByteFound(uint8_t byte, void *userdata)
 	context->mCurrentBlock++;
 }
 
-static void textFound(const char32_t *s, size_t size, void *userdata)
+static void textFound(const char32_t *s, size_t size,
+		const ht::Text::TxtLocation &loc, void *userdata)
 {
 	Context *context = (Context *) userdata;
 
@@ -81,6 +83,11 @@ static void textFound(const char32_t *s, size_t size, void *userdata)
 
 	ASSERT_EQ(blocks[context->mCurrentBlock].mType, BlockType::Text);
 	ASSERT_EQ(blocks[context->mCurrentBlock].mValue, size);
+
+	if (blocks[context->mCurrentBlock].mLoc.mLine != -1) {
+		ASSERT_EQ(blocks[context->mCurrentBlock].mLoc.mLine, loc.mLine);
+		ASSERT_EQ(blocks[context->mCurrentBlock].mLoc.mColumn, loc.mColumn);
+	}
 
 	context->mTextFoundCount++;
 	context->mCurrentBlock++;
